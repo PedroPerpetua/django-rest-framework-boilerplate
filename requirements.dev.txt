@@ -1,0 +1,4 @@
+-r requirements.txt
+# Type hinting extras
+django-types == 0.16.0
+djangorestframework-types == 0.8.0

@@ -1,0 +1,40 @@
+# Configuration file to be loaded by the server.
+# Environment variables can be used.
+
+# Django debug mode; make sure it's set to "false" for production
+DEBUG: ~
+
+
+# Django secret key - use this generator: https://djecrety.ir/
+# SHOULD BE LOADED BY ENV VARIABLES
+SECRET_KEY: ${SECRET_KEY}
+
+
+# List of hosts to allow
+# Inside a container, it should be "localhost", "127.0.0.1", "[::1]"
+# In debug mode, it should be "*"
+ALLOWED_HOSTS: []
+
+
+# True or false; Django has some settings we want toggled if HTTPS is enabled.
+HTTPS_ENABLED: ~
+
+
+# CORS addresses to allow requests. TODO: do this by app?
+# Note: CORS_ALLOWED_ORIGINS is discarded if CORS_ALLOW_ALL_ORIGINS is true.
+CORS_ALLOWED_ORIGINS: []
+CORS_ALLOW_ALL_ORIGINS: ~
+
+
+# Admin website credentials. SHOULD BE LOADED BY ENV VARIABLES.
+ADMIN_USERNAME: ${ADMIN_USERNAME}
+ADMIN_EMAIL: ${ADMIN_EMAIL}
+ADMIN_PASSWORD: ${ADMIN_PASSWORD}
+
+
+# Database setup. SHOULD BE LOADED BY ENV VARIABLES
+POSTGRES_NAME: ${POSTGRES_NAME}
+POSTGRES_USER: ${POSTGRES_USER}
+POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+POSTGRES_HOST: ${POSTGRES_HOST}
+POSTGRES_PORT: ${POSTGRES_PORT}

@@ -1,0 +1,32 @@
+version: "3.9"
+
+services:
+  db:
+    image: postgres:15-alpine
+    volumes:
+      - /var/lib/postgresql/data
+    healthcheck :
+      test: [ "CMD", "pg_isready", "-q", "-d", "postgres", "-U", "postgres" ]
+      interval : 2s
+      timeout : 2s
+      retries : 10
+    env_file:
+      - config.env
+  app:
+    build: .
+    command: >
+      sh -c "python manage.py wait_for_db
+      && python manage.py runserver 0.0.0.0:8000"
+    volumes:
+      - ./app:/app
+      - ./config.yaml:/app/config.yaml
+    ports:
+      - "8000:8000"
+    env_file:
+      - config.env
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    depends_on:
+      db:
+        condition: service_healthy
+    tty: true # color

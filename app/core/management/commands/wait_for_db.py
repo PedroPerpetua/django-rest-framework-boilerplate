@@ -1,0 +1,40 @@
+import time
+from typing import Any
+from django.db import connections
+from django.db.utils import OperationalError
+from core.management.commands.base_command import BaseCommand
+
+
+class Command(BaseCommand):
+    """
+    Django command to pause execution until a database connection is made
+    available.
+
+    Upon failure, waits RETRY_SECONDS second(s) and tries again.
+
+    If MAX_RETRIES is hit, stops and prints an error.
+    """
+    RETRY_SECONDS = 1
+    MAX_RETRIES = 10
+
+    def handle(self, *args: Any, **kwargs: Any):
+        self.info("Waiting for database connection...")
+        connection = None
+        retries = 0
+        while not connection:
+            try:
+                connection = connections['default']
+            except OperationalError:
+                if retries == self.MAX_RETRIES:
+                    self.error(
+                        f"Reached {self.MAX_RETRIES} retries with no "
+                        "database connection. Aborting."
+                    )
+                    return
+                self.error(
+                    f"Connection unavailable, waiting {self.RETRY_SECONDS} "
+                    "second(s)..."
+                )
+                retries += 1
+                time.sleep(self.RETRY_SECONDS)
+        self.success("Database connection available!")

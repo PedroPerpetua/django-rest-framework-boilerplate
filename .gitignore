@@ -1,0 +1,11 @@
+# Workspace / editor files
+.venv/
+
+# Configs
+config.env
+config.yaml
+
+# Volumes
+./db
+./app/media
+./app/static

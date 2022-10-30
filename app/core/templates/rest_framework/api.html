@@ -1,0 +1,7 @@
+{% extends 'rest_framework/base.html' %}
+{% load static %}
+
+{% block style %}{{ block.super }}
+  <!-- Change the default Rest Framework page's icon. -->
+  <link rel="shortcut icon" href="{% static 'favicon.ico' %}" />
+{% endblock %}

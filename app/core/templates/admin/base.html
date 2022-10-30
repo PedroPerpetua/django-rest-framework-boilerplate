@@ -1,0 +1,15 @@
+{% extends 'admin/base.html' %}
+{% load static %}
+
+{% block extrahead %}
+  <!-- Change the default Django admin's icon. -->
+  <link rel="shortcut icon" href="{% static 'favicon.ico' %}" />
+{% endblock %}
+
+{% block extrastyle %}{{ block.super }}
+<style>
+  :root {
+    /* Change the default Django admin's colors. */
+  }
+</style>
+{% endblock %}
