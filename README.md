@@ -21,3 +21,7 @@ Currently set up for `python 3.11` with `Django 4.1.2` and `Django Rest Framewor
 Two configuration files are set: `config.yaml` and `config.env`. The YAML file is the important one, where all the configs are stored for the application. It uses environment variables on it, so `config.env` is present for convenience; it is not mandatory for execution UNLESS execution is done trough the present `docker-compose.yaml`.
 
 See `config.yaml.example` and `config.env.example` for variables.
+
+
+## TODO
+- Test extensions

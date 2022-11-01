@@ -7,5 +7,5 @@ config.yaml
 
 # Volumes
 ./db
-./app/media
-./app/static
+**/app/media
+**/app/static
