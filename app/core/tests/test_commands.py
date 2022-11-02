@@ -56,10 +56,6 @@ class TestWaitForDBCommand(TestCase):
     @patch("time.sleep", return_value=True)
     def test_wait_for_db_fails(self, mock_sleep: MagicMock):
         """Test waiting for db fails."""
-        if self.MAX_RETRIES == 0: # type: ignore - MAX_RETRIES is set by user
-            # No retries; nothing to test.
-            self.assertTrue(True)
-            return
         output_buffer = StringIO()
         error_buffer = StringIO()
         with patch("django.db.utils.ConnectionHandler.__getitem__") as gi:
