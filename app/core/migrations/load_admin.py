@@ -17,11 +17,8 @@ class Migration(migrations.Migration):
         from django.contrib.auth.models import User
 
         if get_user_model() != User:
-            # Safe guard. If the default user model has been overridden, this
-            # migration should be adjusted and this check removed.
-            raise Exception(
-                "Default user module overridden! Invalid Migration."
-            )
+            # If the default user model has been overridden, this migration should be adjusted and this check removed.
+            raise Exception("Default user module overridden! Invalid Migration.")
         superuser = User.objects.create_superuser(
             username=settings.ADMIN_USERNAME,
             email=settings.ADMIN_EMAIL,

@@ -13,8 +13,7 @@ class TestMigrations(TestCase):
             # Safe guard. If the default user model has been overridden, this
             # test should be adjusted and this check removed.
             self.fail(
-                "Current user model is different from the Django default "
-                "user model. This test should be adjusted!"
+                "Current user model is different from the Django default user model. This test should be adjusted!"
             )
         user_filter = User.objects.filter(is_superuser=True)
         self.assertEqual(1, user_filter.count())

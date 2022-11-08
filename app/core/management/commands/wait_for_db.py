@@ -2,7 +2,7 @@ import time
 from typing import Any
 from django.db import connections
 from django.db.utils import OperationalError
-from core.management.commands.base_command import BaseCommand
+from core.management.commands._base_command import BaseCommand
 
 
 class Command(BaseCommand):
@@ -26,15 +26,9 @@ class Command(BaseCommand):
                 connection = connections['default']
             except OperationalError:
                 if retries == self.MAX_RETRIES:
-                    self.error(
-                        f"Reached {self.MAX_RETRIES} retries with no "
-                        "database connection. Aborting."
-                    )
+                    self.error(f"Reached {self.MAX_RETRIES} retries with no database connection. Aborting.")
                     return
-                self.error(
-                    f"Connection unavailable, waiting {self.RETRY_SECONDS} "
-                    "second(s)..."
-                )
+                self.error(f"Connection unavailable, waiting {self.RETRY_SECONDS} second(s)...")
                 retries += 1
                 time.sleep(self.RETRY_SECONDS)
         self.success("Database connection available!")

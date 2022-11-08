@@ -1,18 +1,18 @@
 # Configuration file to be loaded by the server.
 # Environment variables can be used.
 
-# Django debug mode; make sure it's set to "false" for production
+# Django debug mode; make sure it's set to "false" for production.
 DEBUG: ~
 
 
 # Django secret key - use this generator: https://djecrety.ir/
-# SHOULD BE LOADED BY ENV VARIABLES
+# SHOULD BE LOADED BY ENV VARIABLES.
 SECRET_KEY: ${SECRET_KEY}
 
 
 # List of hosts to allow
-# Inside a container, it should be "localhost", "127.0.0.1", "[::1]"
-# In debug mode, it should be "*"
+# Inside a container, it should be "localhost", "127.0.0.1", "[::1]".
+# In debug mode, it should be "*".
 ALLOWED_HOSTS: []
 
 
@@ -32,7 +32,7 @@ ADMIN_EMAIL: ${ADMIN_EMAIL}
 ADMIN_PASSWORD: ${ADMIN_PASSWORD}
 
 
-# Database setup. SHOULD BE LOADED BY ENV VARIABLES
+# Database setup. SHOULD BE LOADED BY ENV VARIABLES.
 POSTGRES_NAME: ${POSTGRES_NAME}
 POSTGRES_USER: ${POSTGRES_USER}
 POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}

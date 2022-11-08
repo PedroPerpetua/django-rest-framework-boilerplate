@@ -6,7 +6,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 
 
 # Load our config file
-CONFIG = EnvYAML(BASE_DIR / "config.yaml")
+CONFIG = EnvYAML(BASE_DIR / "config.yaml") # type: ignore
 
 
 # Base config
