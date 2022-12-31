@@ -1,11 +1,8 @@
-# Workspace / editor files
-.venv/
+# Python source and cache
+.venv
+__pycache__
 
-# Configs
+# Config files
 config.env
-config.yaml
-
-# Volumes
-./db
-**/app/media
-**/app/static
+app/static/**
+app/media/**

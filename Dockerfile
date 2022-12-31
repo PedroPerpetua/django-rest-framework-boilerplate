@@ -1,18 +1,32 @@
-FROM python:3.11-alpine
-LABEL maintainer PedroPerpetua
+ARG PYTHON=python:3.11-alpine
 
-ENV PYTHONDONTWRITEBYTECODE=1
-ENV PYTHONUNBUFFERED=1
+# Building stage +++++++++++++++++++++++++++++++++++++++++
+FROM ${PYTHON} AS builder
 
-# Add dependencies ---------------------------------------
+# Add build-time dependencies ----------------------------
 RUN apk update
 
-# Python requirements ------------------------------------
-COPY ./requirements.txt /requirements.txt
-RUN pip install -r /requirements.txt
+# Create venv --------------------------------------------
+RUN python3 -m venv /venv
+ENV PATH=/venv/bin:$PATH
 
-# Copy the app and config --------------------------------
+# Install Python requirements ----------------------------
+COPY ./requirements /requirements
+RUN pip install -r /requirements/requirements.txt
+
+# Final stage ++++++++++++++++++++++++++++++++++++++++++++
+FROM ${PYTHON}
+
+# Add runtime dependencies -------------------------------
+RUN apk update
+
+# Copy Python environment --------------------------------
+COPY --from=builder /venv/ /venv
+ENV PATH=/venv/bin:$PATH
+
+# Copy the app ------------------------------------------
 COPY ./app /app
-COPY ./config.yaml /app/config.yaml
-
 WORKDIR /app
+
+CMD sh -c "python manage.py setup \
+           && python manage.py runserver 0.0.0.0"

@@ -7,21 +7,23 @@ Currently set up for `python 3.11` with `Django 4.1.2` and `Django Rest Framewor
 
 
 ## Features
-- Environment and YAML config files for easy dev and production environments.
-- Dockerfile and docker-compose files to dockerize the application.
+- Configuration trough environment variables.
+- Dockerized application.
+- Separated requirement file structure for both production and development.
 - A "/ping" endpoint to check server availability.
+- Multiple utility functions and extensions usually applied in Django projects.
+- Template app for the startapp command that follows the usual restframework patterns.
+- Base command to ease command development, with additional wait_for_db and setup commands.
 - Migration to auto setup an ADMIN user (with Django's default User class - can be overridden).
-- Base command and a wait_for_db command to ease command development.
 - Ready to edit Admin page customization.
 - Tests for the implemented features.
 - A Makefile to support basic operations.
 
 
 ## Configuration
-Two configuration files are set: `config.yaml` and `config.env`. The YAML file is the important one, where all the configs are stored for the application. It uses environment variables on it, so `config.env` is present for convenience; it is not mandatory for execution UNLESS execution is done trough the present `docker-compose.yaml`.
 
-See `config.yaml.example` and `config.env.example` for variables.
+### Config files
+`config.env` is the main configuration file. It's recommended to use `core.utilities.env` functions to extract variables in multiple formats from here.
 
-
-## TODO
-- Test extensions
+## Requirements
+Python requirements can be added on the `requirements` folder. Production requirements go on `requirements.txt` and dev-only requirements go on `dev.requirements.txt`. For production, `pip install -r requirements/requirements.txt` will install all needed dependencies. For development, `pip install -r requirements/dev.requirements.txt` will install all needed dependencies (including the dev ones). The `boilerplate.requirements.txt` and `boilerplate.dev.requirements.txt` contain the base requirements that this boilerplate needs, and are automatically installed with the respective production/development requirements files.

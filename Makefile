@@ -1,3 +1,8 @@
+# Include the environment file
+include config.env
+export
+
+
 # https://stackoverflow.com/questions/2214575/passing-arguments-to-make-run
 # If the first argument is "command"...
 ifeq (command,$(firstword $(MAKECMDGOALS)))
@@ -9,10 +14,10 @@ endif
 
 # "-" at the start of lines are so that docker compose stop is always ran.
 
-.PHONY: build run test command
+.PHONY: build run test command lint
 
 build:
-	docker build .
+	docker compose build --no-cache app
 
 run:
 	-docker compose up
@@ -25,3 +30,8 @@ test:
 command:
 	-docker compose run --rm app sh -c "python manage.py $(COMMAND_ARGS)"
 	docker compose stop
+
+lint:
+	isort ./app
+	autopep8 ./app
+	mypy

@@ -1,0 +1,11 @@
+from django.urls import path
+from core.utilities.types import URLPatternsList
+from {{ app_name }} import views
+
+
+app_name = "{{ app_name }}"
+
+
+urlpatterns: URLPatternsList = [
+
+]

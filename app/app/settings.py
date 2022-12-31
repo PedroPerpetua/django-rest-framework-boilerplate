@@ -1,39 +1,33 @@
 from pathlib import Path
-from envyaml import EnvYAML # type: ignore
+from core.utilities import env as env_utils
+
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 
-# Load our config file
-CONFIG = EnvYAML(BASE_DIR / "config.yaml") # type: ignore
+# General settings
+
+SECRET_KEY = env_utils.as_string("SECRET_KEY")
+# SECURITY WARNING: don't run with debug turned on in production!
+DEBUG = env_utils.as_bool("DEBUG")
+ALLOWED_HOSTS = env_utils.as_list("ALLOWED_HOSTS")
 
 
-# Base config
+# HTTPS configuration. As per Django documentation, these settings should be enabled if we use HTTPS.
+# TODO: Check what they actually do?
 
-SECRET_KEY: str = CONFIG['SECRET_KEY']
-
-DEBUG: bool = CONFIG['DEBUG']
-
-ALLOWED_HOSTS: list[str] = CONFIG['ALLOWED_HOSTS']
-
-HTTPS_ENABLED: bool = CONFIG['HTTPS_ENABLED']
+HTTPS_ENABLED = env_utils.as_bool("HTTPS_ENABLED")
 SESSION_COOKIE_SECURE = HTTPS_ENABLED
-CSRF_COOKIE_SECURE = HTTPS_ENABLED
+CRSF_COOKIE_SECURE = HTTPS_ENABLED
 
 
-# Cors config
+# Cors configuration
 
-CORS_ALLOW_ALL_ORIGINS: bool = CONFIG['CORS_ALLOW_ALL_ORIGINS']
-CORS_ALLOWED_ORIGINS: list[str] = CONFIG['CORS_ALLOWED_ORIGINS']
-CSRF_TRUSTED_ORIGINS = CORS_ALLOWED_ORIGINS # TODO: is this right?
-
-
-# Admin user configuration
-
-ADMIN_USERNAME: str = CONFIG['ADMIN_USERNAME']
-ADMIN_EMAIL: str = CONFIG['ADMIN_EMAIL']
-ADMIN_PASSWORD: str = CONFIG['ADMIN_PASSWORD']
+CORS_ALLOW_ALL_ORIGINS = env_utils.as_bool("CORS_ALLOW_ALL_ORIGINS")
+# If CORS_ALLOW_ALL_ORIGINS is True, this setting is ignored
+CORS_ALLOWED_ORIGINS = env_utils.as_list("CORS_ALLOWED_ORIGINS")
+CSRF_TRUSTED_ORIGINS = CORS_ALLOWED_ORIGINS  # TODO: is this right?
 
 
 # Application definition
@@ -47,10 +41,9 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'rest_framework',
     'corsheaders',
-    # Our apps
+    # Our apps here
     'core',
 ]
-
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
@@ -61,13 +54,11 @@ MIDDLEWARE = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
-
 ROOT_URLCONF = 'app.urls'
-
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [BASE_DIR/'core'/'templates'],
+        'DIRS': [BASE_DIR / 'core' / 'templates'],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -79,24 +70,39 @@ TEMPLATES = [
         },
     },
 ]
-
 WSGI_APPLICATION = 'app.wsgi.application'
 
 
-# Database definition
+# Database
 
-DATABASES: dict[str, dict[str, str]] = {
+DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
-        'NAME': CONFIG['POSTGRES_NAME'],
-        'USER': CONFIG['POSTGRES_USER'],
-        'PASSWORD': CONFIG['POSTGRES_PASSWORD'],
-        'HOST': CONFIG['POSTGRES_HOST'],
-        'PORT': CONFIG['POSTGRES_PORT']
+        'NAME': env_utils.as_string('POSTGRES_DB'),
+        'USER': env_utils.as_string('POSTGRES_USER'),
+        'PASSWORD': env_utils.as_string('POSTGRES_PASSWORD'),
+        'HOST': env_utils.as_string('POSTGRES_HOST'),
+        'PORT': env_utils.as_string('POSTGRES_PORT')
     }
 }
-
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+
+# File handling
+
+STATIC_URL = 'static/'
+STATIC_ROOT = BASE_DIR / 'static'
+MEDIA_URL = 'media/'
+MEDIA_ROOT = BASE_DIR / 'media'
+
+
+# Rest framework settings
+
+REST_FRAMEWORK = {
+    'EXCEPTION_HANDLER': 'core.exceptions.exception_handler.exception_handler',
+}
+
+# Password validation
 
 AUTH_PASSWORD_VALIDATORS = [
     {
@@ -114,21 +120,9 @@ AUTH_PASSWORD_VALIDATORS = [
 ]
 
 
-# File handling
-
-STATIC_URL = 'static/'
-STATIC_ROOT = BASE_DIR / 'static'
-
-MEDIA_URL = 'media/'
-MEDIA_ROOT = BASE_DIR/'media'
-
-
 # Internationalization
 
 LANGUAGE_CODE = 'en-us'
-
 TIME_ZONE = 'UTC'
-
 USE_I18N = True
-
 USE_TZ = True

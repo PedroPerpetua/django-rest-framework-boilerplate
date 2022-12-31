@@ -17,13 +17,14 @@ class Command(BaseCommand):
     RETRY_SECONDS = 1
     MAX_RETRIES = 10
 
-    def handle(self, *args: Any, **kwargs: Any):
+    def handle(self, *args: Any, **kwargs: Any) -> None:
         self.info("Waiting for database connection...")
-        connection = None
         retries = 0
-        while not connection:
+        while True:
             try:
-                connection = connections['default']
+                if connections['default']:
+                    self.success("Database connection available!")
+                    return
             except OperationalError:
                 if retries == self.MAX_RETRIES:
                     self.error(f"Reached {self.MAX_RETRIES} retries with no database connection. Aborting.")
@@ -31,4 +32,3 @@ class Command(BaseCommand):
                 self.error(f"Connection unavailable, waiting {self.RETRY_SECONDS} second(s)...")
                 retries += 1
                 time.sleep(self.RETRY_SECONDS)
-        self.success("Database connection available!")

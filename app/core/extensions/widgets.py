@@ -1,6 +1,6 @@
 from typing import Any
 from django.forms.widgets import FileInput
-from django.utils.safestring import mark_safe, SafeText
+from django.utils.safestring import SafeText, mark_safe
 
 
 class ImagePreviewWidget(FileInput):
@@ -9,14 +9,14 @@ class ImagePreviewWidget(FileInput):
     def __init__(
         self,
         original_src: str,
-        min_size: int | str=150,
-        max_size: int | str=500,
-        error_string: str="Error! Image cannot be displayed!",
+        min_size: int | str = 150,
+        max_size: int | str = 500,
+        error_string: str = "Error! Image cannot be displayed!",
         *args: Any,
         **kwargs: Any
     ):
         super().__init__(*args, **kwargs)
-        self.original_src = original_src # src to display on error
+        self.original_src = original_src  # src to display on error
         if isinstance(min_size, int):
             min_size = f"{min_size}px"
         self.min_size = min_size
@@ -42,8 +42,8 @@ class ImagePreviewWidget(FileInput):
               {input_html} <br />
               <img id="{img_id}" src="{value.url}" alt="{self.error_string}"/>
             </div>"""
-            # Write a script to change the image on input change
-            f"""
+                         # Write a script to change the image on input change
+                         f"""
             <script>
               const imageContainer = document.querySelector("#{img_id}");
               const originalImage = imageContainer.src;
@@ -64,8 +64,8 @@ class ImagePreviewWidget(FileInput):
               );
             </script>
         """
-        # Setup some styling
-        f"""
+                         # Setup some styling
+                         f"""
         <style>
         #{img_id} {{
             margin-top: 10px;

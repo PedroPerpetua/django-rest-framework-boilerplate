@@ -1,5 +1,5 @@
 # core/extensions
-This folder includes some useful "extensions" to Django itself, such as fields and widgets. Also includes an `utils.py` file with useful, common functions.
+This folder includes some useful "extensions" to Django itself, such as fields and widgets.
 
 
 ## Fields
@@ -12,3 +12,9 @@ A FileField specifically made for SVG images that will validate that the given i
 
 ### ImagePreviewWidget
 A FileInput widget that will display the current image bellow the file Input for a in-real-time preview.
+
+
+## Admin
+
+### UneditableFixedInline
+A "fixed" version of Django's admin in-lines that does not display the title of the object in each line. Also prevents edition.
