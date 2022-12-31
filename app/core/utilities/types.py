@@ -11,8 +11,8 @@ JSON = Any
 
 
 """
-Alternative JSON definition useful for functions that manipulate JSON: functions that take a JSON object and return the
-same object type.
+Alternative JSON definition useful for functions that manipulate JSON: functions that take a JSON object and return
+the same object type.
 """
 JSON_BASE = dict[str, Any] | list[Any] | Any
 
