@@ -4,10 +4,11 @@ the project settings.
 
 Taken from: https://stackoverflow.com/questions/6244382/
 """
+from django.contrib.auth import get_user_model
 from django.db import migrations
 from django.db.backends.base.schema import BaseDatabaseSchemaEditor
 from core.utilities import env
-from django.contrib.auth import get_user_model
+
 
 class Migration(migrations.Migration):
     initial = True
