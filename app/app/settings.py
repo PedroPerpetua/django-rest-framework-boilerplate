@@ -43,6 +43,7 @@ INSTALLED_APPS = [
     'corsheaders',
     # Our apps here
     'core',
+    'users',
 ]
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
@@ -86,6 +87,7 @@ DATABASES = {
     }
 }
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+AUTH_USER_MODEL = 'users.User'
 
 
 # File handling
