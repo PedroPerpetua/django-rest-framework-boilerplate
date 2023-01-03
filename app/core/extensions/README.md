@@ -1,20 +1,4 @@
 # core/extensions
-This folder includes some useful "extensions" to Django itself, such as fields and widgets.
+This folder includes some useful "extensions" to Django itself that answer common patterns or fix existing things. They can be imported directly from their own modules.
 
-
-## Fields
-
-### SVGField
-A FileField specifically made for SVG images that will validate that the given image is an SVG file.
-
-
-## Widgets
-
-### ImagePreviewWidget
-A FileInput widget that will display the current image bellow the file Input for a in-real-time preview.
-
-
-## Admin
-
-### UneditableFixedInline
-A "fixed" version of Django's admin in-lines that does not display the title of the object in each line. Also prevents edition.
+It's also recommended that core.extensions.models.BaseAbstractModel class is used as a basis for all models, providing a UUID primary key, multiple metadata fields (created, last updated, ...) and soft deletion.
