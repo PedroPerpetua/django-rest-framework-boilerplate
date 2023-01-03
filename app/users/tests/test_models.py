@@ -1,3 +1,4 @@
+from django.core.exceptions import ValidationError
 from django.test import TestCase
 from users.models import User
 from users.tests import sample_user
@@ -26,5 +27,29 @@ class TestUserModel(TestCase):
             ("test4@example.COM", "test4@example.com"),
         ]
         for email, expected in sample_emails:
-            user = sample_user(email=email)
-            self.assertEqual(expected, user.email)
+            with self.subTest(msg="Checking if email is normalized.", email=email, expected=expected):
+                user = sample_user(email=email)
+                self.assertEqual(expected, user.email)
+
+    def test_email_changes_normalized(self) -> None:
+        """Test that emails are normalized when updating a user."""
+        user = sample_user(email="_email@example.com")
+        email, expected = ("test1@EXAMPLE.com", "test1@example.com")
+        user.email = email
+        user.save()
+        self.assertEqual(expected, user.email)
+
+    def test_email_required(self) -> None:
+        """Test that user's email is required for new users."""
+        for value in ["", " ", "\n"]:  # Different empty values
+            with self.subTest(msg="Checking if value raises ValidationError.", value=value):
+                with self.assertRaises(ValidationError) as ve_ctx:
+                    sample_user(email=value)
+                ve = ve_ctx.exception
+                self.assertEqual("Email cannot be empty.", ve.message)
+        with self.subTest(msg="Checking if None raises ValueError.", value=None):
+            # This test is slightly different because sample_user with `email=None` generates one
+            with self.assertRaises(ValidationError) as ve_ctx:
+                User.objects.create(email=value)
+            ve = ve_ctx.exception
+            self.assertEqual("Email cannot be empty.", ve.message)

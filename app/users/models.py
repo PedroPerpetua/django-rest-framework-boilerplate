@@ -1,6 +1,7 @@
 from __future__ import annotations
 from typing import Any, Iterable, Optional
 from django.contrib.auth.models import AbstractBaseUser, BaseUserManager, PermissionsMixin
+from django.core.exceptions import ValidationError
 from django.db import models
 from core.extensions.models import BaseAbstractModel
 
@@ -31,9 +32,13 @@ class User(BaseAbstractModel, AbstractBaseUser, PermissionsMixin):
         using: Optional[str] = None,
         update_fields: Optional[Iterable[str]] = None
     ) -> None:
-        if self.email:
-            # Use the UserManager normalize email function
-            self.email = UserManager.normalize_email(self.email)
+        if self.email is None:
+            raise ValidationError("Email cannot be empty.")
+        stripped = self.email.strip()
+        if len(stripped) == 0:
+            raise ValidationError("Email cannot be empty.")
+        # Use the UserManager normalize email function
+        self.email = UserManager.normalize_email(stripped)
         return super().save(force_insert, force_update, using, update_fields)
 
     def __str__(self) -> str:
