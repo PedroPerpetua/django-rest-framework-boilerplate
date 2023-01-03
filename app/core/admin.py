@@ -1,6 +1,6 @@
-from typing import Callable, Any
-from wsgiref.simple_server import WSGIRequestHandler
+from typing import Any, Callable
 from django.contrib import admin
+from django.http import HttpRequest
 
 
 class AdminSite(admin.AdminSite):
@@ -15,7 +15,7 @@ class AdminSite(admin.AdminSite):
         original: list[Any], ordering: list[str], func: Callable[[Any], str] = lambda x: str(x)
     ) -> list[Any]:
         retval: list[Any] = [None for _ in ordering]
-        unordered: list[Any] = [] # Store the values not in ordering to append at the end
+        unordered: list[Any] = []  # Store the values not in ordering to append at the end
         for value in original:
             # Check if it's in the list
             try:
@@ -25,13 +25,13 @@ class AdminSite(admin.AdminSite):
                 unordered.append(value)
         return retval + unordered
 
-    def get_app_list(self, request: WSGIRequestHandler) -> list[Any]:
+    def get_app_list(self, request: HttpRequest) -> list[Any]:
         app_dict = super()._build_app_dict(request)
         if len(app_dict) == 0:
             # No apps to display
             return []
         # Sort them according to our dict
-        return self._order_list(list(app_dict.values()), list(self.ORDERING.keys()), lambda x: x['app_label'])
+        return self._order_list(list(app_dict.values()), list(self.ORDERING.keys()), lambda x: str(x['app_label']))
 
 
 admin_site = AdminSite()
