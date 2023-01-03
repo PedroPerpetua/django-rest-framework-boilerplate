@@ -14,7 +14,11 @@ class ImagePreviewWidget(FileInput):
         error_string: str = "Error! Image cannot be displayed!",
         *args: Any,
         **kwargs: Any
-    ):
+    ) -> None:
+        """
+        Initialize an ImagePreviewWidget. Size parameters can be given as an int (that will be converted to 'px', or
+        as a string for css. Error string is used as the alt for the image.
+        """
         super().__init__(*args, **kwargs)
         self.original_src = original_src  # src to display on error
         if isinstance(min_size, int):
@@ -25,9 +29,8 @@ class ImagePreviewWidget(FileInput):
         self.max_size = max_size
         self.error_string = error_string
 
-    def render(
-        self, name: str, value: Any, *args: Any, **kwargs: Any
-    ) -> SafeText:
+    def render(self, name: str, value: Any, *args: Any, **kwargs: Any) -> SafeText:
+        """Render the ImagePreviewWidget by getting the original `input` html and tacking a image tag bellow it."""
         input_html = super().render(name, value, *args, **kwargs)
         # Make sure we have all the data we need
         if not hasattr(value, "url"):
@@ -37,42 +40,42 @@ class ImagePreviewWidget(FileInput):
         input_id = kwargs["attrs"]["id"]
         img_id = f"{input_id}_IMG"
         # Render the HTML for the widget.
-        return mark_safe(f"""
+        return mark_safe(
+            f"""
             <div>
               {input_html} <br />
               <img id="{img_id}" src="{value.url}" alt="{self.error_string}"/>
             </div>"""
-                         # Write a script to change the image on input change
-                         f"""
+            # Write a script to change the image on input change
+            f"""
             <script>
               const imageContainer = document.querySelector("#{img_id}");
               const originalImage = imageContainer.src;
 
-              document.querySelector("#{input_id}").addEventListener(
-                "change", (event) => {{
-                  const input = event.target;
-                  if (!(input.files && input.files[0])) {{
-                    imageContainer.src = originalImage;
-                    return;
-                  }}
-                  const reader = new FileReader();
-                  reader.onload = (e) => {{
-                    imageContainer.src = e.target.result;
-                  }}
-                  reader.readAsDataURL(input.files[0]);
+              document.querySelector("#{input_id}").addEventListener("change", (event) => {{
+                const input = event.target;
+                if (!(input.files && input.files[0])) {{
+                  imageContainer.src = originalImage;
+                  return;
                 }}
-              );
+                const reader = new FileReader();
+                reader.onload = (e) => {{
+                  imageContainer.src = e.target.result;
+                }}
+                reader.readAsDataURL(input.files[0]);
+              }});
             </script>
-        """
-                         # Setup some styling
-                         f"""
-        <style>
-        #{img_id} {{
-            margin-top: 10px;
-            max-width: {self.max_size};
-            max-height: {self.max_size};
-            min-width: {self.min_size};
-            min-height: {self.min_size};
-        }}
-        </style>
-        """)
+            """
+            # Setup some styling
+            f"""
+            <style>
+            #{img_id} {{
+              margin-top: 10px;
+              max-width: {self.max_size};
+              max-height: {self.max_size};
+              min-width: {self.min_size};
+              min-height: {self.min_size};
+            }}
+            </style>
+            """
+        )
