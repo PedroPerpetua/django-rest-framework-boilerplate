@@ -6,3 +6,6 @@ __pycache__
 config.env
 app/static/**
 app/media/**
+
+# Log files
+*.log
