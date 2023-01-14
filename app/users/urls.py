@@ -7,5 +7,5 @@ app_name = "users"
 
 
 urlpatterns: URLPatternsList = [
-
+    path("register/", views.UserRegisterView.as_view(), name="register"),
 ]

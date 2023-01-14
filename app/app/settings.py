@@ -112,7 +112,6 @@ DATABASES = {
     }
 }
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
-AUTH_USER_MODEL = 'users.User'
 
 
 # File handling
@@ -131,6 +130,7 @@ REST_FRAMEWORK = {
 
 # User Management
 
+AUTH_USER_MODEL = 'users.User'
 AUTH_PASSWORD_VALIDATORS = [
     {
         'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator',
@@ -145,7 +145,7 @@ AUTH_PASSWORD_VALIDATORS = [
         'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator',
     },
 ]
-
+AUTH_USER_REGISTRATION_ENABLED = True
 
 # Internationalization
 
