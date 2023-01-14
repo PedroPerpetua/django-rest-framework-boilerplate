@@ -7,7 +7,7 @@ from users.tests import sample_user
 class TestUserModel(TestCase):
     """Test our custom User model."""
 
-    def test_str_repr(self) -> None:
+    def test_create_user(self) -> None:
         """Test creation and string/repr representation."""
         email = "_email@example.com"
         password = "_password"
@@ -15,8 +15,25 @@ class TestUserModel(TestCase):
         self.assertEqual(email, user.email)
         self.assertEqual(email, user.get_username())  # Make sure the email is the username field
         self.assertTrue(user.check_password(password))
+        # By default it's not an admin
+        self.assertFalse(user.is_staff)
+        self.assertFalse(user.is_superuser)
+        # String representation
         self.assertEqual(f"User ({user.id}) {email}", str(user))
-        self.assertEqual(f"User { {'id': user.id, 'email': email} }", repr(user))
+
+    def test_create_superuser(self) -> None:
+        """Test creating a superuser."""
+        email = "_email@example.com"
+        password = "_password"
+        user = User.objects.create_superuser(email=email, password=password)
+        self.assertEqual(email, user.email)
+        self.assertEqual(email, user.get_username())  # Make sure the email is the username field
+        self.assertTrue(user.check_password(password))
+        # It's now an admin
+        self.assertTrue(user.is_staff)
+        self.assertTrue(user.is_superuser)
+        # string representation
+        self.assertEqual(f"User ({user.id}) {email}", str(user))
 
     def test_email_normalized(self) -> None:
         """Test that emails are normalized for new users."""

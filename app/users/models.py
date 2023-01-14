@@ -16,6 +16,10 @@ class UserManager(BaseUserManager["User"]):
         user.save()
         return user
 
+    def create_superuser(self, email: str, password: str, **extra_fields: Any) -> User:
+        """Shortcut method to create a user with is_staff and is_superuser as True"""
+        return self.create_user(email, password, is_staff=True, is_superuser=True, **extra_fields)
+
 
 class User(BaseAbstractModel, AbstractBaseUser, PermissionsMixin):
     """Custom User model."""
@@ -43,6 +47,3 @@ class User(BaseAbstractModel, AbstractBaseUser, PermissionsMixin):
 
     def __str__(self) -> str:
         return f"User ({self.id}) {self.email}"
-
-    def __repr__(self) -> str:
-        return f"User { {'id': self.id, 'email': self.email} }"
