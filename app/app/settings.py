@@ -1,4 +1,5 @@
 import logging
+from datetime import datetime
 from pathlib import Path
 from core.extensions.logging import LoggingConfigurationBuilder
 from core.utilities import env as env_utils
@@ -77,7 +78,7 @@ WSGI_APPLICATION = 'app.wsgi.application'
 
 # Logging configuration
 
-LOG_FOLDER = BASE_DIR / 'logs'
+LOG_FOLDER = BASE_DIR / 'logs' / datetime.now().strftime("%Y-%m-%d--%H-%M-%S")
 # Use our custom log configuration builder to setup the logger
 log_config_builder = LoggingConfigurationBuilder() \
     .add_formatter('default', '[{levelname}] {asctime} {module}: {message}')
@@ -126,7 +127,7 @@ REST_FRAMEWORK = {
     'EXCEPTION_HANDLER': 'core.exceptions.exception_handler.exception_handler',
 }
 
-# Password validation
+# User Management
 
 AUTH_PASSWORD_VALIDATORS = [
     {
