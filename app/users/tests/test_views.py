@@ -137,6 +137,15 @@ class TestUserProfileView(TestCase):
         self.assertEqual(status.HTTP_200_OK, res.status_code)
         self.assertEqual(UserProfileSerializer(self.user).data, res.json())
 
+    def test_get_authentication_required(self) -> None:
+        """Test that the user needs to be logged in to retrieve their profile."""
+        # Create a new client that isn't logged in
+        client = APIClient()
+        # Make the call
+        res = client.get(self.URL)
+        # Verify the response
+        self.assertEqual(status.HTTP_401_UNAUTHORIZED, res.status_code)
+
     def test_update_success(self) -> None:
         """Test successfully updating the user's profile."""
         for func in [self.client.patch, self.client.put]:
@@ -149,3 +158,31 @@ class TestUserProfileView(TestCase):
                 # Make sure the email changed
                 self.user.refresh_from_db()
                 self.assertEqual(payload["email"], self.user.email)
+
+    def test_update_fails(self) -> None:
+        """Test that updating the user's profile with bad data fails."""
+        for func in [self.client.patch, self.client.put]:
+            with self.subTest(msg="Updating the user's profile.", value=func):
+                # Make the call
+                payload = {"email": "_invalid_email"}
+                res = func(self.URL, data=payload)
+                # Verify the response
+                self.assertEqual(status.HTTP_400_BAD_REQUEST, res.status_code)
+                self.assertEqual({"email": ["Enter a valid email address."]}, res.json())
+                # Make sure the email didn't change change
+                self.user.refresh_from_db()
+                self.assertNotEqual(payload["email"], self.user.email)
+
+    def test_update_authentication_required(self) -> None:
+        """Test that the user needs to be logged in to update their profile."""
+        client = APIClient()
+        for func in [client.patch, client.put]:
+            with self.subTest(msg="Updating the user's profile.", value=func):
+                # Make the call
+                payload = {"email": generate_valid_email()}
+                res = func(self.URL, data=payload)
+                # Verify the response
+                self.assertEqual(status.HTTP_401_UNAUTHORIZED, res.status_code)
+                # Make sure the email didn't change
+                self.user.refresh_from_db()
+                self.assertNotEqual(payload["email"], self.user.email)
