@@ -1,5 +1,7 @@
 from typing import Any
 from django.conf import settings
+from django.contrib.auth.password_validation import validate_password
+from django.core.exceptions import ValidationError
 from rest_framework import generics, status
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.request import Request
@@ -44,6 +46,13 @@ class UserChangePasswordView(APIView):
         if not request.user.check_password(password):
             return Response(
                 {"errcode": "WRONG_PASSWORD", "error": "The original password is wrong."},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+        try:
+            validate_password(new_password)
+        except ValidationError:
+            return Response(
+                {"errcode": "INVALID_PASSWORD", "error": "The new password is invalid."},
                 status=status.HTTP_400_BAD_REQUEST
             )
         request.user.set_password(new_password)

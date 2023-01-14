@@ -3,7 +3,7 @@ from django.urls import reverse
 from rest_framework import status
 from rest_framework.test import APIClient
 from users.models import User
-from users.tests import sample_user
+from users.tests import generate_invalid_password, generate_valid_password, sample_user
 
 
 @override_settings(AUTH_USER_REGISTRATION_ENABLED=True)  # For testing purposes assume it's True
@@ -20,7 +20,7 @@ class TestUserRegisterView(TestCase):
         original_count = User.objects.count()
         # Make the call
         email = "_email@example.com"
-        password = "_password"
+        password = generate_valid_password()
         res = self.client.post(self.URL, data={"email": email, "password": password})
         # Verify the response
         self.assertEqual(status.HTTP_201_CREATED, res.status_code)
@@ -38,7 +38,7 @@ class TestUserRegisterView(TestCase):
         """Test creating an user with the registration disabled fails."""
         # Get the current user count
         original_count = User.objects.count()
-        res = self.client.post(self.URL, data={"email": "_email@example.com", "password": "_password"})
+        res = self.client.post(self.URL, data={"email": "_email@example.com", "password": generate_valid_password()})
         # Verify the response
         self.assertEqual(status.HTTP_400_BAD_REQUEST, res.status_code)
         content = res.json()
@@ -53,7 +53,7 @@ class TestUserChangePasswordView(TestCase):
     URL = reverse("users:change-password")
 
     def setUp(self) -> None:
-        self.password = "_password"
+        self.password = generate_valid_password()
         self.user = sample_user(password=self.password)
         self.client = APIClient()
         self.client.force_authenticate(self.user)
@@ -61,7 +61,7 @@ class TestUserChangePasswordView(TestCase):
     def test_success(self) -> None:
         """Test successfully changing a user's password."""
         # Make the call
-        new_password = "_new_password"
+        new_password = generate_valid_password()
         res = self.client.post(self.URL, data={"password": self.password, "new_password": new_password})
         # Verify the response
         self.assertEqual(status.HTTP_204_NO_CONTENT, res.status_code)
@@ -74,8 +74,8 @@ class TestUserChangePasswordView(TestCase):
     def test_wrong_password(self) -> None:
         """Test that using the wrong password fails."""
         # Make the call
-        new_password = "_new_password"
-        wrong_password = "_wrong" + self.password
+        new_password = generate_valid_password()
+        wrong_password = generate_valid_password()  # It'll be a different one
         res = self.client.post(self.URL, data={"password": wrong_password, "new_password": new_password})
         # Verify the response
         self.assertEqual(status.HTTP_400_BAD_REQUEST, res.status_code)
@@ -87,12 +87,27 @@ class TestUserChangePasswordView(TestCase):
         self.assertFalse(self.user.check_password(new_password))
         self.assertTrue(self.user.check_password(self.password))
 
+    def test_bad_password(self) -> None:
+        """Test that using an invalid password for the new password fails."""
+        # Make the call
+        new_password = generate_invalid_password()
+        res = self.client.post(self.URL, data={"password": self.password, "new_password": new_password})
+        # Verify the response
+        self.assertEqual(status.HTTP_400_BAD_REQUEST, res.status_code)
+        content = res.json()
+        self.assertEqual("INVALID_PASSWORD", content["errcode"])
+        self.assertEqual("The new password is invalid.", content["error"])
+        # Make sure the password didn't change
+        self.user.refresh_from_db()
+        self.assertFalse(self.user.check_password(new_password))
+        self.assertTrue(self.user.check_password(self.password))
+
     def test_authentication_required(self) -> None:
         """Test that the user needs to be logged in to change the password."""
         # Create a new client that isn't logged in
         client = APIClient()
         # Make the call
-        new_password = "_new_password"
+        new_password = generate_valid_password()
         res = client.post(self.URL, data={"password": self.password, "new_password": new_password})
         # Verify the response
         self.assertEqual(status.HTTP_401_UNAUTHORIZED, res.status_code)

@@ -1,7 +1,7 @@
 from django.core.exceptions import ValidationError
 from django.test import TestCase
 from users.models import User
-from users.tests import sample_user
+from users.tests import generate_invalid_password, generate_valid_password, sample_user
 
 
 class TestUserModel(TestCase):
@@ -10,7 +10,7 @@ class TestUserModel(TestCase):
     def test_create_user(self) -> None:
         """Test creation and string/repr representation."""
         email = "_email@example.com"
-        password = "_password"
+        password = generate_valid_password()
         user = User.objects.create_user(email=email, password=password)
         self.assertEqual(email, user.email)
         self.assertEqual(email, user.get_username())  # Make sure the email is the username field
@@ -24,7 +24,7 @@ class TestUserModel(TestCase):
     def test_create_superuser(self) -> None:
         """Test creating a superuser."""
         email = "_email@example.com"
-        password = "_password"
+        password = generate_valid_password()
         user = User.objects.create_superuser(email=email, password=password)
         self.assertEqual(email, user.email)
         self.assertEqual(email, user.get_username())  # Make sure the email is the username field

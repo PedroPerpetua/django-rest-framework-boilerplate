@@ -14,12 +14,10 @@ class Migration(migrations.Migration):
     initial = True
 
     def generate_superuser(self, schema_editor: BaseDatabaseSchemaEditor) -> None:
-        superuser = get_user_model().objects.create_user(
+        get_user_model().objects.create_superuser(
             email=env.as_string("ADMIN_EMAIL"),
             password=env.as_string("ADMIN_PASSWORD"),
-            is_staff=True
         )
-        superuser.save()
 
     operations = [
         migrations.RunPython(generate_superuser),  # type: ignore
