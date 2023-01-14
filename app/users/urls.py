@@ -8,9 +8,11 @@ app_name = "users"
 
 
 urlpatterns: URLPatternsList = [
+    path("whoami", views.UserWhoamiView.as_view(), name="whoami"),
     path("register/", views.UserRegisterView.as_view(), name="register"),
     path("login/", jwt_views.TokenObtainPairView.as_view(), name="login"),
-    path("token_refresh/", jwt_views.TokenRefreshView.as_view(), name="token-refresh"),
+    path("login/refresh/", jwt_views.TokenRefreshView.as_view(), name="login-refresh"),
+    path("logout/", jwt_views.TokenBlacklistView.as_view(), name="logout"),
     path("change_password", views.UserChangePasswordView.as_view(), name="change-password"),
     path("profile/", views.UserProfileView.as_view(), name="profile"),
 ]

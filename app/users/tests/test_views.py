@@ -7,6 +7,31 @@ from users.serializers import UserProfileSerializer
 from users.tests import INVALID_PASSWORD, VALID_PASSWORD, generate_valid_email, sample_user
 
 
+class TestUserWhoamiView(TestCase):
+    """Test the UserWhoamiView."""
+    URL = reverse("users:whoami")
+    client: APIClient
+
+    def setUp(self) -> None:
+        self.client = APIClient()
+
+    def test_success(self) -> None:
+        # Create and login a user
+        user = sample_user()
+        self.client.force_authenticate(user)
+        # Make the call
+        res = self.client.get(self.URL)
+        # Verify the response
+        self.assertEqual(status.HTTP_200_OK, res.status_code)
+        self.assertEqual({"email": user.email}, res.json())
+
+    def test_requires_authorization(self) -> None:
+        # Make the call
+        res = self.client.get(self.URL)
+        # Verify the response
+        self.assertEqual(status.HTTP_401_UNAUTHORIZED, res.status_code)
+
+
 @override_settings(AUTH_USER_REGISTRATION_ENABLED=True)  # For testing purposes assume it's True
 class TestUserRegisterView(TestCase):
     """Test the UserRegisterView."""

@@ -8,7 +8,21 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.request import Request
 from rest_framework.response import Response
 from rest_framework.views import APIView
-from users import serializers
+from users import models, serializers
+
+
+class AuthenticatedRequest(Request):
+    """Authenticated class to correctly type the user in requests."""
+    user: models.User
+
+
+class UserWhoamiView(APIView):
+    """Endpoint to retrieve the email of the currently logged in user."""
+    http_method_names = ["get"]
+    permission_classes = (IsAuthenticated,)
+
+    def get(self, request: AuthenticatedRequest) -> Response:
+        return Response({"email": request.user.email}, status=status.HTTP_200_OK)
 
 
 class UserRegisterView(generics.CreateAPIView):
@@ -31,7 +45,7 @@ class UserChangePasswordView(APIView):
     http_method_names = ["post"]
     permission_classes = (IsAuthenticated,)
 
-    def post(self, request: Request) -> Response:
+    def post(self, request: AuthenticatedRequest) -> Response:
         password = request.data.get("password", None)
         if password is None:
             return Response(
@@ -59,10 +73,6 @@ class UserChangePasswordView(APIView):
         request.user.set_password(new_password)
         request.user.save()
         return Response(status=status.HTTP_204_NO_CONTENT)
-
-
-class UserLogoutView():
-    """Endpoint for the user to log themselves out."""
 
 
 class UserProfileView(generics.RetrieveUpdateAPIView):
