@@ -1,5 +1,6 @@
 from typing import Any
 from django.conf import settings
+from django.contrib.auth.models import AbstractBaseUser, AnonymousUser
 from django.contrib.auth.password_validation import validate_password
 from django.core.exceptions import ValidationError
 from rest_framework import generics, status
@@ -64,5 +65,10 @@ class UserLogoutView():
     """Endpoint for the user to log themselves out."""
 
 
-class UserProfileView():
+class UserProfileView(generics.RetrieveUpdateAPIView):
     """Endpoint to get a user's details."""
+    serializer_class = serializers.UserProfileSerializer
+    permission_classes = (IsAuthenticated,)
+
+    def get_object(self) -> AbstractBaseUser | AnonymousUser:
+        return self.request.user

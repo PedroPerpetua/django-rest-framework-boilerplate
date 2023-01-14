@@ -12,3 +12,10 @@ class UserRegisterSerializer(serializers.ModelSerializer):
 
     def create(self, validated_data: Any) -> models.User:
         return models.User.objects.create_user(**validated_data)
+
+
+class UserProfileSerializer(serializers.ModelSerializer):
+    """Serializer to obtain an user's profile."""
+    class Meta:
+        model = models.User
+        fields = ("email",)

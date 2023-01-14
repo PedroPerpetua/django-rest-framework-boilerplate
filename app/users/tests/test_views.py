@@ -3,7 +3,8 @@ from django.urls import reverse
 from rest_framework import status
 from rest_framework.test import APIClient
 from users.models import User
-from users.tests import generate_invalid_password, generate_valid_password, sample_user
+from users.serializers import UserProfileSerializer
+from users.tests import INVALID_PASSWORD, VALID_PASSWORD, generate_valid_email, sample_user
 
 
 @override_settings(AUTH_USER_REGISTRATION_ENABLED=True)  # For testing purposes assume it's True
@@ -19,8 +20,8 @@ class TestUserRegisterView(TestCase):
         # Get the current user count
         original_count = User.objects.count()
         # Make the call
-        email = "_email@example.com"
-        password = generate_valid_password()
+        email = generate_valid_email()
+        password = VALID_PASSWORD
         res = self.client.post(self.URL, data={"email": email, "password": password})
         # Verify the response
         self.assertEqual(status.HTTP_201_CREATED, res.status_code)
@@ -38,7 +39,9 @@ class TestUserRegisterView(TestCase):
         """Test creating an user with the registration disabled fails."""
         # Get the current user count
         original_count = User.objects.count()
-        res = self.client.post(self.URL, data={"email": "_email@example.com", "password": generate_valid_password()})
+        res = self.client.post(
+            self.URL, data={"email": generate_valid_email(), "password": VALID_PASSWORD}
+        )
         # Verify the response
         self.assertEqual(status.HTTP_400_BAD_REQUEST, res.status_code)
         content = res.json()
@@ -53,7 +56,7 @@ class TestUserChangePasswordView(TestCase):
     URL = reverse("users:change-password")
 
     def setUp(self) -> None:
-        self.password = generate_valid_password()
+        self.password = VALID_PASSWORD
         self.user = sample_user(password=self.password)
         self.client = APIClient()
         self.client.force_authenticate(self.user)
@@ -61,7 +64,7 @@ class TestUserChangePasswordView(TestCase):
     def test_success(self) -> None:
         """Test successfully changing a user's password."""
         # Make the call
-        new_password = generate_valid_password()
+        new_password = "new" + VALID_PASSWORD
         res = self.client.post(self.URL, data={"password": self.password, "new_password": new_password})
         # Verify the response
         self.assertEqual(status.HTTP_204_NO_CONTENT, res.status_code)
@@ -74,8 +77,8 @@ class TestUserChangePasswordView(TestCase):
     def test_wrong_password(self) -> None:
         """Test that using the wrong password fails."""
         # Make the call
-        new_password = generate_valid_password()
-        wrong_password = generate_valid_password()  # It'll be a different one
+        new_password = "new" + VALID_PASSWORD
+        wrong_password = "_" + self.password  # so it's different
         res = self.client.post(self.URL, data={"password": wrong_password, "new_password": new_password})
         # Verify the response
         self.assertEqual(status.HTTP_400_BAD_REQUEST, res.status_code)
@@ -90,7 +93,7 @@ class TestUserChangePasswordView(TestCase):
     def test_bad_password(self) -> None:
         """Test that using an invalid password for the new password fails."""
         # Make the call
-        new_password = generate_invalid_password()
+        new_password = INVALID_PASSWORD
         res = self.client.post(self.URL, data={"password": self.password, "new_password": new_password})
         # Verify the response
         self.assertEqual(status.HTTP_400_BAD_REQUEST, res.status_code)
@@ -107,7 +110,7 @@ class TestUserChangePasswordView(TestCase):
         # Create a new client that isn't logged in
         client = APIClient()
         # Make the call
-        new_password = generate_valid_password()
+        new_password = "new" + VALID_PASSWORD
         res = client.post(self.URL, data={"password": self.password, "new_password": new_password})
         # Verify the response
         self.assertEqual(status.HTTP_401_UNAUTHORIZED, res.status_code)
@@ -115,3 +118,34 @@ class TestUserChangePasswordView(TestCase):
         self.user.refresh_from_db()
         self.assertFalse(self.user.check_password(new_password))
         self.assertTrue(self.user.check_password(self.password))
+
+
+class TestUserProfileView(TestCase):
+    """Test the UserProfileView."""
+    URL = reverse("users:profile")
+
+    def setUp(self) -> None:
+        self.user = sample_user()
+        self.client = APIClient()
+        self.client.force_authenticate(self.user)
+
+    def test_get_success(self) -> None:
+        """Test successfully retrieving the user's profile."""
+        # Make the call
+        res = self.client.get(self.URL)
+        # verify the response
+        self.assertEqual(status.HTTP_200_OK, res.status_code)
+        self.assertEqual(UserProfileSerializer(self.user).data, res.json())
+
+    def test_update_success(self) -> None:
+        """Test successfully updating the user's profile."""
+        for func in [self.client.patch, self.client.put]:
+            with self.subTest(msg="Updating the user's profile.", value=func):
+                # Make the call
+                payload = {"email": generate_valid_email()}
+                res = func(self.URL, data=payload)
+                # Verify the response
+                self.assertEqual(status.HTTP_200_OK, res.status_code)
+                # Make sure the email changed
+                self.user.refresh_from_db()
+                self.assertEqual(payload["email"], self.user.email)

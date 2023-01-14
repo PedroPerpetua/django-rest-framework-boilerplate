@@ -12,4 +12,5 @@ urlpatterns: URLPatternsList = [
     path("login/", jwt_views.TokenObtainPairView.as_view(), name="login"),
     path("token_refresh/", jwt_views.TokenRefreshView.as_view(), name="token-refresh"),
     path("change_password", views.UserChangePasswordView.as_view(), name="change-password"),
+    path("profile/", views.UserProfileView.as_view(), name="profile"),
 ]

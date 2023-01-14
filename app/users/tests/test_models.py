@@ -1,7 +1,7 @@
 from django.core.exceptions import ValidationError
 from django.test import TestCase
 from users.models import User
-from users.tests import generate_invalid_password, generate_valid_password, sample_user
+from users.tests import INVALID_PASSWORDS, VALID_PASSWORD, generate_valid_email, sample_user
 
 
 class TestUserModel(TestCase):
@@ -9,8 +9,8 @@ class TestUserModel(TestCase):
 
     def test_create_user(self) -> None:
         """Test creation and string/repr representation."""
-        email = "_email@example.com"
-        password = generate_valid_password()
+        email = generate_valid_email()
+        password = VALID_PASSWORD
         user = User.objects.create_user(email=email, password=password)
         self.assertEqual(email, user.email)
         self.assertEqual(email, user.get_username())  # Make sure the email is the username field
@@ -23,8 +23,8 @@ class TestUserModel(TestCase):
 
     def test_create_superuser(self) -> None:
         """Test creating a superuser."""
-        email = "_email@example.com"
-        password = generate_valid_password()
+        email = generate_valid_email()
+        password = VALID_PASSWORD
         user = User.objects.create_superuser(email=email, password=password)
         self.assertEqual(email, user.email)
         self.assertEqual(email, user.get_username())  # Make sure the email is the username field
@@ -50,7 +50,7 @@ class TestUserModel(TestCase):
 
     def test_email_changes_normalized(self) -> None:
         """Test that emails are normalized when updating a user."""
-        user = sample_user(email="_email@example.com")
+        user = sample_user()
         email, expected = ("test1@EXAMPLE.com", "test1@example.com")
         user.email = email
         user.save()
@@ -67,6 +67,13 @@ class TestUserModel(TestCase):
         with self.subTest(msg="Checking if None raises ValueError.", value=None):
             # This test is slightly different because sample_user with `email=None` generates one
             with self.assertRaises(ValidationError) as ve_ctx:
-                User.objects.create(email=value)
+                sample_user(email=value)
             ve = ve_ctx.exception
             self.assertEqual("Email cannot be empty.", ve.message)
+
+    def test_password_validation(self) -> None:
+        """Test the password validation blocks invalid passwords."""
+        for value in INVALID_PASSWORDS:
+            with self.subTest(msg="Testing invalid password.", value=value):
+                with self.assertRaises(ValidationError):
+                    sample_user(password=value)
