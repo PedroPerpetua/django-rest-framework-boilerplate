@@ -63,7 +63,7 @@ class LoggingConfigurationBuilder:
         """Shortcut method to add a file handler using FileHandler."""
         # Create the folder if it doesn't exist
         if not Path(file_path).parent.is_dir():
-            Path(file_path).parent.mkdir()
+            Path(file_path).parent.mkdir(parents=True)
         kwargs.update({"class": "logging.FileHandler"})
         kwargs.update({"filename": str(file_path)})
         return self.add_handler(name, **kwargs)
