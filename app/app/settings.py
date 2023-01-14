@@ -126,6 +126,7 @@ MEDIA_ROOT = BASE_DIR / 'media'
 
 REST_FRAMEWORK = {
     'EXCEPTION_HANDLER': 'core.exceptions.exception_handler.exception_handler',
+    'DEFAULT_AUTHENTICATION_CLASSES': ('rest_framework_simplejwt.authentication.JWTAuthentication',),
 }
 
 # User Management

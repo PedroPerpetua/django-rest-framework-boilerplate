@@ -27,3 +27,7 @@ Currently set up for `python 3.11` with `Django 4.1.2` and `Django Rest Framewor
 
 ## Requirements
 Python requirements can be added on the `requirements` folder. Production requirements go on `requirements.txt` and dev-only requirements go on `dev.requirements.txt`. For production, `pip install -r requirements/requirements.txt` will install all needed dependencies. For development, `pip install -r requirements/dev.requirements.txt` will install all needed dependencies (including the dev ones). The `boilerplate.requirements.txt` and `boilerplate.dev.requirements.txt` contain the base requirements that this boilerplate needs, and are automatically installed with the respective production/development requirements files.
+
+
+## TODO
+- Setup password validation
