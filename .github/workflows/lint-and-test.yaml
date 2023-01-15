@@ -2,12 +2,10 @@ name: lint-and-test
 
 on:
   push:
-    branches: [ "main", "devops" ] # On devops to test changes to the action.
+    branches: [ "main", "devops" ]  # On devops to test changes to the action.
   pull_request:
     branches: [ "main" ]
 
-
-# NOTE: these values are for testing only and not be used for production
 env:
   SECRET_KEY: 'secret'
   DEBUG: ~
@@ -15,12 +13,12 @@ env:
   HTTPS_ENABLED: ~
   CORS_ALLOW_ALL_ORIGINS: ~
   CORS_ALLOWED_ORIGINS: ~
-  ADMIN_EMAIL: ~
-  ADMIN_PASSWORD: ~
+  ADMIN_EMAIL: email@example.com  # Example email
+  ADMIN_PASSWORD: Password1.  # Example password
   POSTGRES_DB: postgres
   POSTGRES_USER: postgres
   POSTGRES_PASSWORD: postgres
-  POSTGRES_HOST: localhost
+  POSTGRES_HOST: localhost  # Github services run all on the same machine
   POSTGRES_PORT: 5432
 
 jobs:
@@ -55,22 +53,17 @@ jobs:
         pip install -r requirements/dev.requirements.txt
 
     - name: Run isort
-      run: |
-        isort --check-only ./app
+      run: isort --check-only ./app
 
     - name: Run autopep8
       id: autopep8
-      run: |
-        autopep8 --exit-code ./app
+      run: autopep8 --exit-code ./app
     - name: Fail if autopep8 made changes
       if: steps.autopep8.outputs.exit-code == 2
       run: exit 1
 
     - name: Run mypy
-      run: |
-        mypy
-
+      run: mypy
 
     - name: Run tests
-      run: |
-        cd ./app && python manage.py test
+      run: cd ./app && python manage.py test
