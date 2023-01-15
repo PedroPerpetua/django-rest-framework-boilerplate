@@ -3,7 +3,7 @@
 # Linting
 autopep8 == 2.0.1
 mypy == 0.991
-isort == 5.11.3
+isort == 5.11.4
 
 # Type hint stubs
 django-stubs == 1.13.1
