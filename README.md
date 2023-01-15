@@ -14,10 +14,11 @@ Currently set up for `python 3.11` with `Django 4.1.2` and `Django Rest Framewor
 - Multiple utility functions and extensions usually applied in Django projects.
 - Template app for the startapp command that follows the usual restframework patterns.
 - Base command to ease command development, with additional wait_for_db and setup commands.
-- Migration to auto setup an ADMIN user (with Django's default User class - can be overridden).
+- Migration to auto setup an ADMIN user.
 - Ready to edit Admin page customization.
 - Tests for the implemented features.
 - A Makefile to support basic operations.
+- A base for a custom user model with the full JWT authentication flow.
 
 
 ## Configuration

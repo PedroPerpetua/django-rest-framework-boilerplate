@@ -1,6 +1,6 @@
 [tool.isort]
-known_first_party = ["core"] # ADD OTHERS HERE
-known_django = ["django", "rest_framework"]
+known_first_party = ["core", "users"] # ADD OTHERS HERE
+known_django = ["django", "rest_framework", "rest_framework_simplejwt"]
 sections = ["FUTURE", "STDLIB", "THIRDPARTY", "DJANGO", "FIRSTPARTY", "LOCALFOLDER"]
 line_length = 119
 lines_after_imports = 2
@@ -12,7 +12,7 @@ quiet = true
 max-line-length = 119
 in-place = true
 recursive = true
-exclude = "app/**/migrations/[0-9][0-9][0-9][0-9]_*.py"
+exclude = "./app/**/migrations/[0-9][0-9][0-9][0-9]_*.py"
 force-exclude = true
 aggressive = 3
 ignore = []

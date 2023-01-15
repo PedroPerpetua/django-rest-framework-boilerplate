@@ -1,5 +1,5 @@
 import logging
-from datetime import datetime
+from datetime import datetime, timedelta
 from pathlib import Path
 from core.extensions.logging import LoggingConfigurationBuilder
 from core.utilities import env as env_utils
@@ -43,9 +43,12 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'rest_framework',
+    'rest_framework_simplejwt',
+    'rest_framework_simplejwt.token_blacklist',
     'corsheaders',
     # Our apps here
     'core',
+    'users',
 ]
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
@@ -125,10 +128,24 @@ MEDIA_ROOT = BASE_DIR / 'media'
 
 REST_FRAMEWORK = {
     'EXCEPTION_HANDLER': 'core.exceptions.exception_handler.exception_handler',
+    'DEFAULT_AUTHENTICATION_CLASSES': ('rest_framework_simplejwt.authentication.JWTAuthentication',),
 }
+
+
+# SimpleJWT settings
+
+SIMPLE_JWT = {
+    # TODO: review these values?
+    'ACCESS_TOKEN_LIFETIME': timedelta(minutes=5),
+    'REFRESH_TOKEN_LIFETIME': timedelta(hours=6),
+    'ROTATE_REFRESH_TOKENS': True,
+    'BLACKLIST_AFTER_ROTATION': True,
+}
+
 
 # User Management
 
+AUTH_USER_MODEL = 'users.User'
 AUTH_PASSWORD_VALIDATORS = [
     {
         'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator',
@@ -143,6 +160,7 @@ AUTH_PASSWORD_VALIDATORS = [
         'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator',
     },
 ]
+AUTH_USER_REGISTRATION_ENABLED = True
 
 
 # Internationalization
