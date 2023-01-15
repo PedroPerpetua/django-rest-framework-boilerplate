@@ -1,5 +1,5 @@
 from __future__ import annotations  # type checking
-from typing import Any, Callable
+from typing import Any
 from django.core.management.base import BaseCommand as DjangoCommand
 from django.core.management.base import OutputWrapper
 
