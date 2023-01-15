@@ -38,7 +38,10 @@ jobs:
           --health-interval 10s
           --health-timeout 5s
           --health-retries 5
-
+        env:
+          POSTGRES_DB: ${{ env.POSTGRES_DB }}
+          POSTGRES_USER: ${{ env.POSTGRES_USER }}
+          POSTGRES_PASSWORD: ${{ env.POSTGRES_PASSWORD }}
     steps:
     - uses: actions/checkout@v3.3.0
 
