@@ -18,7 +18,7 @@ aggressive = 3
 ignore = []
 
 [tool.mypy]
-mypy_path = "$MYPY_CONFIG_FILE_DIR/app"
+mypy_path = "$MYPY_CONFIG_FILE_DIR/app, $MYPY_CONFIG_FILE_DIR/stubs"
 files = "./app"
 # Exclude django files
 exclude = ["app/.*/migrations/[0-9]{4}_.*.py$", "app/manage.py"]

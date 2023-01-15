@@ -32,6 +32,6 @@ class BaseAbstractModel(models.Model):
             try:
                 data.update({field.name: getattr(self, field.name)})
             except AttributeError:
-                # Field is in the meta but for some reason doens't have it
+                # Field is in the meta but for some reason doesn't have it.
                 continue
         return str(data)

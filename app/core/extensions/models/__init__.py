@@ -1,1 +1,1 @@
-from .BaseAbstractModel import BaseAbstractModel
+from .base_abstract_model import BaseAbstractModel

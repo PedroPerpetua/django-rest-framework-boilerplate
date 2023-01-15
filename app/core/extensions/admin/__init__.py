@@ -1,1 +1,1 @@
-from .UneditableFixedInline import UneditableFixedInline
+from .uneditable_fixed_inline import UneditableFixedInline
