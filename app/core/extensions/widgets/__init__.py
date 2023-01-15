@@ -1,1 +1,1 @@
-from .ImagePreviewWidget import ImagePreviewWidget
+from .image_preview_widget import ImagePreviewWidget

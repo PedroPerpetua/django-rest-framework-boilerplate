@@ -3,7 +3,7 @@ This repository contains a boilerplate implementation of a Django Rest Framework
 
 
 ## Version
-Currently set up for `python 3.11` with `Django 4.1.2` and `Django Rest Framework 3.14.0`.
+Currently set up for `python 3.11` with `Django 4.1.5` and `Django Rest Framework 3.14.0`.
 
 
 ## Features
