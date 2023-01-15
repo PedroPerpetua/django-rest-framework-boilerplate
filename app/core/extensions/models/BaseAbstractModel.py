@@ -24,3 +24,14 @@ class BaseAbstractModel(models.Model):
         """Soft delete this instance by marking `is_deleted` as `True`."""
         self.is_deleted = True
         self.save()
+
+    def __repr__(self) -> str:
+        """Base repr for children that adds the model and the attributes."""
+        data = {"model": self.__class__.__name__}
+        for field in self._meta.get_fields():
+            try:
+                data.update({field.name: getattr(self, field.name)})
+            except AttributeError:
+                # Field is in the meta but for some reason doens't have it
+                continue
+        return str(data)
