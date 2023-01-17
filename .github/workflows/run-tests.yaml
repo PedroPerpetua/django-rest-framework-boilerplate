@@ -44,7 +44,7 @@ jobs:
           POSTGRES_USER: ${{ env.POSTGRES_USER }}
           POSTGRES_PASSWORD: ${{ env.POSTGRES_PASSWORD }}
         ports:
-          - ${{ env.POSTGRES_PORT }}:5432
+          - 5432:5432
     steps:
     - uses: actions/checkout@v3.3.0
 
