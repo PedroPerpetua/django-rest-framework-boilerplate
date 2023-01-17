@@ -1,0 +1,41 @@
+name: lint
+
+on:
+  - push
+  - pull_request
+
+jobs:
+  lint:
+
+    runs-on: ubuntu-latest
+    strategy:
+      max-parallel: 4
+
+    steps:
+    - uses: actions/checkout@v3.3.0
+
+    - name: Export env
+      uses: cardinalby/export-env-action@2.1.0
+      with:
+        envFile: .github/workflows/example_config.env
+
+    - name: Setup Python
+      uses: actions/setup-python@v4.5.0
+      with:
+        python-version: 3.11
+    - name: Install Requirements
+      run: |
+        python -m pip install --upgrade pip
+        pip install -r requirements/dev.requirements.txt
+
+    - name: Run isort
+      run: isort --check-only ./app
+
+    - name: Run autoflake
+      run: autoflake --check ./app
+
+    - name: Run black
+      run: black --check ./app
+
+    - name: Run mypy
+      run: mypy

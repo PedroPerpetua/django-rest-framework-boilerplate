@@ -1,19 +1,19 @@
 [tool.isort]
+profile = "black"
 known_first_party = ["core", "users"] # ADD OTHERS HERE
 known_django = ["django", "rest_framework", "rest_framework_simplejwt"]
 sections = ["FUTURE", "STDLIB", "THIRDPARTY", "DJANGO", "FIRSTPARTY", "LOCALFOLDER"]
 line_length = 119
 lines_after_imports = 2
 lines_between_sections = 0
-extend_skip_glob = ["app/**/migrations/[0-9][0-9][0-9][0-9]_*.py"]
-quiet = true
+extend_skip_glob = ["app/**/migrations/[0-9][0-9][0-9][0-9]_*.py", "app/manage.py"]
 
 [tool.autoflake]
 recursive = true
 in-place = true
 remove-all-unused-imports = true
 remove-unused-variables = true
-exclude=["app/**/migrations/[0-9][0-9][0-9][0-9]_*.py"]
+exclude=["app/**/migrations/[0-9][0-9][0-9][0-9]_*.py", "app/manage.py"]
 ignore-init-module-imports = true
 
 [tool.black]
@@ -24,7 +24,6 @@ extend-exclude = '''
     | ^/app/manage.py  # Exclude autogeneraton django manage.py file
 )
 '''
-quiet = true
 
 [tool.mypy]
 mypy_path = "$MYPY_CONFIG_FILE_DIR/app, $MYPY_CONFIG_FILE_DIR/stubs"
