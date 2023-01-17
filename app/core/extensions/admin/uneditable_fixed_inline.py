@@ -8,6 +8,7 @@ class UneditableFixedInline(admin.TabularInline):
     - The user never had permission to add, change or delete;
     - Uses the "fixed" template where the object name is removed.
     """
+
     template = "admin/fixed_tabular_inline.html"
 
     def has_add_permission(self, *args: Any, **kwargs: Any) -> bool:

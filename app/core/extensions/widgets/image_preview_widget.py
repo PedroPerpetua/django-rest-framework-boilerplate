@@ -13,7 +13,7 @@ class ImagePreviewWidget(FileInput):
         max_size: int | str = 500,
         error_string: str = "Error! Image cannot be displayed!",
         *args: Any,
-        **kwargs: Any
+        **kwargs: Any,
     ) -> None:
         """
         Initialize an ImagePreviewWidget. Size parameters can be given as an int (that will be converted to 'px', or

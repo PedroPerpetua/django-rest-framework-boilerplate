@@ -25,18 +25,19 @@ class UserManager(BaseUserManager["User"]):
 
 class User(BaseAbstractModel, AbstractBaseUser, PermissionsMixin):
     """Custom User model."""
+
     email = models.EmailField(max_length=255, unique=True)
     is_staff = models.BooleanField(default=False)
 
     objects = UserManager()
-    USERNAME_FIELD = 'email'
+    USERNAME_FIELD = "email"
 
     def save(
         self,
         force_insert: bool = False,
         force_update: bool = False,
         using: Optional[str] = None,
-        update_fields: Optional[Iterable[str]] = None
+        update_fields: Optional[Iterable[str]] = None,
     ) -> None:
         if self.email is None:
             raise ValidationError("Email cannot be empty.")
