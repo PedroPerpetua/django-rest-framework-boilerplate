@@ -12,6 +12,7 @@ class Command(BaseCommand):
     - Waits for database
     - Migrates
     """
+
     TASKS = [
         ("Collection static...", ("collectstatic", "--no-input", "--clear")),
         ("Waiting for DB connection...", ("wait_for_db",)),

@@ -1,10 +1,11 @@
 from __future__ import annotations
 from pathlib import Path
-from typing import Any, Optional, TypedDict
+from typing import Any, TypedDict
 
 
 class ConfigDict(TypedDict):
     """TypedDict for the logging configDict."""
+
     version: int
     disable_existing_loggers: bool
     formatters: dict[str, dict]
@@ -36,7 +37,7 @@ class LoggingConfigurationBuilder:
             "root": {
                 "handlers": [],
             },
-            "loggers": {}
+            "loggers": {},
         }
 
     def add_formatter(self, name: str, format: str, style: str = "{", **kwargs: Any) -> LoggingConfigurationBuilder:

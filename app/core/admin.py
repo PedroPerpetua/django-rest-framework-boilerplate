@@ -31,7 +31,7 @@ class AdminSite(admin.AdminSite):
             # No apps to display
             return []
         # Sort them according to our dict
-        return self._order_list(list(app_dict.values()), list(self.ORDERING.keys()), lambda x: str(x['app_label']))
+        return self._order_list(list(app_dict.values()), list(self.ORDERING.keys()), lambda x: str(x["app_label"]))
 
 
 admin_site = AdminSite()

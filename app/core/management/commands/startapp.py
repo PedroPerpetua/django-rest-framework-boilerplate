@@ -6,6 +6,7 @@ from django.core.management.commands.startapp import Command as StartAppCommand
 
 class Command(StartAppCommand):
     """Customize the StartAppCommand to use our custom app template by default."""
+
     TEMPLATE_PATH: Path = settings.BASE_DIR / "core" / "app_template"
 
     def handle(self, *args: Any, **options: Any) -> Optional[str]:  # type: ignore # Supertype "incompatibility"
