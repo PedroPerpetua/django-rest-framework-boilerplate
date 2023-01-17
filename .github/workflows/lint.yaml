@@ -4,6 +4,21 @@ on:
   - push
   - pull_request
 
+env:
+  SECRET_KEY: ${{ vars.SECRET_KEY }}
+  DEBUG: ${{ vars.DEBUG }}
+  ALLOWED_HOSTS: ${{ vars.ALLOWED_HOSTS }}
+  HTTPS_ENABLED: ${{ vars.HTTPS_ENABLED }}
+  CORS_ALLOW_ALL_ORIGINS: ${{ vars.CORS_ALLOW_ALL_ORIGINS }}
+  CORS_ALLOWED_ORIGINS: ${{ vars.CORS_ALLOWED_ORIGINS }}
+  ADMIN_EMAIL: ${{ vars.ADMIN_EMAIL }}
+  ADMIN_PASSWORD: ${{ vars.ADMIN_PASSWORD}}
+  POSTGRES_DB: ${{ vars.POSTGRES_DB }}
+  POSTGRES_USER: ${{ vars.POSTGRES_USER }}
+  POSTGRES_PASSWORD: ${{ vars.POSTGRES_PASSWORD }}
+  POSTGRES_HOST: ${{ vars.POSTGRES_HOST }
+  POSTGRES_PORT: ${{ vars.POSTGRES_PORT }}
+
 jobs:
   lint:
 
@@ -13,11 +28,6 @@ jobs:
 
     steps:
     - uses: actions/checkout@v3.3.0
-
-    - name: Export env
-      uses: cardinalby/export-env-action@2.1.0
-      with:
-        envFile: .github/workflows/example_config.env
 
     - name: Setup Python
       uses: actions/setup-python@v4.5.0
