@@ -6,6 +6,7 @@ from rest_framework.views import APIView
 
 class PingView(APIView):
     """View that simply replies with a 'pong'."""
+
     http_method_names = ["get"]
 
     def get(self, *args: Any, **kwargs: Any) -> Response:

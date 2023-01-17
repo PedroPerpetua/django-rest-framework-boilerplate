@@ -9,11 +9,12 @@ from core.management.commands.setup import Command as SetupCommand
 from core.management.commands.startapp import Command as StartAppCommand
 from core.management.commands.startapp import StartAppCommand as OriginalStartAppCommand
 from core.management.commands.wait_for_db import Command as WaitForDBCommand
-from core.tests.utils import clear_colors
+from core.utilities.test import clear_colors
 
 
 class TestWaitForDBCommand(TestCase):
     """Test the wait_for_db command."""
+
     # Get the command's parameters
     RETRY_SECONDS = WaitForDBCommand.RETRY_SECONDS
     MAX_RETRIES = WaitForDBCommand.MAX_RETRIES
@@ -30,7 +31,7 @@ class TestWaitForDBCommand(TestCase):
         self.assertEqual(getitem_mock.call_count, 1)
         self.assertEqual(
             "Waiting for database connection...\nDatabase connection available!\n",
-            clear_colors(output_buffer.getvalue())
+            clear_colors(output_buffer.getvalue()),
         )
 
     @patch("time.sleep")
@@ -52,11 +53,11 @@ class TestWaitForDBCommand(TestCase):
         self.assertEqual(getitem_mock.call_count, self.MAX_RETRIES + 1)
         self.assertEqual(
             "Waiting for database connection...\nDatabase connection available!\n",
-            clear_colors(output_buffer.getvalue())
+            clear_colors(output_buffer.getvalue()),
         )
         self.assertEqual(
             f"Connection unavailable, waiting {self.RETRY_SECONDS} second(s)...\n" * self.MAX_RETRIES,
-            clear_colors(error_buffer.getvalue())
+            clear_colors(error_buffer.getvalue()),
         )
 
     @patch("time.sleep")
@@ -64,7 +65,7 @@ class TestWaitForDBCommand(TestCase):
     def test_wait_for_db_fails(self, getitem_mock: MagicMock, sleep_mock: MagicMock) -> None:
         """Test wait_for_db aborts after max retries."""
         # Setup the mock and buffers
-        getitem_mock.side_effect = ([OperationalError] * (self.MAX_RETRIES + 1))
+        getitem_mock.side_effect = [OperationalError] * (self.MAX_RETRIES + 1)
         sleep_mock.return_value = True
         output_buffer = StringIO()
         error_buffer = StringIO()
@@ -74,14 +75,15 @@ class TestWaitForDBCommand(TestCase):
         self.assertEqual(getitem_mock.call_count, self.MAX_RETRIES + 1)
         self.assertEqual("Waiting for database connection...\n", clear_colors(output_buffer.getvalue()))
         self.assertEqual(
-            f"Connection unavailable, waiting {self.RETRY_SECONDS} second(s)...\n" * self.MAX_RETRIES +
-            f"Reached {self.MAX_RETRIES} retries with no database connection. Aborting.\n",
-            clear_colors(error_buffer.getvalue())
+            f"Connection unavailable, waiting {self.RETRY_SECONDS} second(s)...\n" * self.MAX_RETRIES
+            + f"Reached {self.MAX_RETRIES} retries with no database connection. Aborting.\n",
+            clear_colors(error_buffer.getvalue()),
         )
 
 
 class TestSetupCommand(UnitTest):
     """Test the setup command."""
+
     # Get the command's parameters
     TASKS = SetupCommand.TASKS
     TASK_COUNT = len(SetupCommand.TASKS)
@@ -108,6 +110,7 @@ class TestSetupCommand(UnitTest):
 
 class TestStartAppCommand(UnitTest):
     """Test the customized startapp command."""
+
     # Get the command's parameters
     TEMPLATE_PATH = str(StartAppCommand.TEMPLATE_PATH)
 

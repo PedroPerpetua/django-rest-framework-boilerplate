@@ -5,6 +5,7 @@ from users import models
 
 class UserRegisterSerializer(serializers.ModelSerializer):
     """Serializer for creating users."""
+
     class Meta:
         model = models.User
         fields = ("email", "password")
@@ -16,6 +17,7 @@ class UserRegisterSerializer(serializers.ModelSerializer):
 
 class UserProfileSerializer(serializers.ModelSerializer):
     """Serializer to obtain an user's profile."""
+
     class Meta:
         model = models.User
         fields = ("email",)

@@ -11,6 +11,7 @@ class BaseAbstractModel(models.Model):
 
     Also uses a UUID as primary key.
     """
+
     id = models.UUIDField(primary_key=True, unique=True, default=uuid4, editable=False)
     created_at = models.DateTimeField(auto_now_add=True, editable=False)
     updated_at = models.DateTimeField(auto_now=True, editable=False)
@@ -18,7 +19,7 @@ class BaseAbstractModel(models.Model):
 
     class Meta:
         abstract = True
-        ordering = ['-created_at']
+        ordering = ["-created_at"]
 
     def soft_delete(self) -> None:
         """Soft delete this instance by marking `is_deleted` as `True`."""

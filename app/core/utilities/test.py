@@ -1,3 +1,4 @@
+import re
 from typing import Any
 import requests
 
@@ -24,3 +25,23 @@ class MockResponse(requests.Response):
 def clear_model_args(**kwargs: Any) -> dict[str, Any]:
     """Return a list of a model arguments with `None` values filtered out."""
     return {k: v for k, v in kwargs.items() if v is not None}
+
+
+def clear_colors(message: str) -> str:
+    """Clear ANSI colors from a string."""
+    # 7-bit C1 ANSI sequences
+    ansi_escape = re.compile(
+        r"""
+        \x1B  # ESC
+        (?:   # 7-bit C1 Fe (except CSI)
+            [@-Z\\-_]
+        |     # or [ for CSI, followed by a control sequence
+            \[
+            [0-?]*  # Parameter bytes
+            [ -/]*  # Intermediate bytes
+            [@-~]   # Final byte
+        )
+    """,
+        re.VERBOSE,
+    )
+    return ansi_escape.sub("", message)

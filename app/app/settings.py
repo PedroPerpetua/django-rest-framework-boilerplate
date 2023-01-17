@@ -36,67 +36,72 @@ CSRF_TRUSTED_ORIGINS = CORS_ALLOWED_ORIGINS  # TODO: is this right?
 # Application definition
 
 INSTALLED_APPS = [
-    'django.contrib.admin',
-    'django.contrib.auth',
-    'django.contrib.contenttypes',
-    'django.contrib.sessions',
-    'django.contrib.messages',
-    'django.contrib.staticfiles',
-    'rest_framework',
-    'rest_framework_simplejwt',
-    'rest_framework_simplejwt.token_blacklist',
-    'corsheaders',
+    "django.contrib.admin",
+    "django.contrib.auth",
+    "django.contrib.contenttypes",
+    "django.contrib.sessions",
+    "django.contrib.messages",
+    "django.contrib.staticfiles",
+    "rest_framework",
+    "rest_framework_simplejwt",
+    "rest_framework_simplejwt.token_blacklist",
+    "corsheaders",
     # Our apps here
-    'core',
-    'users',
+    "core",
+    "users",
 ]
 MIDDLEWARE = [
-    'django.middleware.security.SecurityMiddleware',
-    'django.contrib.sessions.middleware.SessionMiddleware',
-    'corsheaders.middleware.CorsMiddleware',
-    'django.middleware.common.CommonMiddleware',
-    'django.middleware.csrf.CsrfViewMiddleware',
-    'django.contrib.auth.middleware.AuthenticationMiddleware',
-    'django.contrib.messages.middleware.MessageMiddleware',
-    'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    "django.middleware.security.SecurityMiddleware",
+    "django.contrib.sessions.middleware.SessionMiddleware",
+    "corsheaders.middleware.CorsMiddleware",
+    "django.middleware.common.CommonMiddleware",
+    "django.middleware.csrf.CsrfViewMiddleware",
+    "django.contrib.auth.middleware.AuthenticationMiddleware",
+    "django.contrib.messages.middleware.MessageMiddleware",
+    "django.middleware.clickjacking.XFrameOptionsMiddleware",
 ]
-ROOT_URLCONF = 'app.urls'
+ROOT_URLCONF = "app.urls"
 TEMPLATES = [
     {
-        'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [BASE_DIR / 'core' / 'templates'],
-        'APP_DIRS': True,
-        'OPTIONS': {
-            'context_processors': [
-                'django.template.context_processors.debug',
-                'django.template.context_processors.request',
-                'django.contrib.auth.context_processors.auth',
-                'django.contrib.messages.context_processors.messages',
+        "BACKEND": "django.template.backends.django.DjangoTemplates",
+        "DIRS": [BASE_DIR / "core" / "templates"],
+        "APP_DIRS": True,
+        "OPTIONS": {
+            "context_processors": [
+                "django.template.context_processors.debug",
+                "django.template.context_processors.request",
+                "django.contrib.auth.context_processors.auth",
+                "django.contrib.messages.context_processors.messages",
             ],
         },
     },
 ]
-WSGI_APPLICATION = 'app.wsgi.application'
+WSGI_APPLICATION = "app.wsgi.application"
 
 
 # Logging configuration
 
-LOG_FOLDER = BASE_DIR / 'logs' / datetime.now().strftime("%Y-%m-%d--%H-%M-%S")
+LOG_FOLDER = BASE_DIR / "logs" / datetime.now().strftime("%Y-%m-%d--%H-%M-%S")
 # Use our custom log configuration builder to setup the logger
-log_config_builder = LoggingConfigurationBuilder() \
-    .add_formatter('default', '[{levelname}] {asctime} {module}: {message}')
+log_config_builder = LoggingConfigurationBuilder().add_formatter(
+    "default", "[{levelname}] {asctime} {module}: {message}"
+)
 # Setup the root logger
-log_config_builder.add_file_handler('root_handler', LOG_FOLDER / "root.log", formatter='default') \
-    .modify_root_logger(handlers=['root_handler'])
+log_config_builder.add_file_handler("root_handler", LOG_FOLDER / "root.log", formatter="default").modify_root_logger(
+    handlers=["root_handler"]
+)
 # Setup the default Django logger
-log_config_builder.add_file_handler('django_handler', LOG_FOLDER / "django.log", formatter='default') \
-    .add_logger('django', ['django_handler'], level=logging.DEBUG, propagate=False)
+log_config_builder.add_file_handler("django_handler", LOG_FOLDER / "django.log", formatter="default").add_logger(
+    "django", ["django_handler"], level=logging.DEBUG, propagate=False
+)
 # Setup the default Server logger
-log_config_builder.add_file_handler('server_handler', LOG_FOLDER / "server.log", formatter='default') \
-    .add_logger('django.server', ['server_handler'], level=logging.DEBUG, propagate=False)
+log_config_builder.add_file_handler("server_handler", LOG_FOLDER / "server.log", formatter="default").add_logger(
+    "django.server", ["server_handler"], level=logging.DEBUG, propagate=False
+)
 # Add our app-specific loggers
-log_config_builder.add_file_handler('core_handler', LOG_FOLDER / 'core.log', formatter='default') \
-    .add_logger('core', ['core_handler'], level=logging.DEBUG, propagate=False)
+log_config_builder.add_file_handler("core_handler", LOG_FOLDER / "core.log", formatter="default").add_logger(
+    "core", ["core_handler"], level=logging.DEBUG, propagate=False
+)
 # Finally build the config and assign it.
 LOGGING = log_config_builder.build()
 
@@ -104,31 +109,31 @@ LOGGING = log_config_builder.build()
 # Database
 
 DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.postgresql',
-        'NAME': env_utils.as_string('POSTGRES_DB'),
-        'USER': env_utils.as_string('POSTGRES_USER'),
-        'PASSWORD': env_utils.as_string('POSTGRES_PASSWORD'),
-        'HOST': env_utils.as_string('POSTGRES_HOST'),
-        'PORT': env_utils.as_string('POSTGRES_PORT')
+    "default": {
+        "ENGINE": "django.db.backends.postgresql",
+        "NAME": env_utils.as_string("POSTGRES_DB"),
+        "USER": env_utils.as_string("POSTGRES_USER"),
+        "PASSWORD": env_utils.as_string("POSTGRES_PASSWORD"),
+        "HOST": env_utils.as_string("POSTGRES_HOST"),
+        "PORT": env_utils.as_string("POSTGRES_PORT"),
     }
 }
-DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
 
 # File handling
 
-STATIC_URL = 'static/'
-STATIC_ROOT = BASE_DIR / 'static'
-MEDIA_URL = 'media/'
-MEDIA_ROOT = BASE_DIR / 'media'
+STATIC_URL = "static/"
+STATIC_ROOT = BASE_DIR / "static"
+MEDIA_URL = "media/"
+MEDIA_ROOT = BASE_DIR / "media"
 
 
 # Rest framework settings
 
 REST_FRAMEWORK = {
-    'EXCEPTION_HANDLER': 'core.exceptions.exception_handler.exception_handler',
-    'DEFAULT_AUTHENTICATION_CLASSES': ('rest_framework_simplejwt.authentication.JWTAuthentication',),
+    "EXCEPTION_HANDLER": "core.exceptions.exception_handler.exception_handler",
+    "DEFAULT_AUTHENTICATION_CLASSES": ("rest_framework_simplejwt.authentication.JWTAuthentication",),
 }
 
 
@@ -136,28 +141,28 @@ REST_FRAMEWORK = {
 
 SIMPLE_JWT = {
     # TODO: review these values?
-    'ACCESS_TOKEN_LIFETIME': timedelta(minutes=5),
-    'REFRESH_TOKEN_LIFETIME': timedelta(hours=6),
-    'ROTATE_REFRESH_TOKENS': True,
-    'BLACKLIST_AFTER_ROTATION': True,
+    "ACCESS_TOKEN_LIFETIME": timedelta(minutes=5),
+    "REFRESH_TOKEN_LIFETIME": timedelta(hours=6),
+    "ROTATE_REFRESH_TOKENS": True,
+    "BLACKLIST_AFTER_ROTATION": True,
 }
 
 
 # User Management
 
-AUTH_USER_MODEL = 'users.User'
+AUTH_USER_MODEL = "users.User"
 AUTH_PASSWORD_VALIDATORS = [
     {
-        'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator',
+        "NAME": "django.contrib.auth.password_validation.UserAttributeSimilarityValidator",
     },
     {
-        'NAME': 'django.contrib.auth.password_validation.MinimumLengthValidator',
+        "NAME": "django.contrib.auth.password_validation.MinimumLengthValidator",
     },
     {
-        'NAME': 'django.contrib.auth.password_validation.CommonPasswordValidator',
+        "NAME": "django.contrib.auth.password_validation.CommonPasswordValidator",
     },
     {
-        'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator',
+        "NAME": "django.contrib.auth.password_validation.NumericPasswordValidator",
     },
 ]
 AUTH_USER_REGISTRATION_ENABLED = True
@@ -165,7 +170,7 @@ AUTH_USER_REGISTRATION_ENABLED = True
 
 # Internationalization
 
-LANGUAGE_CODE = 'en-us'
-TIME_ZONE = 'UTC'
+LANGUAGE_CODE = "en-us"
+TIME_ZONE = "UTC"
 USE_I18N = True
 USE_TZ = True
