@@ -7,13 +7,13 @@ from core.management.commands._base_command import BaseCommand
 
 class Command(BaseCommand):
     """
-    Django command to pause execution until a database connection is made
-    available.
+    Django command to pause execution until a database connection is made available.
 
     Upon failure, waits RETRY_SECONDS second(s) and tries again.
 
     If MAX_RETRIES is hit, stops and prints an error.
     """
+
     RETRY_SECONDS = 1
     MAX_RETRIES = 10
 
@@ -22,7 +22,7 @@ class Command(BaseCommand):
         retries = 0
         while True:
             try:
-                if connections['default']:
+                if connections["default"]:
                     self.success("Database connection available!")
                     return
             except OperationalError:

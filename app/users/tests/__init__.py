@@ -30,7 +30,7 @@ def sample_user(
     email: Optional[str] = None,
     password: str = VALID_PASSWORD,
     is_staff: Optional[bool] = None,
-    is_superuser: Optional[bool] = None
+    is_superuser: Optional[bool] = None,
 ) -> User:
     """
     Create a sample user with the following default values:

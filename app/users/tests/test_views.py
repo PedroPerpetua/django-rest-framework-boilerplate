@@ -9,6 +9,7 @@ from users.tests import INVALID_PASSWORD, VALID_PASSWORD, generate_valid_email, 
 
 class TestUserWhoamiView(TestCase):
     """Test the UserWhoamiView."""
+
     URL = reverse("users:whoami")
     client: APIClient
 
@@ -35,6 +36,7 @@ class TestUserWhoamiView(TestCase):
 @override_settings(AUTH_USER_REGISTRATION_ENABLED=True)  # For testing purposes assume it's True
 class TestUserRegisterView(TestCase):
     """Test the UserRegisterView."""
+
     URL = reverse("users:register")
 
     def setUp(self) -> None:
@@ -64,9 +66,7 @@ class TestUserRegisterView(TestCase):
         """Test creating an user with the registration disabled fails."""
         # Get the current user count
         original_count = User.objects.count()
-        res = self.client.post(
-            self.URL, data={"email": generate_valid_email(), "password": VALID_PASSWORD}
-        )
+        res = self.client.post(self.URL, data={"email": generate_valid_email(), "password": VALID_PASSWORD})
         # Verify the response
         self.assertEqual(status.HTTP_400_BAD_REQUEST, res.status_code)
         content = res.json()
@@ -78,6 +78,7 @@ class TestUserRegisterView(TestCase):
 
 class TestUserChangePasswordView(TestCase):
     """Test the UserChangePasswordView."""
+
     URL = reverse("users:change-password")
 
     def setUp(self) -> None:
@@ -147,6 +148,7 @@ class TestUserChangePasswordView(TestCase):
 
 class TestUserProfileView(TestCase):
     """Test the UserProfileView."""
+
     URL = reverse("users:profile")
 
     def setUp(self) -> None:

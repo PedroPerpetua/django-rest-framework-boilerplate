@@ -41,15 +41,17 @@ def is_svg(filepath: str | Path | File) -> bool:
 
     Taken and adjusted from: https://stackoverflow.com/questions/15136264/
     """
+
     def parse_file(f: TextIOWrapper | File) -> bool:
         tag = None
         try:
-            for _, el in et.iterparse(f, ('start',)):
+            for _, el in et.iterparse(f, ("start",)):
                 tag = el.tag
                 break
         except et.ParseError:
             pass
-        return tag == '{http://www.w3.org/2000/svg}svg'
+        return tag == "{http://www.w3.org/2000/svg}svg"
+
     if isinstance(filepath, File):
         return parse_file(filepath)
     else:

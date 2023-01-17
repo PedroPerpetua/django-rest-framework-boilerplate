@@ -33,5 +33,6 @@ command:
 
 lint:
 	isort ./app
-	autopep8 ./app
+	autoflake ./app
+	black ./app
 	mypy

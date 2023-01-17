@@ -10,8 +10,10 @@ class BaseCommand(DjangoCommand):
 
     Also has a `get_indented_streams` method that returns output streams with one more indentation level.
     """
+
     class IndentedOutputWrapper(OutputWrapper):
         """Wrapper around Django's commands OutputWrappers to support incremental indentation levels."""
+
         INDENTATION = " " * 2  # 2 spaces
 
         def __init__(self, source: OutputWrapper | BaseCommand.IndentedOutputWrapper):
