@@ -1,9 +1,10 @@
 -r boilerplate.requirements.txt
 
 # Linting
-autopep8 == 2.0.1
-mypy == 0.991
 isort == 5.11.4
+autoflake == 2.0.0
+black == 22.12.0
+mypy == 0.991
 
 # Type hint stubs
 django-stubs == 1.13.1
