@@ -13,9 +13,11 @@ class BaseAbstractModel(models.Model):
     """
 
     id = models.UUIDField(primary_key=True, unique=True, default=uuid4, editable=False)
-    created_at = models.DateTimeField(auto_now_add=True, editable=False)
-    updated_at = models.DateTimeField(auto_now=True, editable=False)
-    is_deleted = models.BooleanField(default=False)
+    created_at = models.DateTimeField(auto_now_add=True, editable=False, help_text="Object creation datetime.")
+    updated_at = models.DateTimeField(auto_now=True, editable=False, help_text="Last updated datetime.")
+    is_deleted = models.BooleanField(
+        default=False, help_text="Designates this object as soft deleted.", verbose_name="deleted status"
+    )
 
     class Meta:
         abstract = True
