@@ -38,7 +38,10 @@ class GroupProxy(admin_models.Group):
         verbose_name = "group"
 
 
-admin_site.register(GroupProxy)
+@admin.register(GroupProxy, site=admin_site)
+class GroupAdmin(admin.ModelAdmin):
+    fields = ("name", "permissions")
+    filter_horizontal = ("permissions",)
 
 
 class PermissionProxy(admin_models.Permission):
