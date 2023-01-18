@@ -27,7 +27,21 @@ class User(BaseAbstractModel, AbstractBaseUser, PermissionsMixin):
     """Custom User model."""
 
     email = models.EmailField(max_length=255, unique=True)
-    is_staff = models.BooleanField(default=False)
+    is_staff = models.BooleanField(
+        default=False, help_text="Designates this user as a staff member.", verbose_name="staff status"
+    )
+    is_active = models.BooleanField(
+        default=True, help_text="Designates the user as active.", verbose_name="active status"
+    )
+    """
+    Other fields not included but acquired from the AbstractBaseUser:
+    - password: string[128] -> encrypted password.
+    - last_login: DateTime -> user's last login; to be updated make sure simplejwt has the setting as true.
+        - NOTE: this field's help text is patched bellow
+    - is_superuser: boolean -> the user is a Django Superuser.
+    - groups: MTM[auth.group] -> permission groups the user belongs to.
+    - user_permissions: MTM[auth.permission] -> specific permissions applied to the user.
+    """
 
     objects = UserManager()
     USERNAME_FIELD = "email"
@@ -50,3 +64,7 @@ class User(BaseAbstractModel, AbstractBaseUser, PermissionsMixin):
 
     def __str__(self) -> str:
         return f"User ({self.id}) {self.email}"
+
+
+# Patch the last_login field's help text.
+User._meta.get_field("last_login").help_text = "Last login datetime. Updated when the TokenObtainPairView is called."
