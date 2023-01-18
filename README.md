@@ -19,6 +19,8 @@ Currently set up for `python 3.11` with `Django 4.1.5` and `Django Rest Framewor
 - Tests for the implemented features.
 - A Makefile to support basic operations.
 - A base for a custom user model with the full JWT authentication flow.
+  - NOTE: The users, by default, have `active=True`. It may be desired to change this behavior.
+  - NOTE: The simplejwt settings have `UPDATE_LAST_LOGIN: True`. This may hinder performance and may be desired to change this behavior.
 
 
 ## Configuration
