@@ -45,6 +45,7 @@ INSTALLED_APPS = [
     "rest_framework",
     "rest_framework_simplejwt",
     "rest_framework_simplejwt.token_blacklist",
+    "drf_standardized_errors",
     "corsheaders",
     # Our apps here
     "core",
@@ -132,7 +133,7 @@ MEDIA_ROOT = BASE_DIR / "media"
 # Rest framework settings
 
 REST_FRAMEWORK = {
-    "EXCEPTION_HANDLER": "core.exceptions.exception_handler.exception_handler",
+    "EXCEPTION_HANDLER": "drf_standardized_errors.handler.exception_handler",
     "DEFAULT_AUTHENTICATION_CLASSES": ("rest_framework_simplejwt.authentication.JWTAuthentication",),
 }
 
