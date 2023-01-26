@@ -2,8 +2,10 @@ from typing import Any
 from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.views import APIView
+from drf_spectacular.utils import extend_schema
 
 
+@extend_schema(responses={status.HTTP_200_OK: {"type": "string", "enum": ["pong"]}})
 class PingView(APIView):
     """View that simply replies with a 'pong'."""
 
