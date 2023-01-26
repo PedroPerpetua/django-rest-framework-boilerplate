@@ -1,6 +1,8 @@
-from typing import Any, TypeVar
+from typing import TYPE_CHECKING, Any, TypeVar
 from django.db.models import Model
 from django.urls.resolvers import URLPattern, URLResolver
+from rest_framework.generics import GenericAPIView
+from rest_framework.views import APIView
 
 
 """
@@ -23,3 +25,11 @@ GenericModel = TypeVar("GenericModel", bound=Model, covariant=True)
 
 """Type alias specifically for urlpatterns lists."""
 URLPatternsList = list[URLPattern | URLResolver]
+
+"""Type alias for Mixins."""
+if TYPE_CHECKING:
+    GenericViewMixin = GenericAPIView
+    APIViewMixin = APIView
+else:
+    GenericViewMixin = object
+    APIViewMixin = object

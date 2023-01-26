@@ -1,13 +1,14 @@
 from typing import Any
 from django.conf import settings
-from django.contrib.auth.models import AbstractBaseUser, AnonymousUser
 from django.contrib.auth.password_validation import validate_password
 from django.core.exceptions import ValidationError
 from rest_framework import generics, status
+from rest_framework.exceptions import PermissionDenied
+from rest_framework.exceptions import ValidationError as DRFValidationError
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.request import Request
 from rest_framework.response import Response
-from rest_framework.views import APIView
+from core.utilities.types import GenericViewMixin
 from users import models, serializers
 
 
@@ -17,14 +18,18 @@ class AuthenticatedRequest(Request):
     user: models.User
 
 
-class UserWhoamiView(APIView):
-    """Endpoint to retrieve the email of the currently logged in user."""
+class AuthenticatedUserMixin(GenericViewMixin):
+    """Mixin to set that a view requires authentication, and type the request as an AuthenticatedRequest."""
 
-    http_method_names = ["get"]
     permission_classes = (IsAuthenticated,)
+    request: AuthenticatedRequest
 
-    def get(self, request: AuthenticatedRequest) -> Response:
-        return Response({"email": request.user.email}, status=status.HTTP_200_OK)
+
+class TargetAuthenticatedUserMixin(AuthenticatedUserMixin):
+    """Mixin for views that target the authenticated user."""
+
+    def get_object(self: generics.GenericAPIView) -> models.User:
+        return self.request.user  # type: ignore # Return our user instead of an abstraction
 
 
 class UserRegisterView(generics.CreateAPIView):
@@ -36,51 +41,47 @@ class UserRegisterView(generics.CreateAPIView):
         """Override the POST method to block registration if disabled."""
         registration_enabled: bool = settings.AUTH_USER_REGISTRATION_ENABLED
         if not registration_enabled:
-            return Response(
-                {"errcode": "REG_DISABLED", "error": "Registration is disabled."}, status=status.HTTP_400_BAD_REQUEST
-            )
+            raise PermissionDenied("Registration is disabled.")
         return super().post(request, *args, **kwargs)
 
 
-class UserChangePasswordView(APIView):
-    """Endpoint to change a user's password."""
+class UserWhoamiView(TargetAuthenticatedUserMixin, generics.RetrieveAPIView):
+    """Endpoint to retrieve the email of the currently logged in user."""
 
-    http_method_names = ["post"]
-    permission_classes = (IsAuthenticated,)
-
-    def post(self, request: AuthenticatedRequest) -> Response:
-        password = request.data.get("password", None)
-        if password is None:
-            return Response(
-                {"errcode": "MISSING_ARG", "error": "'password' is required."}, status=status.HTTP_400_BAD_REQUEST
-            )
-        new_password = request.data.get("new_password", None)
-        if new_password is None:
-            return Response(
-                {"errcode": "MISSING_ARG", "error": "'new_password' is required."}, status=status.HTTP_400_BAD_REQUEST
-            )
-        if not request.user.check_password(password):
-            return Response(
-                {"errcode": "WRONG_PASSWORD", "error": "The original password is wrong."},
-                status=status.HTTP_400_BAD_REQUEST,
-            )
-        try:
-            validate_password(new_password)
-        except ValidationError:
-            return Response(
-                {"errcode": "INVALID_PASSWORD", "error": "The new password is invalid."},
-                status=status.HTTP_400_BAD_REQUEST,
-            )
-        request.user.set_password(new_password)
-        request.user.save()
-        return Response(status=status.HTTP_204_NO_CONTENT)
+    serializer_class = serializers.UserWhoamiSerializer
 
 
-class UserProfileView(generics.RetrieveUpdateAPIView):
+class UserProfileView(TargetAuthenticatedUserMixin, generics.RetrieveUpdateAPIView):
     """Endpoint to get a user's details."""
 
     serializer_class = serializers.UserProfileSerializer
-    permission_classes = (IsAuthenticated,)
 
-    def get_object(self) -> AbstractBaseUser | AnonymousUser:
-        return self.request.user
+
+class UserChangePasswordView(TargetAuthenticatedUserMixin, generics.UpdateAPIView):
+    """
+    Endpoint to change an user's password.
+
+    Even though the generic UpdateAPIView uses PUT/PATCH, an update-password request should be made trough POST, so we
+    change the class here.
+    """
+
+    http_method_names = ["post"]
+    serializer_class = serializers.UserChangePasswordSerializer
+
+    def post(self, request: Request, *args: Any, **kwargs: Any) -> Response:
+        return self.update(request, *args, **kwargs)
+
+    def update(self, request: Request, *args: Any, **kwargs: Any) -> Response:
+        user = self.get_object()
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        if not user.check_password(serializer.data.get("password")):
+            raise PermissionDenied("Wrong Password")
+        new_password = serializer.data.get("new_password")
+        try:
+            validate_password(new_password)
+        except ValidationError as ve:
+            raise DRFValidationError(ve.messages)
+        user.set_password(new_password)
+        user.save()
+        return Response(status=status.HTTP_204_NO_CONTENT)

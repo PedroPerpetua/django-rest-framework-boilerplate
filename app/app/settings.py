@@ -1,8 +1,8 @@
 import logging
 from datetime import datetime, timedelta
 from pathlib import Path
-from core.extensions.logging import LoggingConfigurationBuilder
-from core.utilities import env as env_utils
+from core.utilities import env
+from core.utilities.logging import LoggingConfigurationBuilder
 
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -11,25 +11,25 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 
 # General settings
 
-SECRET_KEY = env_utils.as_string("SECRET_KEY")
+SECRET_KEY = env.as_string("SECRET_KEY")
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = env_utils.as_bool("DEBUG")
-ALLOWED_HOSTS = env_utils.as_list("ALLOWED_HOSTS")
+DEBUG = env.as_bool("DEBUG")
+ALLOWED_HOSTS = env.as_list("ALLOWED_HOSTS")
 
 
 # HTTPS configuration. As per Django documentation, these settings should be enabled if we use HTTPS.
 # TODO: Check what they actually do?
 
-HTTPS_ENABLED = env_utils.as_bool("HTTPS_ENABLED")
+HTTPS_ENABLED = env.as_bool("HTTPS_ENABLED")
 SESSION_COOKIE_SECURE = HTTPS_ENABLED
 CRSF_COOKIE_SECURE = HTTPS_ENABLED
 
 
 # Cors configuration
 
-CORS_ALLOW_ALL_ORIGINS = env_utils.as_bool("CORS_ALLOW_ALL_ORIGINS")
+CORS_ALLOW_ALL_ORIGINS = env.as_bool("CORS_ALLOW_ALL_ORIGINS")
 # If CORS_ALLOW_ALL_ORIGINS is True, this setting is ignored
-CORS_ALLOWED_ORIGINS = env_utils.as_list("CORS_ALLOWED_ORIGINS")
+CORS_ALLOWED_ORIGINS = env.as_list("CORS_ALLOWED_ORIGINS")
 CSRF_TRUSTED_ORIGINS = CORS_ALLOWED_ORIGINS  # TODO: is this right?
 
 
@@ -45,6 +45,7 @@ INSTALLED_APPS = [
     "rest_framework",
     "rest_framework_simplejwt",
     "rest_framework_simplejwt.token_blacklist",
+    "drf_standardized_errors",
     "corsheaders",
     # Our apps here
     "core",
@@ -111,11 +112,11 @@ LOGGING = log_config_builder.build()
 DATABASES = {
     "default": {
         "ENGINE": "django.db.backends.postgresql",
-        "NAME": env_utils.as_string("POSTGRES_DB"),
-        "USER": env_utils.as_string("POSTGRES_USER"),
-        "PASSWORD": env_utils.as_string("POSTGRES_PASSWORD"),
-        "HOST": env_utils.as_string("POSTGRES_HOST"),
-        "PORT": env_utils.as_string("POSTGRES_PORT"),
+        "NAME": env.as_string("POSTGRES_DB"),
+        "USER": env.as_string("POSTGRES_USER"),
+        "PASSWORD": env.as_string("POSTGRES_PASSWORD"),
+        "HOST": env.as_string("POSTGRES_HOST"),
+        "PORT": env.as_string("POSTGRES_PORT"),
     }
 }
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
@@ -132,7 +133,7 @@ MEDIA_ROOT = BASE_DIR / "media"
 # Rest framework settings
 
 REST_FRAMEWORK = {
-    "EXCEPTION_HANDLER": "core.exceptions.exception_handler.exception_handler",
+    "EXCEPTION_HANDLER": "drf_standardized_errors.handler.exception_handler",
     "DEFAULT_AUTHENTICATION_CLASSES": ("rest_framework_simplejwt.authentication.JWTAuthentication",),
 }
 
@@ -148,6 +149,8 @@ SIMPLE_JWT = {
     "UPDATE_LAST_LOGIN": True,  # This hinders performance; can be turned off if necessary.
 }
 
+# DRF Standardized Errors settings
+DRF_STANDARDIZED_ERRORS = {"EXCEPTION_FORMATTER_CLASS": "core.exceptions.formatter.ExceptionFormatter"}
 
 # User Management
 

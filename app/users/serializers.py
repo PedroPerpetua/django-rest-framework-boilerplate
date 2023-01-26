@@ -15,6 +15,25 @@ class UserRegisterSerializer(serializers.ModelSerializer):
         return models.User.objects.create_user(**validated_data)
 
 
+class UserWhoamiSerializer(serializers.ModelSerializer):
+    """Serializer for retrieving the current user's email."""
+
+    class Meta:
+        model = models.User
+        fields = ("email",)
+
+
+class UserChangePasswordSerializer(serializers.ModelSerializer):
+    """Serializer for change password requests"""
+
+    password = serializers.CharField(required=True)
+    new_password = serializers.CharField(required=True)
+
+    class Meta:
+        model = models.User
+        fields = ("password", "new_password")
+
+
 class UserProfileSerializer(serializers.ModelSerializer):
     """Serializer to obtain an user's profile."""
 

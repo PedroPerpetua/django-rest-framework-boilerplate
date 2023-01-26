@@ -1,10 +1,19 @@
+from __future__ import annotations
 import xml.etree.cElementTree as et
 from io import TextIOWrapper
 from pathlib import Path
-from typing import Optional
+from typing import TYPE_CHECKING, Optional
 from uuid import uuid4
 from django.core.files import File
-from core.utilities.types import JSON_BASE
+
+
+if TYPE_CHECKING:
+    """
+    We only import this when typechecking to prevent DRF from being loaded into this module, as our `settings.py` file
+    imports from this module to setup. If we import this regularly, we're met with an issue where DRF is loaded BEFORE
+    `REST_FRAMEWORK` settings are set, causing them to never be loaded at all.
+    """
+    from core.utilities.types import JSON_BASE
 
 
 def empty(string: Optional[str]) -> bool:
