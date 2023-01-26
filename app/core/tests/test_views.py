@@ -1,10 +1,9 @@
-from django.test import TestCase
 from django.urls import reverse
 from rest_framework import status
-from rest_framework.test import APIClient
+from rest_framework.test import APIClient, APITestCase
 
 
-class TestCoreAPI(TestCase):
+class TestCoreAPI(APITestCase):
     """Test the Core API endpoints."""
 
     def setUp(self) -> None:

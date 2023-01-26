@@ -44,3 +44,11 @@ class TestAuthenticationFlow(TestCase):
         # Make sure the token is now invalid
         refresh_res = client.post(reverse("users:login-refresh"), data={"refresh": login_token_dict["refresh"]})
         self.assertEqual(status.HTTP_401_UNAUTHORIZED, refresh_res.status_code)
+
+    def test_invalid_token(self) -> None:
+        """Test making a request with an invalid token (as opposed to no token at all)."""
+        client = APIClient()
+        # Make the call
+        res = client.post(reverse("users:whoami"), HTTP_AUTHORIZATION=f"Bearer INVALID_TOKEN")
+        # Verify the response
+        self.assertEqual(status.HTTP_401_UNAUTHORIZED, res.status_code)

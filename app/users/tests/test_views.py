@@ -1,40 +1,14 @@
-from django.test import TestCase, override_settings
+from django.test import override_settings
 from django.urls import reverse
 from rest_framework import status
-from rest_framework.test import APIClient
+from rest_framework.test import APIClient, APITestCase
+from users import serializers
 from users.models import User
-from users.serializers import UserProfileSerializer
 from users.tests import INVALID_PASSWORD, VALID_PASSWORD, generate_valid_email, sample_user
 
 
-class TestUserWhoamiView(TestCase):
-    """Test the UserWhoamiView."""
-
-    URL = reverse("users:whoami")
-    client: APIClient
-
-    def setUp(self) -> None:
-        self.client = APIClient()
-
-    def test_success(self) -> None:
-        # Create and login a user
-        user = sample_user()
-        self.client.force_authenticate(user)
-        # Make the call
-        res = self.client.get(self.URL)
-        # Verify the response
-        self.assertEqual(status.HTTP_200_OK, res.status_code)
-        self.assertEqual({"email": user.email}, res.json())
-
-    def test_requires_authorization(self) -> None:
-        # Make the call
-        res = self.client.get(self.URL)
-        # Verify the response
-        self.assertEqual(status.HTTP_401_UNAUTHORIZED, res.status_code)
-
-
 @override_settings(AUTH_USER_REGISTRATION_ENABLED=True)  # For testing purposes assume it's True
-class TestUserRegisterView(TestCase):
+class TestUserRegisterView(APITestCase):
     """Test the UserRegisterView."""
 
     URL = reverse("users:register")
@@ -68,15 +42,111 @@ class TestUserRegisterView(TestCase):
         original_count = User.objects.count()
         res = self.client.post(self.URL, data={"email": generate_valid_email(), "password": VALID_PASSWORD})
         # Verify the response
-        self.assertEqual(status.HTTP_400_BAD_REQUEST, res.status_code)
-        content = res.json()
-        self.assertEqual("REG_DISABLED", content["errcode"])
-        self.assertEqual("Registration is disabled.", content["error"])
+        self.assertEqual(status.HTTP_403_FORBIDDEN, res.status_code)
+        self.assertEqual("Registration is disabled.", res.json()["errors"][0]["detail"])
         # Make sure no user was created
         self.assertEqual(original_count, User.objects.count())
 
 
-class TestUserChangePasswordView(TestCase):
+class TestUserWhoamiView(APITestCase):
+    """Test the UserWhoamiView."""
+
+    URL = reverse("users:whoami")
+
+    def setUp(self) -> None:
+        self.client = APIClient()
+
+    def test_success(self) -> None:
+        # Create and login a user
+        user = sample_user()
+        self.client.force_authenticate(user)
+        # Make the call
+        res = self.client.get(self.URL)
+        # Verify the response
+        self.assertEqual(status.HTTP_200_OK, res.status_code)
+        expected = serializers.UserWhoamiSerializer(user).data
+        self.assertEqual(expected, res.json())
+
+    def test_requires_authorization(self) -> None:
+        # Make the call
+        res = self.client.get(self.URL)
+        # Verify the response
+        self.assertEqual(status.HTTP_401_UNAUTHORIZED, res.status_code)
+
+
+class TestUserProfileView(APITestCase):
+    """Test the UserProfileView."""
+
+    URL = reverse("users:profile")
+
+    def setUp(self) -> None:
+        self.user = sample_user()
+        self.client = APIClient()
+        self.client.force_authenticate(self.user)
+
+    def test_get_success(self) -> None:
+        """Test successfully retrieving the user's profile."""
+        # Make the call
+        res = self.client.get(self.URL)
+        # verify the response
+        self.assertEqual(status.HTTP_200_OK, res.status_code)
+        self.assertEqual(serializers.UserProfileSerializer(self.user).data, res.json())
+
+    def test_get_authentication_required(self) -> None:
+        """Test that the user needs to be logged in to retrieve their profile."""
+        # Create a new client that isn't logged in
+        client = APIClient()
+        # Make the call
+        res = client.get(self.URL)
+        # Verify the response
+        self.assertEqual(status.HTTP_401_UNAUTHORIZED, res.status_code)
+
+    def test_update_success(self) -> None:
+        """Test successfully updating the user's profile."""
+        for func in [self.client.patch, self.client.put]:
+            with self.subTest(msg="Updating the user's profile.", value=func.__name__):
+                # Make the call
+                payload = {"email": generate_valid_email()}
+                res = func(self.URL, data=payload)
+                # Verify the response
+                self.assertEqual(status.HTTP_200_OK, res.status_code)
+                # Make sure the email changed
+                self.user.refresh_from_db()
+                self.assertEqual(payload["email"], self.user.email)
+
+    def test_update_fails(self) -> None:
+        """Test that updating the user's profile with bad data fails."""
+        for func in [self.client.patch, self.client.put]:
+            with self.subTest(msg="Updating the user's profile.", value=func.__name__):
+                # Make the call
+                payload = {"email": "_invalid_email"}
+                res = func(self.URL, data=payload)
+                # Verify the response
+                self.assertEqual(status.HTTP_400_BAD_REQUEST, res.status_code)
+                self.assertEqual(
+                    {"errors": [{"code": "invalid", "detail": "Enter a valid email address.", "attr": "email"}]},
+                    res.json(),
+                )
+                # Make sure the email didn't change change
+                self.user.refresh_from_db()
+                self.assertNotEqual(payload["email"], self.user.email)
+
+    def test_update_authentication_required(self) -> None:
+        """Test that the user needs to be logged in to update their profile."""
+        client = APIClient()
+        for func in [client.patch, client.put]:
+            with self.subTest(msg="Updating the user's profile.", value=func.__name__):
+                # Make the call
+                payload = {"email": generate_valid_email()}
+                res = func(self.URL, data=payload)
+                # Verify the response
+                self.assertEqual(status.HTTP_401_UNAUTHORIZED, res.status_code)
+                # Make sure the email didn't change
+                self.user.refresh_from_db()
+                self.assertNotEqual(payload["email"], self.user.email)
+
+
+class TestUserChangePasswordView(APITestCase):
     """Test the UserChangePasswordView."""
 
     URL = reverse("users:change-password")
@@ -107,10 +177,10 @@ class TestUserChangePasswordView(TestCase):
         wrong_password = "_" + self.password  # so it's different
         res = self.client.post(self.URL, data={"password": wrong_password, "new_password": new_password})
         # Verify the response
-        self.assertEqual(status.HTTP_400_BAD_REQUEST, res.status_code)
-        content = res.json()
-        self.assertEqual("WRONG_PASSWORD", content["errcode"])
-        self.assertEqual("The original password is wrong.", content["error"])
+        self.assertEqual(status.HTTP_403_FORBIDDEN, res.status_code)
+        self.assertEqual(
+            {"errors": [{"code": "permission_denied", "detail": "Wrong Password", "attr": None}]}, res.json()
+        )
         # Make sure the password didn't change
         self.user.refresh_from_db()
         self.assertFalse(self.user.check_password(new_password))
@@ -123,9 +193,12 @@ class TestUserChangePasswordView(TestCase):
         res = self.client.post(self.URL, data={"password": self.password, "new_password": new_password})
         # Verify the response
         self.assertEqual(status.HTTP_400_BAD_REQUEST, res.status_code)
-        content = res.json()
-        self.assertEqual("INVALID_PASSWORD", content["errcode"])
-        self.assertEqual("The new password is invalid.", content["error"])
+        errors = res.json()["errors"]
+        self.assertEqual(1, len(errors))
+        error = errors[0]
+        self.assertIsNone(error["attr"])
+        self.assertEqual("invalid", error["code"])
+        self.assertIsInstance(error["detail"], str)
         # Make sure the password didn't change
         self.user.refresh_from_db()
         self.assertFalse(self.user.check_password(new_password))
@@ -145,71 +218,16 @@ class TestUserChangePasswordView(TestCase):
         self.assertFalse(self.user.check_password(new_password))
         self.assertTrue(self.user.check_password(self.password))
 
-
-class TestUserProfileView(TestCase):
-    """Test the UserProfileView."""
-
-    URL = reverse("users:profile")
-
-    def setUp(self) -> None:
-        self.user = sample_user()
-        self.client = APIClient()
-        self.client.force_authenticate(self.user)
-
-    def test_get_success(self) -> None:
-        """Test successfully retrieving the user's profile."""
-        # Make the call
-        res = self.client.get(self.URL)
-        # verify the response
-        self.assertEqual(status.HTTP_200_OK, res.status_code)
-        self.assertEqual(UserProfileSerializer(self.user).data, res.json())
-
-    def test_get_authentication_required(self) -> None:
-        """Test that the user needs to be logged in to retrieve their profile."""
-        # Create a new client that isn't logged in
-        client = APIClient()
-        # Make the call
-        res = client.get(self.URL)
-        # Verify the response
-        self.assertEqual(status.HTTP_401_UNAUTHORIZED, res.status_code)
-
-    def test_update_success(self) -> None:
-        """Test successfully updating the user's profile."""
+    def test_method_not_allowed(self) -> None:
+        """Because we changed the default HTTP methods, make sure the previous now return an error."""
         for func in [self.client.patch, self.client.put]:
-            with self.subTest(msg="Updating the user's profile.", value=func):
+            with self.subTest(msg="Testing updating password with methods not allowed.", value=func.__name__):
                 # Make the call
-                payload = {"email": generate_valid_email()}
-                res = func(self.URL, data=payload)
+                new_password = "new" + VALID_PASSWORD
+                res = func(self.URL, data={"password": self.password, "new_password": new_password})
                 # Verify the response
-                self.assertEqual(status.HTTP_200_OK, res.status_code)
-                # Make sure the email changed
+                self.assertEqual(status.HTTP_405_METHOD_NOT_ALLOWED, res.status_code)
+                # Make sure the password didn't change
                 self.user.refresh_from_db()
-                self.assertEqual(payload["email"], self.user.email)
-
-    def test_update_fails(self) -> None:
-        """Test that updating the user's profile with bad data fails."""
-        for func in [self.client.patch, self.client.put]:
-            with self.subTest(msg="Updating the user's profile.", value=func):
-                # Make the call
-                payload = {"email": "_invalid_email"}
-                res = func(self.URL, data=payload)
-                # Verify the response
-                self.assertEqual(status.HTTP_400_BAD_REQUEST, res.status_code)
-                self.assertEqual({"email": ["Enter a valid email address."]}, res.json())
-                # Make sure the email didn't change change
-                self.user.refresh_from_db()
-                self.assertNotEqual(payload["email"], self.user.email)
-
-    def test_update_authentication_required(self) -> None:
-        """Test that the user needs to be logged in to update their profile."""
-        client = APIClient()
-        for func in [client.patch, client.put]:
-            with self.subTest(msg="Updating the user's profile.", value=func):
-                # Make the call
-                payload = {"email": generate_valid_email()}
-                res = func(self.URL, data=payload)
-                # Verify the response
-                self.assertEqual(status.HTTP_401_UNAUTHORIZED, res.status_code)
-                # Make sure the email didn't change
-                self.user.refresh_from_db()
-                self.assertNotEqual(payload["email"], self.user.email)
+                self.assertFalse(self.user.check_password(new_password))
+                self.assertTrue(self.user.check_password(self.password))

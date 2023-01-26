@@ -1,7 +1,10 @@
 from typing import Any
 from django.conf import settings
+from django.contrib.auth.password_validation import validate_password
+from django.core.exceptions import ValidationError
 from rest_framework import generics, status
 from rest_framework.exceptions import PermissionDenied
+from rest_framework.exceptions import ValidationError as DRFValidationError
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.request import Request
 from rest_framework.response import Response
@@ -15,11 +18,15 @@ class AuthenticatedRequest(Request):
     user: models.User
 
 
-class TargetAuthenticatedUserMixin(GenericViewMixin):
-    """Mixin for views that target the authenticated user."""
+class AuthenticatedUserMixin(GenericViewMixin):
+    """Mixin to set that a view requires authentication, and type the request as an AuthenticatedRequest."""
 
     permission_classes = (IsAuthenticated,)
     request: AuthenticatedRequest
+
+
+class TargetAuthenticatedUserMixin(AuthenticatedUserMixin):
+    """Mixin for views that target the authenticated user."""
 
     def get_object(self: generics.GenericAPIView) -> models.User:
         return self.request.user  # type: ignore # Return our user instead of an abstraction
@@ -51,9 +58,18 @@ class UserProfileView(TargetAuthenticatedUserMixin, generics.RetrieveUpdateAPIVi
 
 
 class UserChangePasswordView(TargetAuthenticatedUserMixin, generics.UpdateAPIView):
-    """Endpoint to change an user's password."""
+    """
+    Endpoint to change an user's password.
 
+    Even though the generic UpdateAPIView uses PUT/PATCH, an update-password request should be made trough POST, so we
+    change the class here.
+    """
+
+    http_method_names = ["post"]
     serializer_class = serializers.UserChangePasswordSerializer
+
+    def post(self, request: Request, *args: Any, **kwargs: Any) -> Response:
+        return self.update(request, *args, **kwargs)
 
     def update(self, request: Request, *args: Any, **kwargs: Any) -> Response:
         user = self.get_object()
@@ -61,6 +77,11 @@ class UserChangePasswordView(TargetAuthenticatedUserMixin, generics.UpdateAPIVie
         serializer.is_valid(raise_exception=True)
         if not user.check_password(serializer.data.get("password")):
             raise PermissionDenied("Wrong Password")
-        user.set_password(serializer.data.get("new_password"))
+        new_password = serializer.data.get("new_password")
+        try:
+            validate_password(new_password)
+        except ValidationError as ve:
+            raise DRFValidationError(ve.messages)
+        user.set_password(new_password)
         user.save()
         return Response(status=status.HTTP_204_NO_CONTENT)
