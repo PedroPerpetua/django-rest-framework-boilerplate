@@ -13,9 +13,6 @@ class TestUserRegisterView(APITestCase):
 
     URL = reverse("users:register")
 
-    def setUp(self) -> None:
-        self.client = APIClient()
-
     def test_success(self) -> None:
         """Test successfully creating an user."""
         # Get the current user count
@@ -53,9 +50,6 @@ class TestUserWhoamiView(APITestCase):
 
     URL = reverse("users:whoami")
 
-    def setUp(self) -> None:
-        self.client = APIClient()
-
     def test_success(self) -> None:
         # Create and login a user
         user = sample_user()
@@ -81,7 +75,6 @@ class TestUserProfileView(APITestCase):
 
     def setUp(self) -> None:
         self.user = sample_user()
-        self.client = APIClient()
         self.client.force_authenticate(self.user)
 
     def test_get_success(self) -> None:
@@ -154,7 +147,6 @@ class TestUserChangePasswordView(APITestCase):
     def setUp(self) -> None:
         self.password = VALID_PASSWORD
         self.user = sample_user(password=self.password)
-        self.client = APIClient()
         self.client.force_authenticate(self.user)
 
     def test_success(self) -> None:

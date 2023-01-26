@@ -151,8 +151,28 @@ SIMPLE_JWT = {
     "UPDATE_LAST_LOGIN": True,  # This hinders performance; can be turned off if necessary.
 }
 
+
 # DRF Standardized Errors settings
 DRF_STANDARDIZED_ERRORS = {"EXCEPTION_FORMATTER_CLASS": "core.exceptions.formatter.ExceptionFormatter"}
+
+
+# DRF Spectacular settings
+SPECTACULAR_SETTINGS = {
+    "TITLE": env.as_string("SWAGGER_TITLE", "API"),
+    "DESCRIPTION": env.as_string("SWAGGER_DESCRIPTION", "API Schema"),
+    "VERSION": env.as_string("SWAGGER_VERSION", "1.0.0"),
+    "SERVE_INCLUDE_SCHEMA": False,
+    "SERVE_PERMISSIONS": (
+        "rest_framework.permissions.IsAdminUser"
+        if env.as_bool("SWAGGER_ADMIN_ONLY", True)
+        else "rest_framework.permissions.AllowAny",
+    ),
+    "SERVE_AUTHENTICATION": (
+        "rest_framework.authentication.SessionAuthentication",  # Same auth for admin page
+        "rest_framework_simplejwt.authentication.JWTAuthentication",
+    ),
+}
+
 
 # User Management
 
