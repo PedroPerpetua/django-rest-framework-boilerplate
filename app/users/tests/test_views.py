@@ -45,6 +45,61 @@ class TestUserRegisterView(APITestCase):
         self.assertEqual(original_count, User.objects.count())
 
 
+class TestAuthenticationFlow(APITestCase):
+    """
+    Test the JWT Authentication flow with a login, refresh and logout.
+
+    These tests cover the UserLoginView, UserLoginRefreshView, UserLogoutView.
+    """
+
+    def test_auth_flow(self) -> None:
+        """Test the complete login flow."""
+        password = VALID_PASSWORD
+        user = sample_user(password=password)
+
+        # First, let's login the user
+        login_res = self.client.post(reverse("users:login"), data={"email": user.email, "password": password})
+        self.assertEqual(status.HTTP_200_OK, login_res.status_code)
+        login_token_dict = login_res.json()
+        self.assertTrue(login_token_dict["refresh"])  # Not empty
+        self.assertTrue(login_token_dict["access"])  # Not empty
+        # Make a call to the Whoami endpoint
+        whoami_res = self.client.get(
+            reverse("users:whoami"), HTTP_AUTHORIZATION=f"Bearer {login_token_dict['access']}"
+        )
+        self.assertEqual(status.HTTP_200_OK, whoami_res.status_code)
+        self.assertEqual({"email": user.email}, whoami_res.json())
+
+        # Refresh the tokens
+        refresh_res = self.client.post(reverse("users:login-refresh"), data={"refresh": login_token_dict["refresh"]})
+        self.assertEqual(status.HTTP_200_OK, refresh_res.status_code)
+        refresh_token_dict = refresh_res.json()
+        self.assertTrue(refresh_token_dict["refresh"])  # Not empty
+        self.assertTrue(refresh_token_dict["access"])  # Not empty
+        # Make sure the new token is valid
+        whoami_res = self.client.get(
+            reverse("users:whoami"), HTTP_AUTHORIZATION=f"Bearer {login_token_dict['access']}"
+        )
+        self.assertEqual(status.HTTP_200_OK, whoami_res.status_code)
+        # Make sure the old token is invalid
+        refresh_res = self.client.post(reverse("users:login-refresh"), data={"refresh": login_token_dict["refresh"]})
+        self.assertEqual(status.HTTP_401_UNAUTHORIZED, refresh_res.status_code)
+
+        # Logout the account
+        logout_res = self.client.post(reverse("users:logout"), data={"refresh": refresh_token_dict["refresh"]})
+        self.assertEqual(status.HTTP_200_OK, logout_res.status_code)
+        # Make sure the token is now invalid
+        refresh_res = self.client.post(reverse("users:login-refresh"), data={"refresh": login_token_dict["refresh"]})
+        self.assertEqual(status.HTTP_401_UNAUTHORIZED, refresh_res.status_code)
+
+    def test_invalid_token(self) -> None:
+        """Test making a request with an invalid token (as opposed to no token at all)."""
+        # Make the call
+        res = self.client.post(reverse("users:whoami"), HTTP_AUTHORIZATION=f"Bearer INVALID_TOKEN")
+        # Verify the response
+        self.assertEqual(status.HTTP_401_UNAUTHORIZED, res.status_code)
+
+
 class TestUserWhoamiView(APITestCase):
     """Test the UserWhoamiView."""
 
