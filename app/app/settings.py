@@ -160,7 +160,7 @@ DRF_STANDARDIZED_ERRORS = {"EXCEPTION_FORMATTER_CLASS": "core.exceptions.formatt
 SPECTACULAR_SETTINGS = {
     "TITLE": env.as_string("SWAGGER_TITLE", "API"),
     "DESCRIPTION": env.as_string("SWAGGER_DESCRIPTION", "API Schema"),
-    "VERSION": env.as_string("SWAGGER_VERSION", "1.0.0"),
+    "VERSION": env.as_string("SWAGGER_API_VERSION", "v1"),
     "SERVE_INCLUDE_SCHEMA": False,
     "SERVE_PERMISSIONS": (
         "rest_framework.permissions.IsAdminUser"

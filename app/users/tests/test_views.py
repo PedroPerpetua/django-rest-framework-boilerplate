@@ -14,7 +14,7 @@ class TestUserRegisterView(APITestCase):
     URL = reverse("users:register")
 
     def test_success(self) -> None:
-        """Test successfully creating an user."""
+        """Test successfully creating a user."""
         # Get the current user count
         original_count = User.objects.count()
         # Make the call
@@ -34,7 +34,7 @@ class TestUserRegisterView(APITestCase):
 
     @override_settings(AUTH_USER_REGISTRATION_ENABLED=False)
     def test_registration_disabled_fails(self) -> None:
-        """Test creating an user with the registration disabled fails."""
+        """Test creating a user with the registration disabled fails."""
         # Get the current user count
         original_count = User.objects.count()
         res = self.client.post(self.URL, data={"email": generate_valid_email(), "password": VALID_PASSWORD})
