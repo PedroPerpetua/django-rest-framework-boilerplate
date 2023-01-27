@@ -27,6 +27,17 @@ test:
 	-docker compose run --rm app sh -c "python manage.py test"
 	docker compose stop
 
+coverage:
+	-docker compose run --rm app sh -c "coverage run --source=\".\" manage.py test && coverage html"
+	docker compose stop
+	rm ./app/.coverage
+	mv ./app/htmlcov ./coverage
+
+clear:
+	find . | grep -E "(__pycache__|\.pyc|\.pyo$)" | xargs rm -rf
+	rm -rf ./app/logs
+	rm -rf ./coverage
+
 command:
 	-docker compose run --rm app sh -c "python manage.py $(COMMAND_ARGS)"
 	docker compose stop
