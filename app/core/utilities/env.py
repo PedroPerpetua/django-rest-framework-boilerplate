@@ -10,7 +10,11 @@ T = TypeVar("T")
 
 def _get_value(var: str, default: Optional[T]) -> str | T:
     try:
-        return ENV[var]
+        value = ENV[var]
+        # We take defaults if available for empty values
+        if len(value) == 0 and default is not None:
+            return default
+        return value
     except KeyError:
         if default is None:
             raise

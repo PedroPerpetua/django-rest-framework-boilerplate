@@ -24,7 +24,7 @@ class UserWhoamiSerializer(serializers.ModelSerializer):
 
 
 class UserChangePasswordSerializer(serializers.ModelSerializer):
-    """Serializer for change password requests"""
+    """Serializer for change password requests."""
 
     password = serializers.CharField(required=True)
     new_password = serializers.CharField(required=True)
@@ -35,7 +35,7 @@ class UserChangePasswordSerializer(serializers.ModelSerializer):
 
 
 class UserProfileSerializer(serializers.ModelSerializer):
-    """Serializer to obtain an user's profile."""
+    """Serializer to handle user's details."""
 
     class Meta:
         model = models.User

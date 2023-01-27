@@ -45,6 +45,7 @@ INSTALLED_APPS = [
     "rest_framework",
     "rest_framework_simplejwt",
     "rest_framework_simplejwt.token_blacklist",
+    "drf_spectacular",
     "drf_standardized_errors",
     "corsheaders",
     # Our apps here
@@ -135,6 +136,7 @@ MEDIA_ROOT = BASE_DIR / "media"
 REST_FRAMEWORK = {
     "EXCEPTION_HANDLER": "drf_standardized_errors.handler.exception_handler",
     "DEFAULT_AUTHENTICATION_CLASSES": ("rest_framework_simplejwt.authentication.JWTAuthentication",),
+    "DEFAULT_SCHEMA_CLASS": "drf_spectacular.openapi.AutoSchema",
 }
 
 
@@ -149,8 +151,28 @@ SIMPLE_JWT = {
     "UPDATE_LAST_LOGIN": True,  # This hinders performance; can be turned off if necessary.
 }
 
+
 # DRF Standardized Errors settings
 DRF_STANDARDIZED_ERRORS = {"EXCEPTION_FORMATTER_CLASS": "core.exceptions.formatter.ExceptionFormatter"}
+
+
+# DRF Spectacular settings
+SPECTACULAR_SETTINGS = {
+    "TITLE": env.as_string("SWAGGER_TITLE", "API"),
+    "DESCRIPTION": env.as_string("SWAGGER_DESCRIPTION", "API Schema"),
+    "VERSION": env.as_string("SWAGGER_API_VERSION", "v1"),
+    "SERVE_INCLUDE_SCHEMA": False,
+    "SERVE_PERMISSIONS": (
+        "rest_framework.permissions.IsAdminUser"
+        if env.as_bool("SWAGGER_ADMIN_ONLY", True)
+        else "rest_framework.permissions.AllowAny",
+    ),
+    "SERVE_AUTHENTICATION": (
+        "rest_framework.authentication.SessionAuthentication",  # Same auth for admin page
+        "rest_framework_simplejwt.authentication.JWTAuthentication",
+    ),
+}
+
 
 # User Management
 
@@ -169,7 +191,7 @@ AUTH_PASSWORD_VALIDATORS = [
         "NAME": "django.contrib.auth.password_validation.NumericPasswordValidator",
     },
 ]
-AUTH_USER_REGISTRATION_ENABLED = True
+AUTH_USER_REGISTRATION_ENABLED = env.as_bool("AUTH_USER_REGISTRATION_ENABLED", False)
 
 
 # Internationalization

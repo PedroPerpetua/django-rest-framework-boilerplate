@@ -13,11 +13,8 @@ class TestUserRegisterView(APITestCase):
 
     URL = reverse("users:register")
 
-    def setUp(self) -> None:
-        self.client = APIClient()
-
     def test_success(self) -> None:
-        """Test successfully creating an user."""
+        """Test successfully creating a user."""
         # Get the current user count
         original_count = User.objects.count()
         # Make the call
@@ -37,7 +34,7 @@ class TestUserRegisterView(APITestCase):
 
     @override_settings(AUTH_USER_REGISTRATION_ENABLED=False)
     def test_registration_disabled_fails(self) -> None:
-        """Test creating an user with the registration disabled fails."""
+        """Test creating a user with the registration disabled fails."""
         # Get the current user count
         original_count = User.objects.count()
         res = self.client.post(self.URL, data={"email": generate_valid_email(), "password": VALID_PASSWORD})
@@ -48,13 +45,65 @@ class TestUserRegisterView(APITestCase):
         self.assertEqual(original_count, User.objects.count())
 
 
+class TestAuthenticationFlow(APITestCase):
+    """
+    Test the JWT Authentication flow with a login, refresh and logout.
+
+    These tests cover the UserLoginView, UserLoginRefreshView, UserLogoutView.
+    """
+
+    def test_auth_flow(self) -> None:
+        """Test the complete login flow."""
+        password = VALID_PASSWORD
+        user = sample_user(password=password)
+
+        # First, let's login the user
+        login_res = self.client.post(reverse("users:login"), data={"email": user.email, "password": password})
+        self.assertEqual(status.HTTP_200_OK, login_res.status_code)
+        login_token_dict = login_res.json()
+        self.assertTrue(login_token_dict["refresh"])  # Not empty
+        self.assertTrue(login_token_dict["access"])  # Not empty
+        # Make a call to the Whoami endpoint
+        whoami_res = self.client.get(
+            reverse("users:whoami"), HTTP_AUTHORIZATION=f"Bearer {login_token_dict['access']}"
+        )
+        self.assertEqual(status.HTTP_200_OK, whoami_res.status_code)
+        self.assertEqual({"email": user.email}, whoami_res.json())
+
+        # Refresh the tokens
+        refresh_res = self.client.post(reverse("users:login-refresh"), data={"refresh": login_token_dict["refresh"]})
+        self.assertEqual(status.HTTP_200_OK, refresh_res.status_code)
+        refresh_token_dict = refresh_res.json()
+        self.assertTrue(refresh_token_dict["refresh"])  # Not empty
+        self.assertTrue(refresh_token_dict["access"])  # Not empty
+        # Make sure the new token is valid
+        whoami_res = self.client.get(
+            reverse("users:whoami"), HTTP_AUTHORIZATION=f"Bearer {login_token_dict['access']}"
+        )
+        self.assertEqual(status.HTTP_200_OK, whoami_res.status_code)
+        # Make sure the old token is invalid
+        refresh_res = self.client.post(reverse("users:login-refresh"), data={"refresh": login_token_dict["refresh"]})
+        self.assertEqual(status.HTTP_401_UNAUTHORIZED, refresh_res.status_code)
+
+        # Logout the account
+        logout_res = self.client.post(reverse("users:logout"), data={"refresh": refresh_token_dict["refresh"]})
+        self.assertEqual(status.HTTP_200_OK, logout_res.status_code)
+        # Make sure the token is now invalid
+        refresh_res = self.client.post(reverse("users:login-refresh"), data={"refresh": login_token_dict["refresh"]})
+        self.assertEqual(status.HTTP_401_UNAUTHORIZED, refresh_res.status_code)
+
+    def test_invalid_token(self) -> None:
+        """Test making a request with an invalid token (as opposed to no token at all)."""
+        # Make the call
+        res = self.client.post(reverse("users:whoami"), HTTP_AUTHORIZATION=f"Bearer INVALID_TOKEN")
+        # Verify the response
+        self.assertEqual(status.HTTP_401_UNAUTHORIZED, res.status_code)
+
+
 class TestUserWhoamiView(APITestCase):
     """Test the UserWhoamiView."""
 
     URL = reverse("users:whoami")
-
-    def setUp(self) -> None:
-        self.client = APIClient()
 
     def test_success(self) -> None:
         # Create and login a user
@@ -81,7 +130,6 @@ class TestUserProfileView(APITestCase):
 
     def setUp(self) -> None:
         self.user = sample_user()
-        self.client = APIClient()
         self.client.force_authenticate(self.user)
 
     def test_get_success(self) -> None:
@@ -154,7 +202,6 @@ class TestUserChangePasswordView(APITestCase):
     def setUp(self) -> None:
         self.password = VALID_PASSWORD
         self.user = sample_user(password=self.password)
-        self.client = APIClient()
         self.client.force_authenticate(self.user)
 
     def test_success(self) -> None:

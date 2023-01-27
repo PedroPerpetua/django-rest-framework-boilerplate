@@ -1,4 +1,5 @@
-from django.urls import path
+from django.urls import include, path
+from drf_spectacular.views import SpectacularAPIView, SpectacularSwaggerView
 from core.admin import admin_site
 from core.utilities.types import URLPatternsList
 from core.views import PingView
@@ -10,5 +11,14 @@ from core.views import PingView
 
 urlpatterns: URLPatternsList = [
     path("admin/", admin_site.urls, name="admin"),
+    path(
+        "schema/",
+        include(
+            [
+                path("", SpectacularAPIView.as_view(), name="schema"),
+                path("swagger/", SpectacularSwaggerView.as_view(), name="schema-swagger"),
+            ]
+        ),
+    ),
     path("ping/", PingView.as_view(), name="ping"),
 ]
