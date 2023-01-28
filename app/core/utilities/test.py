@@ -1,16 +1,17 @@
 import re
 from typing import Any
 import requests
+from core.utilities.types import JSON_BASE
 
 
 class MockResponse(requests.Response):
     """Auxiliary class to mock a `requests.Response`."""
 
-    def __init__(self, code: int, json_response: Any) -> None:
+    def __init__(self, code: int, json_response: JSON_BASE = {}) -> None:
         self.status_code = code
         self.json_data = json_response
 
-    def json(self, *args: Any, **kwargs: Any) -> Any:
+    def json(self, *args: Any, **kwargs: Any) -> JSON_BASE:
         return self.json_data
 
     @property

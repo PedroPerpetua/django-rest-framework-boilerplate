@@ -27,7 +27,7 @@ GenericModel = TypeVar("GenericModel", bound=Model, covariant=True)
 URLPatternsList = list[URLPattern | URLResolver]
 
 """Type alias for Mixins."""
-if TYPE_CHECKING:
+if TYPE_CHECKING:  # pragma: no cover
     GenericViewMixin = GenericAPIView
     APIViewMixin = APIView
 else:

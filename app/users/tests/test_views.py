@@ -106,6 +106,7 @@ class TestUserWhoamiView(APITestCase):
     URL = reverse("users:whoami")
 
     def test_success(self) -> None:
+        """Test successfully calling the Whoami endpoint."""
         # Create and login a user
         user = sample_user()
         self.client.force_authenticate(user)
@@ -117,10 +118,31 @@ class TestUserWhoamiView(APITestCase):
         self.assertEqual(expected, res.json())
 
     def test_requires_authorization(self) -> None:
+        """Test that the Whoami endpoint requires authorization."""
         # Make the call
         res = self.client.get(self.URL)
         # Verify the response
         self.assertEqual(status.HTTP_401_UNAUTHORIZED, res.status_code)
+
+    def test_requires_active(self) -> None:
+        """Test that the Whoami endpoint requires an active user."""
+        # Create and login an inactive user
+        user = sample_user(is_active=False)
+        self.client.force_authenticate(user)
+        # Make the call
+        res = self.client.get(self.URL)
+        # Verify the response
+        self.assertEqual(status.HTTP_403_FORBIDDEN, res.status_code)
+
+    def test_requires_not_soft_deleted(self) -> None:
+        """Test that the Whoami endpoint requires a not soft-deleted user."""
+        user = sample_user()
+        user.soft_delete()
+        self.client.force_authenticate(user)
+        # Make the call
+        res = self.client.get(self.URL)
+        # Verify the response
+        self.assertEqual(status.HTTP_403_FORBIDDEN, res.status_code)
 
 
 class TestUserProfileView(APITestCase):

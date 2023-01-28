@@ -1,6 +1,7 @@
 from rest_framework.generics import GenericAPIView
-from rest_framework.permissions import IsAuthenticated
+from rest_framework.permissions import IsAuthenticated as BaseIsAuthenticated
 from rest_framework.request import Request
+from rest_framework.views import APIView
 from core.utilities.types import GenericViewMixin
 from users.models import User
 
@@ -9,6 +10,12 @@ class AuthenticatedRequest(Request):
     """Authenticated class to correctly type the user in requests."""
 
     user: User
+
+
+class IsAuthenticated(BaseIsAuthenticated):
+    """Modify the IsAuthenticated permission to block inactive and deleted users."""
+    def has_permission(self, request: AuthenticatedRequest, view: APIView) -> bool:  # type: ignore # Use our User
+        return super().has_permission(request, view) and request.user.is_active and not request.user.is_deleted
 
 
 class AuthenticatedUserMixin(GenericViewMixin):
