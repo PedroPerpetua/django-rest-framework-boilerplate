@@ -45,12 +45,14 @@ class TestUserRegisterView(APITestCase):
         self.assertEqual(original_count, User.objects.count())
 
 
-class TestAuthenticationFlow(APITestCase):
+class TestAuthentication(APITestCase):
     """
     Test the JWT Authentication flow with a login, refresh and logout.
 
     These tests cover the UserLoginView, UserLoginRefreshView, UserLogoutView.
     """
+
+    LOGIN_URL = reverse("users:login")
 
     def test_auth_flow(self) -> None:
         """Test the complete login flow."""
@@ -58,7 +60,7 @@ class TestAuthenticationFlow(APITestCase):
         user = sample_user(password=password)
 
         # First, let's login the user
-        login_res = self.client.post(reverse("users:login"), data={"email": user.email, "password": password})
+        login_res = self.client.post(self.LOGIN_URL, data={"email": user.email, "password": password})
         self.assertEqual(status.HTTP_200_OK, login_res.status_code)
         login_token_dict = login_res.json()
         self.assertTrue(login_token_dict["refresh"])  # Not empty
@@ -97,6 +99,31 @@ class TestAuthenticationFlow(APITestCase):
         # Make the call
         res = self.client.post(reverse("users:whoami"), HTTP_AUTHORIZATION=f"Bearer INVALID_TOKEN")
         # Verify the response
+        self.assertEqual(status.HTTP_401_UNAUTHORIZED, res.status_code)
+
+    def test_login_inactive_user(self) -> None:
+        """Test logging in as an inactive user fails."""
+        password = VALID_PASSWORD
+        user = sample_user(password=password, is_active=False)
+        # Make the call
+        res = self.client.post(self.LOGIN_URL, data={"email": user.email, "password": password})
+        self.assertEqual(status.HTTP_401_UNAUTHORIZED, res.status_code)
+
+    def test_login_inactive_user_fails(self) -> None:
+        """Test logging in as an inactive user fails."""
+        password = VALID_PASSWORD
+        user = sample_user(password=password, is_active=False)
+        # Make the call
+        res = self.client.post(self.LOGIN_URL, data={"email": user.email, "password": password})
+        self.assertEqual(status.HTTP_401_UNAUTHORIZED, res.status_code)
+
+    def test_login_soft_deleted_user_fails(self) -> None:
+        """Test logging in a soft deleted user fails."""
+        password = VALID_PASSWORD
+        user = sample_user(password=password)
+        user.soft_delete()
+        # Make the call
+        res = self.client.post(self.LOGIN_URL, data={"email": user.email, "password": password})
         self.assertEqual(status.HTTP_401_UNAUTHORIZED, res.status_code)
 
 
