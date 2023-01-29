@@ -1,9 +1,12 @@
 from unittest import TestCase
+from unittest.mock import MagicMock, patch
+from core.utilities import env, uuid
+from core.utilities.logging import LoggingConfigurationBuilder
 from core.utilities.test import MockResponse
 
 
 class TestTestUtilities(TestCase):
-    """Test the test utilities provided"""
+    """Test the test utilities provided."""
 
     def test_MockResponse(self) -> None:
         """Test the MockResponse class."""
@@ -18,3 +21,193 @@ class TestTestUtilities(TestCase):
             self.assertFalse(MockResponse(100).ok)
             self.assertTrue(MockResponse(200).ok)
             self.assertFalse(MockResponse(400).ok)
+
+
+class TestEnvUtilities(TestCase):
+    """Test the provided utilities to deal with environment variables."""
+
+    def test__get_value(self) -> None:
+        """Test the `_get_value` method."""
+        key = "_key"
+        value = "_value"
+        with patch("core.utilities.env.ENV", {key: value}):
+            retval = env._get_value(key)
+            self.assertEqual(value, retval)
+
+    def test__get_value_missing_key(self) -> None:
+        """Test the `_get_value` method with a missing key."""
+        key = "_key"
+        with patch("core.utilities.env.ENV", {}):
+            with self.assertRaises(KeyError):
+                env._get_value(key)
+
+    def test__get_value_missing_key_default(self) -> None:
+        """Test the `_get_value` method with a missing key, when a default is provided."""
+        key = "_key"
+        default = "_value"
+        with patch("core.utilities.env.ENV", {}):
+            retval = env._get_value(key, default)
+            self.assertEqual(default, retval)
+
+    def test__get_value_empty_value_default(self) -> None:
+        """Test the `_get_value` method with a key with an empty value, when a default is provided."""
+        key = "_key"
+        default = "_value"
+        with patch("core.utilities.env.ENV", {key: ""}):
+            retval = env._get_value(key, default)
+            self.assertEqual(default, retval)
+
+    def test_as_string(self) -> None:
+        """Test the `as_string` method."""
+        key = "_key"
+        value = "_value"
+        with patch("core.utilities.env.ENV", {key: value}):
+            retval = env.as_string(key)
+            self.assertIsInstance(retval, str)
+            self.assertEqual(value, retval)
+
+    def test_as_int(self) -> None:
+        """Test the `as_int` method."""
+        key = "_key"
+        value = 1
+        with patch("core.utilities.env.ENV", {key: str(value)}):
+            retval = env.as_int(key)
+            self.assertIsInstance(retval, int)
+            self.assertEqual(value, retval)
+
+    def test_as_list(self) -> None:
+        """Test the `as_list` method."""
+        key = "_key"
+        value = ["_first", "_second", "_third"]
+        with patch("core.utilities.env.ENV", {key: ",".join(value)}):
+            retval = env.as_list(key)
+            self.assertIsInstance(retval, list)
+            self.assertEqual(value, retval)
+
+    def test_as_list_missing_key_default(self) -> None:
+        """Test the `as_list` method with a missing key, when a default is provided."""
+        key = "_key"
+        default = ["_first", "_second", "_third"]
+        with patch("core.utilities.env.ENV", {}):
+            retval = env.as_list(key, default)
+            self.assertEqual(default, retval)
+
+    def test_as_bool(self) -> None:
+        """Test the `as_bool` method."""
+        key = "_key"
+        true_values = ["TRUE", "true", "tRuE", "1", "T", "t"]
+        false_values = ["FALSE", "false", "fAlSe", "f", "F", "0"]
+        # Test for true values
+        for value in true_values:
+            with self.subTest(msg="True Values", value=value), patch("core.utilities.env.ENV", {key: str(value)}):
+                retval = env.as_bool(key)
+                self.assertIsInstance(retval, bool)
+                self.assertEqual(True, retval)
+        for value in false_values:
+            with self.subTest(msg="False Values", value=value), patch("core.utilities.env.ENV", {key: str(value)}):
+                retval = env.as_bool(key)
+                self.assertIsInstance(retval, bool)
+                self.assertEqual(False, retval)
+
+    def test_as_bool_missing_key_default(self) -> None:
+        """Test the `as_bool` method with a missing key, when a default is provided."""
+        key = "_key"
+        default = True
+        with patch("core.utilities.env.ENV", {}):
+            retval = env.as_bool(key, default)
+            self.assertEqual(default, retval)
+
+
+class TestLoggingBuilder(TestCase):
+    """Test the logging builder provided."""
+
+    def test_add_formatter(self) -> None:
+        """Test the `add_formatter` method."""
+        builder = LoggingConfigurationBuilder()
+        name = "_name"
+        format = "_format"
+        style = "_style"
+        kwarg = "_kwarg"
+        retval = builder.add_formatter(name, format, style, kwarg=kwarg)
+        self.assertEqual(retval, builder)  # Builder returned itself
+        built = builder.build()
+        self.assertEqual({"format": format, "style": style, "kwarg": kwarg}, built["formatters"][name])
+
+    def test_add_handler(self) -> None:
+        """Test the `add_handler` method."""
+        builder = LoggingConfigurationBuilder()
+        name = "_name"
+        kwarg = "_kwarg"
+        retval = builder.add_handler(name, kwarg=kwarg)
+        self.assertEqual(retval, builder)  # Builder returned itself
+        built = builder.build()
+        self.assertEqual({"kwarg": kwarg}, built["handlers"][name])
+
+    def test_add_console_handler(self) -> None:
+        """Test the `add_console_handler` method."""
+        builder = LoggingConfigurationBuilder()
+        name = "_name"
+        kwarg = "_kwarg"
+        retval = builder.add_console_handler(name, kwarg=kwarg)
+        self.assertEqual(retval, builder)  # Builder returned itself
+        built = builder.build()
+        self.assertEqual({"class": "logging.StreamHandler", "kwarg": kwarg}, built["handlers"][name])
+
+    @patch("pathlib.Path.mkdir")
+    @patch("pathlib.Path.is_dir")
+    def test_add_file_handler(self, is_dir_mock: MagicMock, mkdir_mock: MagicMock) -> None:
+        """Test the `add_file_handler` method."""
+        # Simulate that the path doesn't exist (it shouldn't, but still)
+        is_dir_mock.return_value = False
+        builder = LoggingConfigurationBuilder()
+        name = "_name"
+        file_path = uuid()
+        kwarg = "_kwarg"
+        retval = builder.add_file_handler(name, file_path, kwarg=kwarg)
+        self.assertEqual(retval, builder)  # Builder returned itself
+        built = builder.build()
+        self.assertEqual(
+            {"class": "logging.FileHandler", "filename": file_path, "kwarg": kwarg}, built["handlers"][name]
+        )
+        # Make sure the mock was called correctly
+        is_dir_mock.assert_called_once()
+        mkdir_mock.assert_called_once_with(parents=True)
+
+    def test_add_logger(self) -> None:
+        """Test the `add_logger` method."""
+        builder = LoggingConfigurationBuilder()
+        name = "_name"
+        handlers = ["_handler1", "_handler2"]
+        kwarg = "_kwarg"
+        retval = builder.add_logger(name, handlers, kwarg=kwarg)
+        self.assertEqual(retval, builder)  # Builder returned itself
+        built = builder.build()
+        self.assertEqual({"handlers": handlers, "kwarg": kwarg}, built["loggers"][name])
+
+    def test_modify_root_logger(self) -> None:
+        """Test the `modify_root_logger` method."""
+        builder = LoggingConfigurationBuilder()
+        kwarg = "_kwarg"
+        retval = builder.modify_root_logger(kwarg=kwarg)
+        self.assertEqual(retval, builder)  # Builder returned itself
+        built = builder.build()
+        self.assertEqual(kwarg, built["root"]["kwarg"])
+
+    def test_build(self) -> None:
+        """Test building an "empty" logger."""
+        disable_existing = True
+        builder = LoggingConfigurationBuilder(disable_existing)
+        built = builder.build()
+        self.assertEqual(
+            {
+                "version": 1,
+                "disable_existing_loggers": disable_existing,
+                "formatters": {},
+                "handlers": {},
+                "root": {
+                    "handlers": [],
+                },
+                "loggers": {},
+            },
+            built,
+        )

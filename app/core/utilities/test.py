@@ -23,11 +23,6 @@ class MockResponse(requests.Response):
         return 200 <= self.status_code < 400
 
 
-def clear_model_args(**kwargs: Any) -> dict[str, Any]:
-    """Return a list of a model arguments with `None` values filtered out."""
-    return {k: v for k, v in kwargs.items() if v is not None}
-
-
 def clear_colors(message: str) -> str:
     """Clear ANSI colors from a string."""
     # 7-bit C1 ANSI sequences

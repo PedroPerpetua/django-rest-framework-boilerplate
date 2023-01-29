@@ -1,6 +1,5 @@
 from typing import Optional
-from core.utilities import uuid
-from core.utilities.test import clear_model_args
+from core.utilities import clear_Nones, uuid
 from users.models import User
 
 
@@ -44,7 +43,7 @@ def sample_user(
     if email is None:
         email = generate_valid_email()
     return User.objects.create_user(
-        **clear_model_args(
+        **clear_Nones(
             id=id, email=email, password=password, is_staff=is_staff, is_superuser=is_superuser, is_active=is_active
         )
     )

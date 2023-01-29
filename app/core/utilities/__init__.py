@@ -2,12 +2,12 @@ from __future__ import annotations
 import xml.etree.cElementTree as et
 from io import TextIOWrapper
 from pathlib import Path
-from typing import TYPE_CHECKING, Optional
+from typing import TYPE_CHECKING, Any, Optional, overload
 from uuid import uuid4
 from django.core.files import File
 
 
-if TYPE_CHECKING:
+if TYPE_CHECKING:  # pragma: no cover
     """
     We only import this when typechecking to prevent DRF from being loaded into this module, as our `settings.py` file
     imports from this module to setup. If we import this regularly, we're met with an issue where DRF is loaded BEFORE
@@ -25,12 +25,25 @@ def empty(string: Optional[str]) -> bool:
     return False
 
 
-def clear_json(json_obj: JSON_BASE) -> JSON_BASE:
-    """Clear a JSON object before serializing by removing all 'None' values."""
+@overload  # pragma: no cover
+def clear_Nones(json_obj: None = None, **kwargs: Any) -> dict[str, Any]:
+    ...
+
+
+@overload  # pragma: no cover
+def clear_Nones(json_obj: JSON_BASE = {}, **kwargs: Any) -> JSON_BASE:
+    ...
+
+
+def clear_Nones(json_obj: Optional[JSON_BASE] = None, **kwargs: Any) -> JSON_BASE:
+    """Clear an object before serializing by removing all 'None' values."""
+    if json_obj is None:
+        return clear_Nones(kwargs)
     if isinstance(json_obj, dict):
-        return {k: clear_json(v) for k, v in json_obj.items() if v is not None}
+        json_obj.update(kwargs)
+        return {k: clear_Nones(v) for k, v in json_obj.items() if v is not None}
     if isinstance(json_obj, list):
-        return [clear_json(v) for v in json_obj if v is not None]
+        return [clear_Nones(v) for v in json_obj if v is not None]
     return json_obj
 
 

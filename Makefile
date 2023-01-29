@@ -14,7 +14,7 @@ endif
 
 # "-" at the start of lines are so that docker compose stop is always ran.
 
-.PHONY: build run test command lint
+.PHONY: build run test coverage clear command lint
 
 build:
 	docker compose build --no-cache app
@@ -31,6 +31,7 @@ coverage:
 	-docker compose run --rm app sh -c "coverage run --source=\".\" manage.py test && coverage html"
 	docker compose stop
 	rm ./app/.coverage
+	rm -rf ./coverage
 	mv ./app/htmlcov ./coverage
 
 clear:

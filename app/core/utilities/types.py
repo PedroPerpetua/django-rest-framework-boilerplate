@@ -5,26 +5,26 @@ from rest_framework.generics import GenericAPIView
 from rest_framework.views import APIView
 
 
+JSON = Any
 """
 Type alias for common JSON objects. We type alias it as JSON because recursive types are not 100% working, and because
 JSON objects are very mutable by themselves (can be dictionaries, lists, etc).
 """
-JSON = Any
 
 
+JSON_BASE = dict[str, Any] | list[Any] | Any
 """
 Alternative JSON definition useful for functions that manipulate JSON: functions that take a JSON object and return
 the same object type.
 """
-JSON_BASE = dict[str, Any] | list[Any] | Any
 
-
-"""Type alias for Generic classes that use Models. Identical to _MT_co type in `rest_framework-stubs.generics`."""
 GenericModel = TypeVar("GenericModel", bound=Model, covariant=True)
+"""Type alias for Generic classes that use Models. Identical to _MT_co type in `rest_framework-stubs.generics`."""
 
 
-"""Type alias specifically for urlpatterns lists."""
 URLPatternsList = list[URLPattern | URLResolver]
+"""Type alias specifically for urlpatterns lists."""
+
 
 """Type alias for Mixins."""
 if TYPE_CHECKING:  # pragma: no cover
