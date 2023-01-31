@@ -27,7 +27,7 @@ URLPatternsList = list[URLPattern | URLResolver]
 
 
 """Type alias for Mixins."""
-if TYPE_CHECKING:  # pragma: no cover
+if TYPE_CHECKING:
     GenericViewMixin = GenericAPIView
     APIViewMixin = APIView
 else:

@@ -28,7 +28,7 @@ class BaseAbstractModel(models.Model):
         self.is_deleted = True
         self.save()
 
-    def __repr__(self) -> str:  # pragma: no cover
+    def __repr__(self) -> str:
         """Base repr for children that adds the model and the attributes."""
         data = {"model": self.__class__.__name__}
         for field in self._meta.get_fields():

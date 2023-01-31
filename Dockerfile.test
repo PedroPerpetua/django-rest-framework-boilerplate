@@ -33,16 +33,9 @@ COPY ./pyproject.toml /pyproject.toml
 # Command steps:
 # - Run isort, autoflake, black and mypy
 # - Run tests under the Coverage module
-# - Delete Coverage middlesteps and copy the files out
 CMD sh -c "isort ./app; \
            autoflake ./app; \
            black ./app; \
            mypy; \
-           cd ./app; \
-           coverage run --source \".\" manage.py test && \
-           coverage html; \
-           cd ..; \
-           rm -rf ./coverage/*; \
-           rm -f ./app/.coverage; \
-           [ -d ./app/htmlcov/ ] && mv ./app/htmlcov/* ./app/htmlcov/.[!.]* ./coverage; \
-           rm -rf ./app/htmlcov"
+           coverage run ./app/manage.py test ./app && \
+           coverage html;"

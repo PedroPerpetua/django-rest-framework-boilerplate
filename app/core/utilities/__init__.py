@@ -7,7 +7,7 @@ from uuid import uuid4
 from django.core.files import File
 
 
-if TYPE_CHECKING:  # pragma: no cover
+if TYPE_CHECKING:
     """
     We only import this when typechecking to prevent DRF from being loaded into this module, as our `settings.py` file
     imports from this module to setup. If we import this regularly, we're met with an issue where DRF is loaded BEFORE
@@ -25,12 +25,12 @@ def empty(string: Optional[str]) -> bool:
     return False
 
 
-@overload  # pragma: no cover
+@overload
 def clear_Nones(json_obj: None = None, **kwargs: Any) -> dict[str, Any]:
     ...
 
 
-@overload  # pragma: no cover
+@overload
 def clear_Nones(json_obj: JSON_BASE = {}, **kwargs: Any) -> JSON_BASE:
     ...
 
@@ -49,7 +49,7 @@ def clear_Nones(json_obj: Optional[JSON_BASE] = None, **kwargs: Any) -> JSON_BAS
 
 def ext(filename: str) -> str:
     """Given a filename, returns the extension."""
-    return ".".join(filename.split(".")[1:])
+    return "".join(Path(filename).suffixes)
 
 
 def uuid() -> str:
