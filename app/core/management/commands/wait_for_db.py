@@ -1,5 +1,6 @@
 import time
 from typing import Any
+from django.conf import settings
 from django.db import connections
 from django.db.utils import OperationalError
 from core.management.commands._base_command import BaseCommand
@@ -15,7 +16,7 @@ class Command(BaseCommand):
     """
 
     RETRY_SECONDS = 1
-    MAX_RETRIES = 10
+    MAX_RETRIES = settings.COMMAND_WAIT_FOR_DB_MAX_RETRIES
 
     def handle(self, *args: Any, **kwargs: Any) -> None:
         self.info("Waiting for database connection...")
