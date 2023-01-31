@@ -8,7 +8,7 @@ ENV = os.environ
 T = TypeVar("T")
 
 
-def _get_value(var: str, default: Optional[T]) -> str | T:
+def _get_value(var: str, default: Optional[T] = None) -> str | T:
     try:
         value = ENV[var]
         # We take defaults if available for empty values

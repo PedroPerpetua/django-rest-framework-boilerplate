@@ -1,4 +1,5 @@
 services:
+
   db:
     image: postgres:15-alpine
     volumes:
@@ -10,8 +11,11 @@ services:
       retries : 10
     env_file:
       - config.env
+
   app:
-    build: .
+    build:
+      context: .
+      dockerfile: Dockerfile.dev
     command: >
       sh -c "python manage.py wait_for_db
       && python manage.py runserver 0.0.0.0:8000"
@@ -26,4 +30,20 @@ services:
     depends_on:
       db:
         condition: service_healthy
-    tty: true # Provide color in the console
+    tty: true  # Provide color in the console
+
+  test:
+    build:
+      context: .
+      dockerfile: Dockerfile.test
+    profiles:
+      - test
+    volumes:
+      - ./app:/app
+      - ./coverage:/coverage
+    env_file:
+      - config.env
+    depends_on:
+      db:
+        condition: service_healthy
+    tty: true  # Provide color in the console

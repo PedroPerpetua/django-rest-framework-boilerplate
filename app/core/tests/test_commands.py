@@ -38,7 +38,7 @@ class TestWaitForDBCommand(TestCase):
     @patch("django.db.utils.ConnectionHandler.__getitem__")
     def test_wait_for_db_retry(self, getitem_mock: MagicMock, sleep_mock: MagicMock) -> None:
         """Test wait_for_db retries if database is not available."""
-        if self.MAX_RETRIES == 0:
+        if self.MAX_RETRIES == 0:  # pragma: no cover
             # No retries; nothing to test.
             self.assertTrue(True)
             return

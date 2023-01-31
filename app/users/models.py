@@ -5,6 +5,7 @@ from django.contrib.auth.password_validation import validate_password
 from django.core.exceptions import ValidationError
 from django.db import models
 from core.extensions.models import BaseAbstractModel
+from core.utilities import empty
 
 
 class UserManager(BaseUserManager["User"]):
@@ -53,13 +54,10 @@ class User(BaseAbstractModel, AbstractBaseUser, PermissionsMixin):
         using: Optional[str] = None,
         update_fields: Optional[Iterable[str]] = None,
     ) -> None:
-        if self.email is None:
-            raise ValidationError("Email cannot be empty.")
-        stripped = self.email.strip()
-        if len(stripped) == 0:
+        if empty(self.email):
             raise ValidationError("Email cannot be empty.")
         # Use the UserManager normalize email function
-        self.email = UserManager.normalize_email(stripped)
+        self.email = UserManager.normalize_email(self.email.strip())
         return super().save(force_insert, force_update, using, update_fields)
 
     def __str__(self) -> str:
@@ -67,4 +65,4 @@ class User(BaseAbstractModel, AbstractBaseUser, PermissionsMixin):
 
 
 # Patch the last_login field's help text.
-User._meta.get_field("last_login").help_text = "Last login datetime. Updated when the TokenObtainPairView is called."
+User._meta.get_field("last_login").help_text = "Last login datetime. Updated when the UserLoginView is called."

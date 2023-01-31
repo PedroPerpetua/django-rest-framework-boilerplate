@@ -1,14 +1,7 @@
 from rest_framework.generics import GenericAPIView
-from rest_framework.permissions import IsAuthenticated
-from rest_framework.request import Request
 from core.utilities.types import GenericViewMixin
+from users.authentication import AuthenticatedRequest, IsAuthenticated
 from users.models import User
-
-
-class AuthenticatedRequest(Request):
-    """Authenticated class to correctly type the user in requests."""
-
-    user: User
 
 
 class AuthenticatedUserMixin(GenericViewMixin):

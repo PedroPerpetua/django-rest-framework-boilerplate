@@ -45,12 +45,14 @@ class TestUserRegisterView(APITestCase):
         self.assertEqual(original_count, User.objects.count())
 
 
-class TestAuthenticationFlow(APITestCase):
+class TestAuthentication(APITestCase):
     """
     Test the JWT Authentication flow with a login, refresh and logout.
 
     These tests cover the UserLoginView, UserLoginRefreshView, UserLogoutView.
     """
+
+    LOGIN_URL = reverse("users:login")
 
     def test_auth_flow(self) -> None:
         """Test the complete login flow."""
@@ -58,7 +60,7 @@ class TestAuthenticationFlow(APITestCase):
         user = sample_user(password=password)
 
         # First, let's login the user
-        login_res = self.client.post(reverse("users:login"), data={"email": user.email, "password": password})
+        login_res = self.client.post(self.LOGIN_URL, data={"email": user.email, "password": password})
         self.assertEqual(status.HTTP_200_OK, login_res.status_code)
         login_token_dict = login_res.json()
         self.assertTrue(login_token_dict["refresh"])  # Not empty
@@ -99,6 +101,31 @@ class TestAuthenticationFlow(APITestCase):
         # Verify the response
         self.assertEqual(status.HTTP_401_UNAUTHORIZED, res.status_code)
 
+    def test_login_inactive_user(self) -> None:
+        """Test logging in as an inactive user fails."""
+        password = VALID_PASSWORD
+        user = sample_user(password=password, is_active=False)
+        # Make the call
+        res = self.client.post(self.LOGIN_URL, data={"email": user.email, "password": password})
+        self.assertEqual(status.HTTP_401_UNAUTHORIZED, res.status_code)
+
+    def test_login_inactive_user_fails(self) -> None:
+        """Test logging in as an inactive user fails."""
+        password = VALID_PASSWORD
+        user = sample_user(password=password, is_active=False)
+        # Make the call
+        res = self.client.post(self.LOGIN_URL, data={"email": user.email, "password": password})
+        self.assertEqual(status.HTTP_401_UNAUTHORIZED, res.status_code)
+
+    def test_login_soft_deleted_user_fails(self) -> None:
+        """Test logging in a soft deleted user fails."""
+        password = VALID_PASSWORD
+        user = sample_user(password=password)
+        user.soft_delete()
+        # Make the call
+        res = self.client.post(self.LOGIN_URL, data={"email": user.email, "password": password})
+        self.assertEqual(status.HTTP_401_UNAUTHORIZED, res.status_code)
+
 
 class TestUserWhoamiView(APITestCase):
     """Test the UserWhoamiView."""
@@ -106,6 +133,7 @@ class TestUserWhoamiView(APITestCase):
     URL = reverse("users:whoami")
 
     def test_success(self) -> None:
+        """Test successfully calling the Whoami endpoint."""
         # Create and login a user
         user = sample_user()
         self.client.force_authenticate(user)
@@ -117,10 +145,31 @@ class TestUserWhoamiView(APITestCase):
         self.assertEqual(expected, res.json())
 
     def test_requires_authorization(self) -> None:
+        """Test that the Whoami endpoint requires authorization."""
         # Make the call
         res = self.client.get(self.URL)
         # Verify the response
         self.assertEqual(status.HTTP_401_UNAUTHORIZED, res.status_code)
+
+    def test_requires_active(self) -> None:
+        """Test that the Whoami endpoint requires an active user."""
+        # Create and login an inactive user
+        user = sample_user(is_active=False)
+        self.client.force_authenticate(user)
+        # Make the call
+        res = self.client.get(self.URL)
+        # Verify the response
+        self.assertEqual(status.HTTP_403_FORBIDDEN, res.status_code)
+
+    def test_requires_not_soft_deleted(self) -> None:
+        """Test that the Whoami endpoint requires a not soft-deleted user."""
+        user = sample_user()
+        user.soft_delete()
+        self.client.force_authenticate(user)
+        # Make the call
+        res = self.client.get(self.URL)
+        # Verify the response
+        self.assertEqual(status.HTTP_403_FORBIDDEN, res.status_code)
 
 
 class TestUserProfileView(APITestCase):

@@ -14,7 +14,7 @@ endif
 
 # "-" at the start of lines are so that docker compose stop is always ran.
 
-.PHONY: build run test command lint
+.PHONY: build run test clear command
 
 build:
 	docker compose build --no-cache app
@@ -24,15 +24,15 @@ run:
 	docker compose stop
 
 test:
-	-docker compose run --rm app sh -c "python manage.py test"
+	-docker compose run --rm test
 	docker compose stop
+
+clean:
+	pyclean .
+	rm -rf ./.mypy_cache
+	rm -rf ./app/logs
+	rm -rf ./coverage
 
 command:
 	-docker compose run --rm app sh -c "python manage.py $(COMMAND_ARGS)"
 	docker compose stop
-
-lint:
-	isort ./app
-	autoflake ./app
-	black ./app
-	mypy
