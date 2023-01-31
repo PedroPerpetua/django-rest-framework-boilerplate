@@ -24,15 +24,8 @@ run:
 	docker compose stop
 
 test:
-	-docker compose run --rm app sh -c "python manage.py test"
+	-docker compose run --rm test
 	docker compose stop
-
-coverage:
-	-docker compose run --rm app sh -c "coverage run --source=\".\" manage.py test && coverage html"
-	docker compose stop
-	rm ./app/.coverage
-	rm -rf ./coverage
-	mv ./app/htmlcov ./coverage
 
 clear:
 	find . | grep -E "(__pycache__|\.pyc|\.pyo$)" | xargs rm -rf
@@ -42,9 +35,3 @@ clear:
 command:
 	-docker compose run --rm app sh -c "python manage.py $(COMMAND_ARGS)"
 	docker compose stop
-
-lint:
-	isort ./app
-	autoflake ./app
-	black ./app
-	mypy

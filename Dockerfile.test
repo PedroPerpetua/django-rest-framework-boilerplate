@@ -12,7 +12,7 @@ ENV PATH=/venv/bin:$PATH
 
 # Install Python requirements ----------------------------
 COPY ./requirements /requirements
-RUN pip install -r /requirements/requirements.txt
+RUN pip install -r /requirements/dev.requirements.txt
 
 # Final stage ++++++++++++++++++++++++++++++++++++++++++++
 FROM ${PYTHON}
@@ -26,7 +26,23 @@ ENV PATH=/venv/bin:$PATH
 
 # Copy the app ------------------------------------------
 COPY ./app /app
-WORKDIR /app
+# Copy aditional files required for linting
+COPY ./stubs /stubs
+COPY ./pyproject.toml /pyproject.toml
 
-CMD sh -c "python manage.py setup \
-           && python manage.py runserver 0.0.0.0"
+# Command steps:
+# - Run isort, autoflake, black and mypy
+# - Run tests under the Coverage module
+# - Delete Coverage middlesteps and copy the files out
+CMD sh -c "isort ./app; \
+           autoflake ./app; \
+           black ./app; \
+           mypy; \
+           cd ./app; \
+           coverage run --source \".\" manage.py test && \
+           coverage html; \
+           cd ..; \
+           rm -rf ./coverage/*; \
+           rm -f ./app/.coverage; \
+           [ -d ./app/htmlcov/ ] && mv ./app/htmlcov/* ./app/htmlcov/.[!.]* ./coverage; \
+           rm -rf ./app/htmlcov"

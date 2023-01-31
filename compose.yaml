@@ -1,4 +1,5 @@
 services:
+
   db:
     image: postgres:15-alpine
     volumes:
@@ -10,6 +11,7 @@ services:
       retries : 10
     env_file:
       - config.env
+
   app:
     build:
       context: .
@@ -28,4 +30,20 @@ services:
     depends_on:
       db:
         condition: service_healthy
-    tty: true # Provide color in the console
+    tty: true  # Provide color in the console
+
+  test:
+    build:
+      context: .
+      dockerfile: Dockerfile.test
+    profiles:
+      - test
+    volumes:
+      - ./app:/app
+      - ./coverage:/coverage
+    env_file:
+      - config.env
+    depends_on:
+      db:
+        condition: service_healthy
+    tty: true  # Provide color in the console
