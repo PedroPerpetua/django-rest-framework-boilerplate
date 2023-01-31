@@ -48,6 +48,9 @@ class TestUtilities(TestCase):
         combined_value = ["_item1", "_item2", None, {"_key1": "_value1", "_key2": None}]
         with self.subTest("Test combining lists, objects and nesting.", value=combined_value):
             self.assertEqual(["_item1", "_item2", {"_key1": "_value1"}], utils.clear_Nones(combined_value))
+        # Test with kwargs
+        with self.subTest("Test with kwargs"):
+            self.assertEqual({"_key1": "_value1"}, utils.clear_Nones(_key1="_value1", _key2=None))
 
     def test_is_svg(self) -> None:
         """Test the `is_svg` method."""

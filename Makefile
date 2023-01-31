@@ -14,7 +14,7 @@ endif
 
 # "-" at the start of lines are so that docker compose stop is always ran.
 
-.PHONY: build run test coverage clear command lint
+.PHONY: build run test clear command
 
 build:
 	docker compose build --no-cache app
@@ -27,8 +27,9 @@ test:
 	-docker compose run --rm test
 	docker compose stop
 
-clear:
-	find . | grep -E "(__pycache__|\.pyc|\.pyo$)" | xargs rm -rf
+clean:
+	pyclean .
+	rm -rf ./.mypy_cache
 	rm -rf ./app/logs
 	rm -rf ./coverage
 
