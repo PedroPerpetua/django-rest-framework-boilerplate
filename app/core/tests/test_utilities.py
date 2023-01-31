@@ -1,8 +1,69 @@
 from unittest import TestCase
 from unittest.mock import MagicMock, patch
-from core.utilities import env, uuid
+from django.core.files import File
+import core.utilities as utils
+from core.tests import FILES_FOLDER
+from core.utilities import env
 from core.utilities.logging import LoggingConfigurationBuilder
 from core.utilities.test import MockResponse
+
+
+class TestUtilities(TestCase):
+    """Test the base utilities provided."""
+
+    def test_ext(self) -> None:
+        """Test the `ext` method."""
+        cases = [
+            ("_path/_to/_file/_filename._ext", "._ext"),
+            ("_path/_file._with._multiple._exts", "._with._multiple._exts"),
+            ("_path/_dot._in._the/middle._with_ext", "._with_ext"),
+        ]
+        for case, expected in cases:
+            with self.subTest("Testing the extensions", case=case, ext=expected):
+                self.assertEqual(expected, utils.ext(case))
+
+    def test_clear_Nones(self) -> None:
+        """Test the `clear_Nones` method."""
+        # Test for single values
+        for value in ["_value", 1, True]:
+            with self.subTest("Test single value.", value=value):
+                self.assertEqual(value, utils.clear_Nones(value))
+        # Test for objects
+        object_value = {"_key1": "_value1", "_key2": None}
+        with self.subTest("Test using an object.", object=object_value):
+            self.assertEqual({"_key1": "_value1"}, utils.clear_Nones(object_value))
+        nested_object = {"_key1": "_value1", "_key2": None, "_nested": {"_nested1": None, "_nested2": "_value2"}}
+        with self.subTest("Test using a nested object.", object=nested_object):
+            self.assertEqual(
+                {"_key1": "_value1", "_nested": {"_nested2": "_value2"}}, utils.clear_Nones(nested_object)
+            )
+        # Test for lists
+        list_value = ["_item1", None, "_item3", None]
+        with self.subTest("Test using a list", list=list_value):
+            self.assertEqual(["_item1", "_item3"], utils.clear_Nones(list_value))
+        nested_list = ["_item1", None, ["_nested1", None]]
+        with self.subTest("Test nested lists", value=nested_list):
+            self.assertEqual(["_item1", ["_nested1"]], utils.clear_Nones(nested_list))
+        # Test combined
+        combined_value = ["_item1", "_item2", None, {"_key1": "_value1", "_key2": None}]
+        with self.subTest("Test combining lists, objects and nesting.", value=combined_value):
+            self.assertEqual(["_item1", "_item2", {"_key1": "_value1"}], utils.clear_Nones(combined_value))
+
+    def test_is_svg(self) -> None:
+        """Test the `is_svg` method."""
+        PNG_FILE = FILES_FOLDER / "icon.png"
+        SVG_FILE = FILES_FOLDER / "icon.svg"
+        # Test from file object
+        with open(PNG_FILE) as png, open(SVG_FILE) as svg:
+            with self.subTest("Test is_svg with file objects", file=PNG_FILE):
+                self.assertFalse(utils.is_svg(File(png)))
+            with self.subTest("Test is_svg with file objects", file=SVG_FILE):
+                self.assertTrue(utils.is_svg(File(svg)))
+        # Test from file path
+        with self.subTest("Test is_svg with file paths", path=PNG_FILE):
+            self.assertFalse(utils.is_svg(PNG_FILE))
+        with self.subTest("Test is_svg with file paths", path=SVG_FILE):
+            self.assertTrue(utils.is_svg(SVG_FILE))
 
 
 class TestTestUtilities(TestCase):
@@ -161,7 +222,7 @@ class TestLoggingBuilder(TestCase):
         is_dir_mock.return_value = False
         builder = LoggingConfigurationBuilder()
         name = "_name"
-        file_path = uuid()
+        file_path = utils.uuid()
         kwarg = "_kwarg"
         retval = builder.add_file_handler(name, file_path, kwarg=kwarg)
         self.assertEqual(retval, builder)  # Builder returned itself

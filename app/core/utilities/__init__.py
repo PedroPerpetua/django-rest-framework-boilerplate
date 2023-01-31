@@ -70,7 +70,7 @@ def is_svg(filepath: str | Path | File) -> bool:
             for _, el in et.iterparse(f, ("start",)):
                 tag = el.tag
                 break
-        except et.ParseError:
+        except Exception:
             pass
         return tag == "{http://www.w3.org/2000/svg}svg"
 
