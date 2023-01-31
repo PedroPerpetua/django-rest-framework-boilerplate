@@ -55,3 +55,8 @@ Other project specific settings can be changed in Django's `settings.py` file li
 
 ## Requirements
 Python requirements can be added on the `requirements` folder. Production requirements go on `requirements.txt` and dev-only requirements go on `dev.requirements.txt`. For production, `pip install -r requirements/requirements.txt` will install all needed dependencies. For development, `pip install -r requirements/dev.requirements.txt` will install all needed dependencies (including the dev ones). The `boilerplate.requirements.txt` and `boilerplate.dev.requirements.txt` contain the base requirements that this boilerplate needs, and are automatically installed with the respective production/development requirements files.
+
+
+## ROADMAP
+Planned features/improvements:
+- Setup DRF Standardized Errors to be compatible with DRF Spectacular.
