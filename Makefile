@@ -1,8 +1,3 @@
-# Include the environment file
-include config.env
-export
-
-
 # https://stackoverflow.com/questions/2214575/passing-arguments-to-make-run
 # If the first argument is "command"...
 ifeq (command,$(firstword $(MAKECMDGOALS)))
