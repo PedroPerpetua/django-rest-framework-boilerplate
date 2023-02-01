@@ -14,10 +14,10 @@ class Migration(migrations.Migration):
     initial = True
 
     def generate_superuser(self, schema_editor: BaseDatabaseSchemaEditor) -> None:
-        get_user_model().objects.create_superuser(
-            email=env.as_string("ADMIN_EMAIL"),
-            password=env.as_string("ADMIN_PASSWORD"),
-        )
+        credentials = env.as_json("ADMIN_CREDENTIALS")
+        if not isinstance(credentials, dict):
+            raise ValueError("ADMIN_CREDENTIALS must be a dictionary.")
+        get_user_model().objects.create_superuser(**credentials)
 
     operations = [
         migrations.RunPython(generate_superuser),  # type: ignore

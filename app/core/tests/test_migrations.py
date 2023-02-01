@@ -12,7 +12,9 @@ class TestMigrations(TestCase):
         self.assertEqual(1, user_filter.count())
         user = user_filter.get()
         # Because the migrations are made BEFORE the tests, we can't actually mock them - check the originals.
-        EMAIL = env.as_string("ADMIN_EMAIL")
-        PASSWORD = env.as_string("ADMIN_PASSWORD")
-        self.assertEqual(EMAIL, user.get_username())
-        self.assertTrue(user.check_password(PASSWORD))
+        credentials = env.as_json("ADMIN_CREDENTIALS")
+        for key, value in credentials.items():
+            if key == "password":
+                self.assertTrue(user.check_password(value))
+                continue
+            self.assertEqual(value, getattr(user, key))
