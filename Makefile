@@ -10,13 +10,10 @@ endif
 
 # "-" at the start of lines are so that docker compose stop is always ran.
 
-.PHONY: build build_test run test clear command
+.PHONY: build run test clear command
 
 build:
-	docker compose build --no-cache app
-
-build_test:
-	docker compose build --no-cache test
+	docker compose build
 
 run:
 	-docker compose up

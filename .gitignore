@@ -1,3 +1,6 @@
+# Editors files
+.vscode/
+
 # Python source and cache
 .venv
 __pycache__
