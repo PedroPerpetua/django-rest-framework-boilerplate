@@ -6,7 +6,7 @@ from rest_framework.settings import api_settings
 class TestSettings(TestCase):
     """Testcase for a potential found issue."""
 
-    def test_restframework_settings_loaded(self):
+    def test_restframework_settings_loaded(self) -> None:
         """
         Test that the restframework settings loaded correctly.
 
