@@ -1,7 +1,32 @@
 import re
 from typing import Any
 import requests
+from django.db import connection
+from django.db.models import Model
+from django.test import TestCase
 from core.utilities.types import JSON_BASE
+
+
+class AbstractModelTestCase(TestCase):
+    """
+    Test case class to generate a new model from an abstract at runtime.
+
+    Adapted from: https://michael.mior.ca/blog/unit-testing-django-model-mixins/
+    """
+
+    MODEL: Type[Model] = None  # type: ignore # Intentional to raise an error if not defined
+
+    def setUp(self) -> None:
+        super().setUp()
+        # Create the schema for our model
+        with connection.schema_editor() as schema_editor:
+            schema_editor.create_model(self.MODEL)
+
+    def tearDown(self) -> None:
+        super().tearDown()
+        # Delete the schema for the model
+        with connection.schema_editor() as schema_editor:
+            schema_editor.delete_model(self.MODEL)
 
 
 class MockResponse(requests.Response):
