@@ -1,5 +1,5 @@
 from typing import TYPE_CHECKING, Any, TypeVar
-from django.contrib.auth.base_user import AbstractBaseUser
+from django.contrib.auth.models import AbstractBaseUser
 from django.db.models import Model
 from django.urls.resolvers import URLPattern, URLResolver
 from rest_framework.generics import GenericAPIView

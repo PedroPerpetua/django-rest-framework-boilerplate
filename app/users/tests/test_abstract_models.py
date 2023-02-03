@@ -1,6 +1,5 @@
-from __future__ import annotations
 from typing import Optional, Self
-from django.contrib.auth.models import AbstractBaseUser
+from django.contrib.auth.models import AbstractBaseUser as DjangoAbstractBaseUser
 from django.core.exceptions import ValidationError
 from core.utilities import clear_Nones, uuid
 from core.utilities.test import AbstractModelTestCase
@@ -10,9 +9,11 @@ from users.tests import VALID_PASSWORD, generate_valid_email
 
 
 class TestAbstractUserWithEmail(AbstractModelTestCase):
-    class UserWithEmail(UserEmailMixin, AbstractBaseUser):
+    """Test using the UserEmailMixin."""
+
+    class UserWithEmail(UserEmailMixin, DjangoAbstractBaseUser):
         USERNAME_FIELD = "email"
-        objects = UserManager[Self]()  # type: ignore  #https://github.com/python/mypy/issues/14167
+        objects = UserManager[Self]()  # type: ignore # https://github.com/python/mypy/issues/14167
 
     MODEL = UserWithEmail
 
@@ -92,9 +93,11 @@ class TestAbstractUserWithEmail(AbstractModelTestCase):
 
 
 class TestAbstractUserWithUsername(AbstractModelTestCase):
-    class UserWithUsername(UserUsernameMixin, AbstractBaseUser):
+    """Test using the UserUsernameMixin."""
+
+    class UserWithUsername(UserUsernameMixin, DjangoAbstractBaseUser):
         USERNAME_FIELD = "username"
-        objects = UserManager[Self]()  # type: ignore  #https://github.com/python/mypy/issues/14167
+        objects = UserManager[Self]()  # type: ignore #https://github.com/python/mypy/issues/14167
 
     MODEL = UserWithUsername
 
@@ -144,3 +147,67 @@ class TestAbstractUserWithUsername(AbstractModelTestCase):
         with self.assertRaises(ValidationError) as ctx:
             self.UserWithUsername.objects.create(password=VALID_PASSWORD)
         self.assertIn(ValidationError("Username cannot be empty."), ctx.exception.error_list)
+
+
+class TestCombinedUserEmail(AbstractModelTestCase):
+    """Test using both UserEmailMixin and UserUsernameMixin, while having "email" as the primary field"""
+
+    class CombinedUserEmail(UserEmailMixin, UserUsernameMixin, DjangoAbstractBaseUser):  # type: ignore # _meta issue
+        USERNAME_FIELD = "email"
+        objects = UserManager[Self]()  # type: ignore # https://github.com/python/mypy/issues/14167
+
+    MODEL = CombinedUserEmail
+
+    def test_create_user(self) -> None:
+        """Test creating a CombinedUseremail."""
+        email = generate_valid_email()
+        username = uuid()
+        password = VALID_PASSWORD
+        user = self.CombinedUserEmail.objects.create_user(email=email, username=username, password=VALID_PASSWORD)
+        self.assertEqual(email, user.get_username())
+        self.assertEqual(email, user.email)
+        self.assertEqual(username, user.username)
+        self.assertNotEqual(password, user.password)
+        self.assertTrue(user.check_password(password))
+
+    def test_create_user_no_username(self) -> None:
+        """Test that username is not a required field."""
+        email = generate_valid_email()
+        password = VALID_PASSWORD
+        user = self.CombinedUserEmail.objects.create_user(email=email, password=VALID_PASSWORD)
+        self.assertEqual(email, user.email)
+        self.assertEqual("", user.username)
+        self.assertTrue(user.check_password(password))
+
+
+class TestCombinedUserUsername(AbstractModelTestCase):
+    """Test using both UserEmailMixin and UserUsernameMixin, while having "username" as the primary field"""
+
+    # 'type: ignore'd because of _meta issue
+    class CombinedUserUsername(UserEmailMixin, UserUsernameMixin, DjangoAbstractBaseUser):  # type: ignore
+
+        USERNAME_FIELD = "username"
+        objects = UserManager[Self]()  # type: ignore # https://github.com/python/mypy/issues/14167
+
+    MODEL = CombinedUserUsername
+
+    def test_create_user(self) -> None:
+        """Test creating a CombinedUserUsername."""
+        username = uuid()
+        email = generate_valid_email()
+        password = VALID_PASSWORD
+        user = self.CombinedUserUsername.objects.create_user(username=username, email=email, password=VALID_PASSWORD)
+        self.assertEqual(username, user.get_username())
+        self.assertEqual(username, user.username)
+        self.assertEqual(email, user.email)
+        self.assertNotEqual(password, user.password)
+        self.assertTrue(user.check_password(password))
+
+    def test_create_user_no_email(self) -> None:
+        """Test that username is not a required field."""
+        username = uuid()
+        password = VALID_PASSWORD
+        user = self.CombinedUserUsername.objects.create_user(username=username, password=VALID_PASSWORD)
+        self.assertEqual(username, user.username)
+        self.assertEqual("", user.email)
+        self.assertTrue(user.check_password(password))

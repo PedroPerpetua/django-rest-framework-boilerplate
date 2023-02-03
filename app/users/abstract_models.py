@@ -86,12 +86,13 @@ class UserEmailMixin(DjangoAbstractBaseUser):
         using: Optional[str] = None,
         update_fields: Optional[Iterable[str]] = None,
     ) -> None:
-        if empty(self.email) and (self.REQUIRE_EMAIL or self.USERNAME_FIELD == "email"):
-            raise ValidationError("Email cannot be empty.")
-        try:
-            validate_email(self.email)
-        except ValidationError as ve:
-            raise ValidationError("Email is invalid.") from ve
+        if self.REQUIRE_EMAIL or self.USERNAME_FIELD == "email":
+            if empty(self.email):
+                raise ValidationError("Email cannot be empty.")
+            try:
+                validate_email(self.email)
+            except ValidationError as ve:
+                raise ValidationError("Email is invalid.") from ve
         self.email = BaseUserManager.normalize_email(self.email.strip())
         return super().save(force_insert, force_update, using, update_fields)
 
