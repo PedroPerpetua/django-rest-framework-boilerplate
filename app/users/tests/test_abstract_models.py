@@ -11,7 +11,7 @@ from users.tests import VALID_PASSWORD, generate_valid_email
 class TestAbstractUserWithEmail(AbstractModelTestCase):
     """Test using the UserEmailMixin."""
 
-    class UserWithEmail(UserEmailMixin, DjangoAbstractBaseUser):
+    class UserWithEmail(UserEmailMixin, DjangoAbstractBaseUser):  # type: ignore # _meta issue
         USERNAME_FIELD = "email"
         objects = UserManager[Self]()  # type: ignore # https://github.com/python/mypy/issues/14167
 
@@ -95,7 +95,7 @@ class TestAbstractUserWithEmail(AbstractModelTestCase):
 class TestAbstractUserWithUsername(AbstractModelTestCase):
     """Test using the UserUsernameMixin."""
 
-    class UserWithUsername(UserUsernameMixin, DjangoAbstractBaseUser):
+    class UserWithUsername(UserUsernameMixin, DjangoAbstractBaseUser):  # type: ignore # _meta issue
         USERNAME_FIELD = "username"
         objects = UserManager[Self]()  # type: ignore #https://github.com/python/mypy/issues/14167
 

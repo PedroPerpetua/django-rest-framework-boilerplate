@@ -1,4 +1,4 @@
-from typing import Iterable, Optional
+from typing import TYPE_CHECKING, Iterable, Optional
 from django.contrib.auth.models import AbstractBaseUser as DjangoAbstractBaseUser
 from django.contrib.auth.models import BaseUserManager, PermissionsMixin
 from django.core.exceptions import ValidationError
@@ -9,7 +9,7 @@ from core.extensions.models import BaseAbstractModel
 from core.utilities import empty
 
 
-class BaseAbstractUser(BaseAbstractModel, DjangoAbstractBaseUser, PermissionsMixin):
+class BaseAbstractUser(PermissionsMixin, DjangoAbstractBaseUser, BaseAbstractModel):
     """
     Custom BaseAbstractUser model that should serve as a base for any custom User models.
 
@@ -31,11 +31,18 @@ class BaseAbstractUser(BaseAbstractModel, DjangoAbstractBaseUser, PermissionsMix
     is_active = models.BooleanField(
         default=True, help_text="Designates the user as active.", verbose_name="active status"
     )
+
+    # Fix the last_login help text
+    last_login = models.DateTimeField(
+        blank=True,
+        null=True,
+        help_text="Last login datetime. Updated when the UserLoginView is called.",
+        verbose_name="last_login",
+    )
+
     """
     Other fields not included but acquired from the DjangoAbstractBaseUser:
     - password: string[128] -> encrypted password.
-    - last_login: DateTime -> user's last login; to be updated make sure simplejwt has the setting as true.
-        - NOTE: this field's help text is patched bellow
     - is_superuser: boolean -> the user is a Django Superuser.
     - groups: MTM[auth.group] -> permission groups the user belongs to.
     - user_permissions: MTM[auth.permission] -> specific permissions applied to the user.
@@ -47,21 +54,25 @@ class BaseAbstractUser(BaseAbstractModel, DjangoAbstractBaseUser, PermissionsMix
             fields += [field_name]
 
 
-BaseAbstractUser._meta.get_field(
-    "last_login"
-).help_text = "Last login datetime. Updated when the UserLoginView is called."
+"""
+Because of some weird results with `related_names` (inheriting from the PermissionsMixin multiple times) and having
+issues with needing to override the same field multiple times when we do inheritance (specifically with the
+`last_login` field) we opt to inherit from the basic `models.model` on runtime, but for typechecking purposes, we
+still use the BaseAbstractUser (which will always be the "main" class when using these mixins).
+"""
+if TYPE_CHECKING:
+    BaseUserMixin = BaseAbstractUser
+else:
+    BaseUserMixin = models.Model
 
 
-class UserEmailMixin(DjangoAbstractBaseUser):
+class UserEmailMixin(BaseUserMixin):
     """
     Mixin to add an email field to the custom concrete User class.
 
     In order to use this as the username field, set `USERNAME_FIELD = "email"`.
 
     If this is not the username field, but still a required field, set `REQUIRE_EMAIL = True` (defaults to `False`).
-
-    We don't subclass BaseAbstractUser because there can be some weird results with `related_names` (inheriting from
-    the PermissionsMixin multiple times).
     """
 
     USERNAME_FIELD: str  # Will be inherited from Permissions Mixin
@@ -97,7 +108,7 @@ class UserEmailMixin(DjangoAbstractBaseUser):
         return super().save(force_insert, force_update, using, update_fields)
 
 
-class UserUsernameMixin(DjangoAbstractBaseUser):
+class UserUsernameMixin(BaseUserMixin):
     """
     Mixin to add a username field to the custom concrete User class.
 
@@ -105,9 +116,6 @@ class UserUsernameMixin(DjangoAbstractBaseUser):
 
     If this is not the username field, but still a required field, set `REQUIRE_USERNAME = True` (defaults to
     `False`).
-
-    We don't subclass BaseAbstractUser because there can be some weird results with `related_names` (inheriting from
-    the PermissionsMixin multiple times).
     """
 
     USERNAME_FIELD: str  # Will be inherited from Permissions Mixin
