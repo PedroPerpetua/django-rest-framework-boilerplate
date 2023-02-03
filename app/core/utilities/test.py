@@ -1,5 +1,5 @@
 import re
-from typing import Any
+from typing import Any, Type
 import requests
 from django.db import connection
 from django.db.models import Model

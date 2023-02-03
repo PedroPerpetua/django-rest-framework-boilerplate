@@ -1,17 +1,18 @@
-from typing import Optional
+from __future__ import annotations
+from typing import Optional, Self
 from django.contrib.auth.models import AbstractBaseUser
 from django.core.exceptions import ValidationError
 from core.utilities import clear_Nones, uuid
 from core.utilities.test import AbstractModelTestCase
 from users.abstract_models import UserEmailMixin, UserUsernameMixin
-from users.models import UserManager
+from users.managers import UserManager
 from users.tests import VALID_PASSWORD, generate_valid_email
 
 
 class TestAbstractUserWithEmail(AbstractModelTestCase):
     class UserWithEmail(UserEmailMixin, AbstractBaseUser):
         USERNAME_FIELD = "email"
-        objects = UserManager()
+        objects = UserManager[Self]()  # type: ignore  #https://github.com/python/mypy/issues/14167
 
     MODEL = UserWithEmail
 
@@ -35,7 +36,7 @@ class TestAbstractUserWithEmail(AbstractModelTestCase):
         """
         if email is None:
             email = generate_valid_email()
-        return self.UserWithEmail.objects.create_user(  # type: ignore # We use the same manager that returns User
+        return self.UserWithEmail.objects.create_user(
             **clear_Nones(
                 id=id,
                 email=email,
@@ -93,7 +94,7 @@ class TestAbstractUserWithEmail(AbstractModelTestCase):
 class TestAbstractUserWithUsername(AbstractModelTestCase):
     class UserWithUsername(UserUsernameMixin, AbstractBaseUser):
         USERNAME_FIELD = "username"
-        objects = UserManager()
+        objects = UserManager[Self]()  # type: ignore  #https://github.com/python/mypy/issues/14167
 
     MODEL = UserWithUsername
 
@@ -117,7 +118,7 @@ class TestAbstractUserWithUsername(AbstractModelTestCase):
         """
         if username is None:
             username = uuid()
-        return self.UserWithUsername.objects.create_user(  # type: ignore # We use the same manager that returns User
+        return self.UserWithUsername.objects.create_user(
             **clear_Nones(
                 id=id,
                 username=username,

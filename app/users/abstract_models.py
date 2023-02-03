@@ -64,6 +64,8 @@ class UserEmailMixin(DjangoAbstractBaseUser):
     the PermissionsMixin multiple times).
     """
 
+    USERNAME_FIELD: str  # Will be inherited from Permissions Mixin
+
     class Meta:
         abstract = True
 
@@ -106,6 +108,8 @@ class UserUsernameMixin(DjangoAbstractBaseUser):
     We don't subclass BaseAbstractUser because there can be some weird results with `related_names` (inheriting from
     the PermissionsMixin multiple times).
     """
+
+    USERNAME_FIELD: str  # Will be inherited from Permissions Mixin
 
     class Meta:
         abstract = True

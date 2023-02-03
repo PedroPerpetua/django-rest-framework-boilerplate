@@ -1,4 +1,5 @@
 from typing import TYPE_CHECKING, Any, TypeVar
+from django.contrib.auth.base_user import AbstractBaseUser
 from django.db.models import Model
 from django.urls.resolvers import URLPattern, URLResolver
 from rest_framework.generics import GenericAPIView
@@ -21,6 +22,9 @@ the same object type.
 GenericModel = TypeVar("GenericModel", bound=Model, covariant=True)
 """Type alias for Generic classes that use Models. Identical to _MT_co type in `rest_framework-stubs.generics`."""
 
+
+GenericUser = TypeVar("GenericUser", bound=AbstractBaseUser)
+"""Type alias for Generic classes that use some kind of User."""
 
 URLPatternsList = list[URLPattern | URLResolver]
 """Type alias specifically for urlpatterns lists."""
