@@ -81,12 +81,12 @@ class UserEmailMixin(BaseUserMixin):
         abstract = True
 
     REQUIRE_EMAIL = False
-    email = models.EmailField(max_length=255, unique=True, blank=REQUIRE_EMAIL, null=REQUIRE_EMAIL)
+    email = models.EmailField(max_length=255, unique=True)
 
     @classproperty
     def REQUIRED_FIELDS(cls) -> list[str]:  # type: ignore # mypy bug: https://github.com/python/mypy/issues/4125
         fields = super().REQUIRED_FIELDS
-        if cls.REQUIRE_EMAIL:
+        if cls.REQUIRE_EMAIL and cls.USERNAME_FIELD != "email":
             BaseAbstractUser.append_required_field(fields, "email")
         return fields
 
@@ -124,12 +124,12 @@ class UserUsernameMixin(BaseUserMixin):
         abstract = True
 
     REQUIRE_USERNAME = False
-    username = models.CharField(max_length=255, unique=True, blank=REQUIRE_USERNAME, null=REQUIRE_USERNAME)
+    username = models.CharField(max_length=255, unique=True)
 
     @classproperty
     def REQUIRED_FIELDS(cls) -> list[str]:  # type: ignore # mypy bug: https://github.com/python/mypy/issues/4125
         fields = super().REQUIRED_FIELDS
-        if cls.REQUIRE_USERNAME:
+        if cls.REQUIRE_USERNAME and cls.USERNAME_FIELD != "username":
             BaseAbstractUser.append_required_field(fields, "username")
         return fields
 

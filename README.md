@@ -60,3 +60,4 @@ Python requirements can be added on the `requirements` folder. Production requir
 ## ROADMAP
 Planned features/improvements:
 - Setup DRF Standardized Errors to be compatible with DRF Spectacular.
+- Setup admin to reflect user made customizations without changes.

@@ -150,7 +150,7 @@ class TestAbstractUserWithUsername(AbstractModelTestCase):
 
 
 class TestCombinedUserEmail(AbstractModelTestCase):
-    """Test using both UserEmailMixin and UserUsernameMixin, while having "email" as the primary field"""
+    """Test using both UserEmailMixin and UserUsernameMixin, while having "email" as the primary field."""
 
     class CombinedUserEmail(UserEmailMixin, UserUsernameMixin, DjangoAbstractBaseUser):  # type: ignore # _meta issue
         USERNAME_FIELD = "email"
@@ -180,8 +180,37 @@ class TestCombinedUserEmail(AbstractModelTestCase):
         self.assertTrue(user.check_password(password))
 
 
+class TestCombinedUserEmailRequireUsername(AbstractModelTestCase):
+    """Extension of the above class `TestCombinedUserEmail, to test with `REQUIRE_USERNAME = True`."""
+
+    # 'type: ignore'd because of _meta issue
+    class CombinedUserEmailRequireUsername(UserEmailMixin, UserUsernameMixin, DjangoAbstractBaseUser):  # type: ignore
+        USERNAME_FIELD = "email"
+        REQUIRE_USERNAME = True
+        objects = UserManager[Self]()  # type: ignore # https://github.com/python/mypy/issues/14167
+
+    MODEL = CombinedUserEmailRequireUsername
+
+    def test_create_user_no_username_fails(self) -> None:
+        """Test that username is a required field."""
+        email = generate_valid_email()
+        with self.assertRaises(ValidationError) as ctx:
+            self.CombinedUserEmailRequireUsername.objects.create_user(email=email, password=VALID_PASSWORD)
+        self.assertIn(ValidationError("Username cannot be empty."), ctx.exception.error_list)
+
+    def test_create_user_empty_username_fails(self) -> None:
+        """Test that username is a required field."""
+        email = generate_valid_email()
+        username = ""
+        with self.assertRaises(ValidationError) as ctx:
+            self.CombinedUserEmailRequireUsername.objects.create_user(
+                email=email, username=username, password=VALID_PASSWORD
+            )
+        self.assertIn(ValidationError("Username cannot be empty."), ctx.exception.error_list)
+
+
 class TestCombinedUserUsername(AbstractModelTestCase):
-    """Test using both UserEmailMixin and UserUsernameMixin, while having "username" as the primary field"""
+    """Test using both UserEmailMixin and UserUsernameMixin, while having "username" as the primary field."""
 
     # 'type: ignore'd because of _meta issue
     class CombinedUserUsername(UserEmailMixin, UserUsernameMixin, DjangoAbstractBaseUser):  # type: ignore
@@ -211,3 +240,33 @@ class TestCombinedUserUsername(AbstractModelTestCase):
         self.assertEqual(username, user.username)
         self.assertEqual("", user.email)
         self.assertTrue(user.check_password(password))
+
+
+class TestCombinedUserUsernameRequireEmail(AbstractModelTestCase):
+    """Extension of the above class `TestCombinedUserUsername, to test with `REQUIRE_EMAIL = True`."""
+
+    # 'type: ignore'd because of _meta issue
+    class CombinedUserUsernameRequireEmail(UserEmailMixin, UserUsernameMixin, DjangoAbstractBaseUser):  # type: ignore
+
+        USERNAME_FIELD = "username"
+        REQUIRE_EMAIL = True
+        objects = UserManager[Self]()  # type: ignore # https://github.com/python/mypy/issues/14167
+
+    MODEL = CombinedUserUsernameRequireEmail
+
+    def test_create_user_no_email_fails(self) -> None:
+        """Test that username is a required field."""
+        username = uuid()
+        with self.assertRaises(ValidationError) as ctx:
+            self.CombinedUserUsernameRequireEmail.objects.create_user(username=username, password=VALID_PASSWORD)
+        self.assertIn(ValidationError("Email cannot be empty."), ctx.exception.error_list)
+
+    def test_create_user_empty_email_fails(self) -> None:
+        """Test that username is a required field."""
+        username = uuid()
+        email = ""
+        with self.assertRaises(ValidationError) as ctx:
+            self.CombinedUserUsernameRequireEmail.objects.create_user(
+                username=username, email=email, password=VALID_PASSWORD
+            )
+        self.assertIn(ValidationError("Email cannot be empty."), ctx.exception.error_list)

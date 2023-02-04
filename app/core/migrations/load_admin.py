@@ -13,6 +13,9 @@ from core.utilities import env
 class Migration(migrations.Migration):
     initial = True
 
+    # Make sure we always have the most recent user model.
+    dependencies = [("users", "__latest__")]
+
     def generate_superuser(self, schema_editor: BaseDatabaseSchemaEditor) -> None:
         credentials = env.as_json("ADMIN_CREDENTIALS")
         if not isinstance(credentials, dict):

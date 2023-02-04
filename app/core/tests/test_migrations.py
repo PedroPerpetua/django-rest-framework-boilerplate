@@ -1,3 +1,4 @@
+from unittest.mock import ANY
 from django.contrib.auth import get_user_model
 from django.test import TestCase
 from core.utilities import env
@@ -19,4 +20,5 @@ class TestMigrations(TestCase):
             if key == "password":
                 self.assertTrue(user.check_password(value))
                 continue
-            self.assertEqual(value, getattr(user, key))
+            # We use default match `ANY` because we can pass fields that don't exist from the configuration
+            self.assertEqual(value, getattr(user, key, ANY))
