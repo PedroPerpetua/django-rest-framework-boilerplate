@@ -2,6 +2,7 @@ from django.test import override_settings
 from django.urls import reverse
 from rest_framework import status
 from rest_framework.test import APIClient, APITestCase
+from core.utilities import uuid
 from users import serializers
 from users.models import User
 from users.tests import INVALID_PASSWORD, VALID_PASSWORD, generate_valid_email, sample_user
@@ -18,19 +19,19 @@ class TestUserRegisterView(APITestCase):
         # Get the current user count
         original_count = User.objects.count()
         # Make the call
+        username = uuid()
         email = generate_valid_email()
         password = VALID_PASSWORD
-        res = self.client.post(self.URL, data={"email": email, "password": password})
+        # Use both email and username, because we don't know which (or both) have been chosen
+        res = self.client.post(self.URL, data={"username": username, "email": email, "password": password})
         # Verify the response
         self.assertEqual(status.HTTP_201_CREATED, res.status_code)
-        self.assertEqual({"email": email}, res.json())
-        # Make sure the user was created properly
         self.assertEqual(original_count + 1, User.objects.count())
-        user_filter = User.objects.filter(email=email)
-        self.assertTrue(user_filter.exists())
-        user = user_filter.get()
-        self.assertEqual(user.email, email)
-        self.assertTrue(user.check_password(password))
+        created_user: User = User.objects.first()  # type:ignore  # Won't be None
+        self.assertEqual(serializers.UserRegisterSerializer(created_user).data, res.json())
+        # Make sure the user was created properly
+        self.assertIn(created_user.get_username(), [username, email])
+        self.assertTrue(created_user.check_password(password))
 
     @override_settings(AUTH_USER_REGISTRATION_ENABLED=False)
     def test_registration_disabled_fails(self) -> None:
@@ -60,7 +61,9 @@ class TestAuthentication(APITestCase):
         user = sample_user(password=password)
 
         # First, let's login the user
-        login_res = self.client.post(self.LOGIN_URL, data={"email": user.email, "password": password})
+        login_res = self.client.post(
+            self.LOGIN_URL, data={user.USERNAME_FIELD: user.get_username(), "password": password}
+        )
         self.assertEqual(status.HTTP_200_OK, login_res.status_code)
         login_token_dict = login_res.json()
         self.assertTrue(login_token_dict["refresh"])  # Not empty
@@ -70,7 +73,7 @@ class TestAuthentication(APITestCase):
             reverse("users:whoami"), HTTP_AUTHORIZATION=f"Bearer {login_token_dict['access']}"
         )
         self.assertEqual(status.HTTP_200_OK, whoami_res.status_code)
-        self.assertEqual({"email": user.email}, whoami_res.json())
+        self.assertEqual({user.USERNAME_FIELD: user.get_username()}, whoami_res.json())
 
         # Refresh the tokens
         refresh_res = self.client.post(reverse("users:login-refresh"), data={"refresh": login_token_dict["refresh"]})
@@ -106,7 +109,7 @@ class TestAuthentication(APITestCase):
         password = VALID_PASSWORD
         user = sample_user(password=password, is_active=False)
         # Make the call
-        res = self.client.post(self.LOGIN_URL, data={"email": user.email, "password": password})
+        res = self.client.post(self.LOGIN_URL, data={user.USERNAME_FIELD: user.get_username(), "password": password})
         self.assertEqual(status.HTTP_401_UNAUTHORIZED, res.status_code)
 
     def test_login_inactive_user_fails(self) -> None:
@@ -114,7 +117,7 @@ class TestAuthentication(APITestCase):
         password = VALID_PASSWORD
         user = sample_user(password=password, is_active=False)
         # Make the call
-        res = self.client.post(self.LOGIN_URL, data={"email": user.email, "password": password})
+        res = self.client.post(self.LOGIN_URL, data={user.USERNAME_FIELD: user.get_username(), "password": password})
         self.assertEqual(status.HTTP_401_UNAUTHORIZED, res.status_code)
 
     def test_login_soft_deleted_user_fails(self) -> None:
@@ -123,7 +126,7 @@ class TestAuthentication(APITestCase):
         user = sample_user(password=password)
         user.soft_delete()
         # Make the call
-        res = self.client.post(self.LOGIN_URL, data={"email": user.email, "password": password})
+        res = self.client.post(self.LOGIN_URL, data={user.USERNAME_FIELD: user.get_username(), "password": password})
         self.assertEqual(status.HTTP_401_UNAUTHORIZED, res.status_code)
 
 
@@ -200,47 +203,58 @@ class TestUserProfileView(APITestCase):
 
     def test_update_success(self) -> None:
         """Test successfully updating the user's profile."""
-        for func in [self.client.patch, self.client.put]:
-            with self.subTest(msg="Updating the user's profile.", value=func.__name__):
-                # Make the call
-                payload = {"email": generate_valid_email()}
-                res = func(self.URL, data=payload)
-                # Verify the response
-                self.assertEqual(status.HTTP_200_OK, res.status_code)
-                # Make sure the email changed
-                self.user.refresh_from_db()
-                self.assertEqual(payload["email"], self.user.email)
+        # We only test patch because we don't know all the customizations
+        field = self.user.USERNAME_FIELD
+        match field:
+            case "username":
+                value = uuid()
+            case "email":
+                value = generate_valid_email()
+            case _:
+                self.skipTest(f"Unrecognized username field: {field}")
+        payload = {field: value}
+        res = self.client.patch(self.URL, data=payload)
+        # Verify the response
+        self.assertEqual(status.HTTP_200_OK, res.status_code)
+        # Make sure the username changed
+        self.user.refresh_from_db()
+        self.assertEqual(value, self.user.get_username())
 
     def test_update_fails(self) -> None:
         """Test that updating the user's profile with bad data fails."""
-        for func in [self.client.patch, self.client.put]:
-            with self.subTest(msg="Updating the user's profile.", value=func.__name__):
-                # Make the call
-                payload = {"email": "_invalid_email"}
-                res = func(self.URL, data=payload)
-                # Verify the response
-                self.assertEqual(status.HTTP_400_BAD_REQUEST, res.status_code)
-                self.assertEqual(
-                    {"errors": [{"code": "invalid", "detail": "Enter a valid email address.", "attr": "email"}]},
-                    res.json(),
-                )
-                # Make sure the email didn't change change
-                self.user.refresh_from_db()
-                self.assertNotEqual(payload["email"], self.user.email)
+        # We only test patch because we don't know all the customizations
+        field = self.user.USERNAME_FIELD
+        value = ""
+        payload = {field: value}
+        res = self.client.patch(self.URL, data=payload)
+        # Verify the response
+        self.assertEqual(status.HTTP_400_BAD_REQUEST, res.status_code)
+        self.assertEqual(
+            {"errors": [{"code": "blank", "detail": "This field may not be blank.", "attr": field}]}, res.json()
+        )
+        # Make sure it didn't change
+        self.user.refresh_from_db()
+        self.assertNotEqual(value, self.user.get_username())
 
     def test_update_authentication_required(self) -> None:
         """Test that the user needs to be logged in to update their profile."""
         client = APIClient()
-        for func in [client.patch, client.put]:
-            with self.subTest(msg="Updating the user's profile.", value=func.__name__):
-                # Make the call
-                payload = {"email": generate_valid_email()}
-                res = func(self.URL, data=payload)
-                # Verify the response
-                self.assertEqual(status.HTTP_401_UNAUTHORIZED, res.status_code)
-                # Make sure the email didn't change
-                self.user.refresh_from_db()
-                self.assertNotEqual(payload["email"], self.user.email)
+        # We only test patch because we don't know all the customizations
+        field = self.user.USERNAME_FIELD
+        match field:
+            case "username":
+                value = uuid()
+            case "email":
+                value = generate_valid_email()
+            case _:
+                self.skipTest(f"Unrecognized username field: {field}")
+        payload = {field: value}
+        res = client.patch(self.URL, data=payload)
+        # Verify the response
+        self.assertEqual(status.HTTP_401_UNAUTHORIZED, res.status_code)
+        # Make sure the username didn't change
+        self.user.refresh_from_db()
+        self.assertNotEqual(value, self.user.get_username())
 
 
 class TestUserChangePasswordView(APITestCase):

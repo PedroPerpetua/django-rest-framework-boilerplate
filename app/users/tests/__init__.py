@@ -26,6 +26,7 @@ def generate_valid_email() -> str:
 def sample_user(
     *,
     id: Optional[str] = None,
+    username: Optional[str] = None,
     email: Optional[str] = None,
     password: str = VALID_PASSWORD,
     is_staff: Optional[bool] = None,
@@ -35,15 +36,24 @@ def sample_user(
     """
     Create a sample user with the following default values:
     - `id`: auto-generated
-    - `email`: unique valid email
+    - `username`: unique username, if the User model has a username.
+    - `email`: unique valid email, if the User model has an email.
     - `password`: pre-defined valid password
     - `is_staff`: default value
     - `is_superuser`: default value
     """
-    if email is None:
+    if username is None and hasattr(User, "username"):
+        username = uuid()
+    if email is None and hasattr(User, "email"):
         email = generate_valid_email()
     return User.objects.create_user(
         **clear_Nones(
-            id=id, email=email, password=password, is_staff=is_staff, is_superuser=is_superuser, is_active=is_active
+            id=id,
+            username=username,
+            email=email,
+            password=password,
+            is_staff=is_staff,
+            is_superuser=is_superuser,
+            is_active=is_active,
         )
     )

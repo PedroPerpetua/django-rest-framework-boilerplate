@@ -3,7 +3,7 @@ from users.abstract_models import BaseAbstractUser, UserEmailMixin, UserUsername
 from users.managers import UserManager
 
 
-class User(UserEmailMixin, UserUsernameMixin, BaseAbstractUser):
+class User(UserUsernameMixin, UserEmailMixin, BaseAbstractUser):
     """
     The concrete user class that will be used in the database.
 
@@ -11,15 +11,14 @@ class User(UserEmailMixin, UserUsernameMixin, BaseAbstractUser):
     `USERNAME_FIELD`.
 
     This class can be customized by removing or adding other Mixins. For example, to only have a `username` and no
-    email, remove the `UserEmailMixin` from the class' parents and the `REQUIRE_EMAIL` property. **Every change that
-    modifies the resulting model requires a new migration.**
+    email, remove the `UserEmailMixin` from the class' parents. **Every change that modifies the resulting model
+    requires a new migration.**
 
     See the mixins in `abstract_models.py` for more information.
     """
 
-    objects = UserManager[Self]()  # type: ignore # https://github.com/python/mypy/issues/14167
     USERNAME_FIELD = "username"
-    REQUIRE_EMAIL = True
+    objects = UserManager[Self]()  # type: ignore # https://github.com/python/mypy/issues/14167
 
     class Meta(BaseAbstractUser.Meta):
         ...

@@ -10,7 +10,7 @@ from rest_framework.response import Response
 from drf_spectacular.utils import extend_schema
 from rest_framework_simplejwt import views as jwt_views  # type: ignore # No stubs available
 from users import serializers
-from users.mixins import TargetAuthenticatedUserMixin
+from users.view_mixins import TargetAuthenticatedUserMixin
 
 
 @extend_schema(tags=["User Authentication"])
@@ -54,28 +54,19 @@ class UserLogoutView(jwt_views.TokenBlacklistView):  # type: ignore # missing st
 
 @extend_schema(tags=["Users"])
 class UserWhoamiView(TargetAuthenticatedUserMixin, generics.RetrieveAPIView):
-    """Endpoint to retrieve the email of the currently logged in user."""
+    """Endpoint to retrieve the `USERNAME_FIELD` (usually `username` or `email`) of the currently logged in user."""
 
     serializer_class = serializers.UserWhoamiSerializer
 
 
 @extend_schema(tags=["Users"])
+@extend_schema(methods=["get"], description="Endpoint to retrieve a user's details.")
+@extend_schema(methods=["patch"], description="Endpoint to partially update a user's details.")
+@extend_schema(methods=["put"], description="Endpoint to fully override a user's details.")
 class UserProfileView(TargetAuthenticatedUserMixin, generics.RetrieveUpdateAPIView):
     """Endpoint to retrieve and update a user's details."""
 
     serializer_class = serializers.UserProfileSerializer
-
-    def get(self, request: Request, *args: Any, **kwargs: Any) -> Response:
-        """Endpoint to retrieve a user's details."""
-        return super().get(request, *args, **kwargs)
-
-    def patch(self, request: Request, *args: Any, **kwargs: Any) -> Response:
-        """Endpoint to partially update a user's details."""
-        return super().patch(request, *args, **kwargs)
-
-    def put(self, request: Request, *args: Any, **kwargs: Any) -> Response:
-        """Endpoint to fully override a user's details."""
-        return super().put(request, *args, **kwargs)
 
 
 @extend_schema(tags=["Users"])
