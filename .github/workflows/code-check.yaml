@@ -1,8 +1,9 @@
 name: code-check
 
 on:
-  - push
-  - merge
+  push: ~
+  pull_request:
+    types: [closed]
 
 jobs:
   lint-and-test:
