@@ -1,6 +1,16 @@
+from __future__ import annotations
+import json
 import os
-from typing import Optional, TypeVar
+from typing import TYPE_CHECKING, Optional, TypeVar
 
+
+if TYPE_CHECKING:
+    """
+    We only import this when typechecking to prevent DRF from being loaded into this module, as our `settings.py` file
+    imports from this module to setup. If we import this regularly, we're met with an issue where DRF is loaded BEFORE
+    `REST_FRAMEWORK` settings are set, causing them to never be loaded at all.
+    """
+    from core.utilities.types import JSON_BASE
 
 ENV = os.environ
 
@@ -37,6 +47,17 @@ def as_int(var: str, default: Optional[int] = None) -> int:
     return int(_get_value(var, default))
 
 
+def as_bool(var: str, default: Optional[bool] = None) -> bool:
+    """
+    Return the environment variable as a boolean. We accept "true", "True", (etc), "t", "T", "1" as `True`, and
+    everything else as `False`. If no default value is given and the variable is not set, raises Keyerror.
+    """
+    value = _get_value(var, default)
+    if isinstance(value, str):
+        return value.lower() in ["true", "1", "t"]
+    return value
+
+
 def as_list(var: str, default: Optional[list[str]] = None) -> list[str]:
     """
     Return the environment variable as a list of strings (previously separated by commas). If no default value is
@@ -55,12 +76,12 @@ def as_list(var: str, default: Optional[list[str]] = None) -> list[str]:
     return value
 
 
-def as_bool(var: str, default: Optional[bool] = None) -> bool:
+def as_json(var: str, default: Optional[JSON_BASE] = None) -> JSON_BASE:
     """
-    Return the environment variable as a boolean. We accept "true", "True", (etc), "t", "T", "1" as `True`, and
-    everything else as `False`. If no default value is given and the variable is not set, raises Keyerror.
+    Return the environment variable loaded as a JSON object. If no default value is given and the variable is not set,
+    raises KeyError.
     """
     value = _get_value(var, default)
     if isinstance(value, str):
-        return value.lower() in ["true", "1", "t"]
+        return json.loads(value)
     return value

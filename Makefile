@@ -4,7 +4,8 @@ ifeq (command,$(firstword $(MAKECMDGOALS)))
   # use the rest as arguments for "command"
   COMMAND_ARGS := $(wordlist 2,$(words $(MAKECMDGOALS)),$(MAKECMDGOALS))
   # ...and turn them into do-nothing targets
-  $(eval $(COMMAND_ARGS):;@:)
+  # This will spit an error wich is fine for now
+  $(eval $(COMMAND_ARGS):ignore_this_error;@:)
 endif
 
 # "-" at the start of lines are so that docker compose stop is always ran.
@@ -12,7 +13,7 @@ endif
 .PHONY: build run test clear command
 
 build:
-	docker compose build --no-cache app
+	docker compose build
 
 run:
 	-docker compose up

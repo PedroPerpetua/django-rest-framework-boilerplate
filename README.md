@@ -32,6 +32,7 @@ Currently set up for `python 3.11` with `Django 4.1.5` and `Django Rest Framewor
 - Ready to edit custom Admin page.
   - Also features an ordering utility to easily re-order apps and models on the admin page.
 - A base for a custom user model with the full JWT authentication flow.
+  - This custom user model can be easily setup with mixins to change the username field, set up required email or username, etc.
   - Also includes classes and mixins for views to facilitate working with Users.
   - **NOTE**: The users, by default, have `active=True`. It may be desired to change this behavior.
   - **NOTE**: The simplejwt settings have `UPDATE_LAST_LOGIN: True`. This may hinder performance and may be desired to change this behavior.
@@ -60,3 +61,4 @@ Python requirements can be added on the `requirements` folder. Production requir
 ## ROADMAP
 Planned features/improvements:
 - Setup DRF Standardized Errors to be compatible with DRF Spectacular.
+- Setup admin to reflect user made customizations without changes.

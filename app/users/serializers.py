@@ -8,19 +8,32 @@ class UserRegisterSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = models.User
-        fields = ("email", "password")
         extra_kwargs = {"password": {"write_only": True}}
+        # Because more fields can be included in the user, instead exclude all that we know we don't want
+        # Exception: do not exclude password
+        exclude = (
+            "id",
+            "created_at",
+            "updated_at",
+            "is_deleted",
+            "is_staff",
+            "is_active",
+            "is_superuser",
+            "last_login",
+            "groups",
+            "user_permissions",
+        )
 
     def create(self, validated_data: Any) -> models.User:
         return models.User.objects.create_user(**validated_data)
 
 
 class UserWhoamiSerializer(serializers.ModelSerializer):
-    """Serializer for retrieving the current user's email."""
+    """Serializer for retrieving the current user's `USERNAME_FIELD` data (usually username or email)."""
 
     class Meta:
         model = models.User
-        fields = ("email",)
+        fields = (models.User.USERNAME_FIELD,)
 
 
 class UserChangePasswordSerializer(serializers.ModelSerializer):
@@ -39,4 +52,17 @@ class UserProfileSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = models.User
-        fields = ("email",)
+        # Because more fields can be included in the user, instead exclude all that we know we don't want
+        exclude = (
+            "id",
+            "created_at",
+            "updated_at",
+            "is_deleted",
+            "is_staff",
+            "is_active",
+            "is_superuser",
+            "password",
+            "last_login",
+            "groups",
+            "user_permissions",
+        )

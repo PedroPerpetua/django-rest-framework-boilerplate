@@ -1,4 +1,4 @@
-from typing import Optional
+from typing import Literal, Optional
 from core.utilities import clear_Nones, uuid
 from users.models import User
 
@@ -23,9 +23,24 @@ def generate_valid_email() -> str:
     return f"{uuid()}@example.com"
 
 
+def generate_valid_username(field_name: Literal["username", "email"] | str) -> str:
+    """
+    Auxiliary method to generate a unique valid string for the corresponding `field_name`. Supports `email` and
+    `username`. If the `field_name` has another value, raises `AssertionError`.
+    """
+    match field_name:  # pragma: no cover
+        case "email":
+            return generate_valid_email()
+        case "username":
+            return uuid()
+        case _:
+            raise AssertionError(f"Unrecognized username field: {field_name}")
+
+
 def sample_user(
     *,
     id: Optional[str] = None,
+    username: Optional[str] = None,
     email: Optional[str] = None,
     password: str = VALID_PASSWORD,
     is_staff: Optional[bool] = None,
@@ -35,15 +50,24 @@ def sample_user(
     """
     Create a sample user with the following default values:
     - `id`: auto-generated
-    - `email`: unique valid email
+    - `username`: unique username, if the User model has a username.
+    - `email`: unique valid email, if the User model has an email.
     - `password`: pre-defined valid password
     - `is_staff`: default value
     - `is_superuser`: default value
     """
-    if email is None:
+    if username is None and hasattr(User, "username"):
+        username = uuid()
+    if email is None and hasattr(User, "email"):
         email = generate_valid_email()
     return User.objects.create_user(
         **clear_Nones(
-            id=id, email=email, password=password, is_staff=is_staff, is_superuser=is_superuser, is_active=is_active
+            id=id,
+            username=username,
+            email=email,
+            password=password,
+            is_staff=is_staff,
+            is_superuser=is_superuser,
+            is_active=is_active,
         )
     )

@@ -1,68 +1,27 @@
-from __future__ import annotations
-from typing import Any, Iterable, Optional
-from django.contrib.auth.models import AbstractBaseUser, BaseUserManager, PermissionsMixin
-from django.contrib.auth.password_validation import validate_password
-from django.core.exceptions import ValidationError
-from django.db import models
-from core.extensions.models import BaseAbstractModel
-from core.utilities import empty
+from typing import Self
+from users.abstract_models import BaseAbstractUser, UserEmailMixin, UserUsernameMixin
+from users.managers import UserManager
 
 
-class UserManager(BaseUserManager["User"]):
-    """Custom UserManager that uses our User model defined below."""
-
-    def create_user(self, email: str, password: str, **extra_fields: Any) -> User:
-        """Create, save and return a new User."""
-        user = self.model(email=email, **extra_fields)
-        validate_password(password, user=user)
-        user.set_password(password)
-        user.save()
-        return user
-
-    def create_superuser(self, email: str, password: str, **extra_fields: Any) -> User:
-        """Shortcut method to create a User with `is_staff` and `is_superuser` as `True`."""
-        return self.create_user(email, password, is_staff=True, is_superuser=True, **extra_fields)
-
-
-class User(BaseAbstractModel, AbstractBaseUser, PermissionsMixin):
-    """Custom User model."""
-
-    email = models.EmailField(max_length=255, unique=True)
-    is_staff = models.BooleanField(
-        default=False, help_text="Designates this user as a staff member.", verbose_name="staff status"
-    )
-    is_active = models.BooleanField(
-        default=True, help_text="Designates the user as active.", verbose_name="active status"
-    )
+class User(UserUsernameMixin, UserEmailMixin, BaseAbstractUser):
     """
-    Other fields not included but acquired from the AbstractBaseUser:
-    - password: string[128] -> encrypted password.
-    - last_login: DateTime -> user's last login; to be updated make sure simplejwt has the setting as true.
-        - NOTE: this field's help text is patched bellow
-    - is_superuser: boolean -> the user is a Django Superuser.
-    - groups: MTM[auth.group] -> permission groups the user belongs to.
-    - user_permissions: MTM[auth.permission] -> specific permissions applied to the user.
+    The concrete user class that will be used in the database.
+
+    By default, implements both a `username` and an `email` field, using the `username` as the model's
+    `USERNAME_FIELD`.
+
+    This class can be customized by removing or adding other Mixins. For example, to only have a `username` and no
+    email, remove the `UserEmailMixin` from the class' parents. **Every change that modifies the resulting model
+    requires a new migration.**
+
+    See the mixins in `abstract_models.py` for more information.
     """
 
-    objects = UserManager()
-    USERNAME_FIELD = "email"
+    USERNAME_FIELD = "username"
+    objects = UserManager[Self]()  # type: ignore # https://github.com/python/mypy/issues/14167
 
-    def save(
-        self,
-        force_insert: bool = False,
-        force_update: bool = False,
-        using: Optional[str] = None,
-        update_fields: Optional[Iterable[str]] = None,
-    ) -> None:
-        if empty(self.email):
-            raise ValidationError("Email cannot be empty.")
-        # Use the UserManager normalize email function
-        self.email = UserManager.normalize_email(self.email.strip())
-        return super().save(force_insert, force_update, using, update_fields)
+    class Meta(BaseAbstractUser.Meta):
+        ...
 
     def __str__(self) -> str:
-        return f"User ({self.id}) {self.email}"
-
-
-# Patch the last_login field's help text.
-User._meta.get_field("last_login").help_text = "Last login datetime. Updated when the UserLoginView is called."
+        return f"User ({self.id}) {self.get_username()}"
