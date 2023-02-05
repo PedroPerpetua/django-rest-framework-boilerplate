@@ -4,7 +4,7 @@ ifeq (command,$(firstword $(MAKECMDGOALS)))
   # use the rest as arguments for "command"
   COMMAND_ARGS := $(wordlist 2,$(words $(MAKECMDGOALS)),$(MAKECMDGOALS))
   # ...and turn them into do-nothing targets
-  # This will spit a error wich is fine for now
+  # This will spit an error wich is fine for now
   $(eval $(COMMAND_ARGS):ignore_this_error;@:)
 endif
 

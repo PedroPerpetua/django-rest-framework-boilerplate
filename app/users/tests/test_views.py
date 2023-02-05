@@ -38,7 +38,11 @@ class TestUserRegisterView(APITestCase):
         """Test creating a user with the registration disabled fails."""
         # Get the current user count
         original_count = User.objects.count()
-        res = self.client.post(self.URL, data={"email": generate_valid_email(), "password": VALID_PASSWORD})
+        username = uuid()
+        email = generate_valid_email()
+        password = VALID_PASSWORD
+        # Use both email and username, because we don't know which (or both) have been chosen
+        res = self.client.post(self.URL, data={"username": username, "email": email, "password": password})
         # Verify the response
         self.assertEqual(status.HTTP_403_FORBIDDEN, res.status_code)
         self.assertEqual("Registration is disabled.", res.json()["errors"][0]["detail"])
