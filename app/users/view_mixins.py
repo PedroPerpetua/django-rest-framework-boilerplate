@@ -1,15 +1,14 @@
 from rest_framework.generics import GenericAPIView
+from users.models import User
 from core.utilities.types import GenericViewMixin
 from users.authentication import AuthenticatedRequest, IsAuthenticated
-from users.models import User
 
-
+import json
 class AuthenticatedUserMixin(GenericViewMixin):
     """Mixin to set that a view requires authentication, and type the request as an AuthenticatedRequest."""
 
     permission_classes = (IsAuthenticated,)
-    request: AuthenticatedRequest
-
+    request:       AuthenticatedRequest
 
 class TargetAuthenticatedUserMixin(AuthenticatedUserMixin):
     """Mixin for views that target the authenticated user."""
