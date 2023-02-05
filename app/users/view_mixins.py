@@ -11,7 +11,7 @@ class AuthenticatedUserMixin(GenericViewMixin):
     request: AuthenticatedRequest
 
 
-class TargetAuthenticatedUserMixin(AuthenticatedUserMixin):  # type: ignore
+class TargetAuthenticatedUserMixin(AuthenticatedUserMixin):
     """Mixin for views that target the authenticated user."""
 
     def get_object(self: GenericAPIView) -> User:
