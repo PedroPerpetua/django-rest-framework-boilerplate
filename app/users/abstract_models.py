@@ -49,9 +49,16 @@ class BaseAbstractUser(PermissionsMixin, DjangoAbstractBaseUser, BaseAbstractMod
     """
 
     @classmethod
-    def append_required_field(cls, fields: list[str], field_name: str) -> None:
-        if field_name not in fields and cls.USERNAME_FIELD != field_name:
+    def set_required_field(cls, fields: list[str], field_name: str, should_add: bool) -> list[str]:
+        """
+        Generate a list of fields making sure the passed `field_name` is only included if and only if
+        `should_add = True`
+        """
+        if field_name in fields:
+            fields.remove(field_name)
+        if should_add:
             fields += [field_name]
+        return fields
 
 
 """
@@ -85,10 +92,8 @@ class UserEmailMixin(BaseUserMixin):
 
     @classproperty
     def REQUIRED_FIELDS(cls) -> list[str]:  # type: ignore # mypy bug: https://github.com/python/mypy/issues/4125
-        fields = super().REQUIRED_FIELDS
-        if cls.REQUIRE_EMAIL and cls.USERNAME_FIELD != "email":
-            BaseAbstractUser.append_required_field(fields, "email")
-        return fields
+        should_add = cls.REQUIRE_EMAIL and cls.USERNAME_FIELD != "email"
+        return BaseAbstractUser.set_required_field(super().REQUIRED_FIELDS, "email", should_add)
 
     def save(
         self,
@@ -128,10 +133,8 @@ class UserUsernameMixin(BaseUserMixin):
 
     @classproperty
     def REQUIRED_FIELDS(cls) -> list[str]:  # type: ignore # mypy bug: https://github.com/python/mypy/issues/4125
-        fields = super().REQUIRED_FIELDS
-        if cls.REQUIRE_USERNAME and cls.USERNAME_FIELD != "username":
-            BaseAbstractUser.append_required_field(fields, "username")
-        return fields
+        should_add = cls.REQUIRE_USERNAME and cls.USERNAME_FIELD != "username"
+        return BaseAbstractUser.set_required_field(super().REQUIRED_FIELDS, "username", should_add)
 
     def save(
         self,

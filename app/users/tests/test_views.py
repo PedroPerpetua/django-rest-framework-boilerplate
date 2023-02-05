@@ -5,7 +5,7 @@ from rest_framework.test import APIClient, APITestCase
 from core.utilities import uuid
 from users import serializers
 from users.models import User
-from users.tests import INVALID_PASSWORD, VALID_PASSWORD, generate_valid_email, sample_user
+from users.tests import INVALID_PASSWORD, VALID_PASSWORD, generate_valid_email, generate_valid_username, sample_user
 
 
 @override_settings(AUTH_USER_REGISTRATION_ENABLED=True)  # For testing purposes assume it's True
@@ -205,13 +205,7 @@ class TestUserProfileView(APITestCase):
         """Test successfully updating the user's profile."""
         # We only test patch because we don't know all the customizations
         field = self.user.USERNAME_FIELD
-        match field:
-            case "username":
-                value = uuid()
-            case "email":
-                value = generate_valid_email()
-            case _:
-                self.skipTest(f"Unrecognized username field: {field}")
+        value = generate_valid_username(field)
         payload = {field: value}
         res = self.client.patch(self.URL, data=payload)
         # Verify the response
@@ -241,13 +235,7 @@ class TestUserProfileView(APITestCase):
         client = APIClient()
         # We only test patch because we don't know all the customizations
         field = self.user.USERNAME_FIELD
-        match field:
-            case "username":
-                value = uuid()
-            case "email":
-                value = generate_valid_email()
-            case _:
-                self.skipTest(f"Unrecognized username field: {field}")
+        value = generate_valid_username(field)
         payload = {field: value}
         res = client.patch(self.URL, data=payload)
         # Verify the response

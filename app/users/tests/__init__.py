@@ -1,4 +1,4 @@
-from typing import Optional
+from typing import Literal, Optional
 from core.utilities import clear_Nones, uuid
 from users.models import User
 
@@ -21,6 +21,20 @@ INVALID_PASSWORD = INVALID_PASSWORDS[0]
 def generate_valid_email() -> str:
     """Auxiliary method to generate a unique valid email with the `example.com` domain."""
     return f"{uuid()}@example.com"
+
+
+def generate_valid_username(field_name: Literal["username", "email"] | str) -> str:
+    """
+    Auxiliary method to generate a unique valid string for the corresponding `field_name`. Supports `email` and
+    `username`. If the `field_name` has another value, raises `AssertionError`.
+    """
+    match field_name:  # pragma: no cover
+        case "email":
+            return generate_valid_email()
+        case "username":
+            return uuid()
+        case _:
+            raise AssertionError(f"Unrecognized username field: {field_name}")
 
 
 def sample_user(

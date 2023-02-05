@@ -18,7 +18,7 @@ class Migration(migrations.Migration):
 
     def generate_superuser(self, schema_editor: BaseDatabaseSchemaEditor) -> None:
         credentials = env.as_json("ADMIN_CREDENTIALS")
-        if not isinstance(credentials, dict):
+        if not isinstance(credentials, dict):  # pragma: no cover
             raise ValueError("ADMIN_CREDENTIALS must be a dictionary.")
         get_user_model().objects.create_superuser(**credentials)
 

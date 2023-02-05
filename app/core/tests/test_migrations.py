@@ -14,7 +14,7 @@ class TestMigrations(TestCase):
         user = user_filter.get()
         # Because the migrations are made BEFORE the tests, we can't actually mock them - check the originals.
         credentials = env.as_json("ADMIN_CREDENTIALS")
-        if not isinstance(credentials, dict):
+        if not isinstance(credentials, dict):  # pragma: no cover
             self.fail(f"Environment credentials are not a JSON Object: {credentials}")
         for key, value in credentials.items():
             if key == "password":

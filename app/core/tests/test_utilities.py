@@ -1,3 +1,4 @@
+import json
 from unittest import TestCase
 from unittest.mock import MagicMock, patch
 from django.core.files import File
@@ -11,16 +12,17 @@ from core.utilities.test import MockResponse
 class TestUtilities(TestCase):
     """Test the base utilities provided."""
 
-    def test_ext(self) -> None:
-        """Test the `ext` method."""
-        cases = [
-            ("_path/_to/_file/_filename._ext", "._ext"),
-            ("_path/_file._with._multiple._exts", "._with._multiple._exts"),
-            ("_path/_dot._in._the/middle._with_ext", "._with_ext"),
-        ]
-        for case, expected in cases:
-            with self.subTest("Testing the extensions", case=case, ext=expected):
-                self.assertEqual(expected, utils.ext(case))
+    def test_empty(self) -> None:
+        """Test the `empty` method."""
+        # Test for True
+        values = [None, "", "   \n\t   "]
+        for value in values:
+            with self.subTest("Test for True.", value=value):
+                self.assertTrue(utils.empty(value))
+        # Test for False
+        value = "_value"
+        with self.subTest("Test for False.", value=value):
+            self.assertFalse(utils.empty(value))
 
     def test_clear_Nones(self) -> None:
         """Test the `clear_Nones` method."""
@@ -51,6 +53,17 @@ class TestUtilities(TestCase):
         # Test with kwargs
         with self.subTest("Test with kwargs"):
             self.assertEqual({"_key1": "_value1"}, utils.clear_Nones(_key1="_value1", _key2=None))
+
+    def test_ext(self) -> None:
+        """Test the `ext` method."""
+        cases = [
+            ("_path/_to/_file/_filename._ext", "._ext"),
+            ("_path/_file._with._multiple._exts", "._with._multiple._exts"),
+            ("_path/_dot._in._the/middle._with_ext", "._with_ext"),
+        ]
+        for case, expected in cases:
+            with self.subTest("Testing the extensions", case=case, ext=expected):
+                self.assertEqual(expected, utils.ext(case))
 
     def test_is_svg(self) -> None:
         """Test the `is_svg` method."""
@@ -179,6 +192,24 @@ class TestEnvUtilities(TestCase):
         default = True
         with patch("core.utilities.env.ENV", {}):
             retval = env.as_bool(key, default)
+            self.assertEqual(default, retval)
+
+    def test_as_json(self) -> None:
+        """Test the `as_json` method."""
+        key = "_key"
+        value = {"_key": "_value"}
+        with patch("core.utilities.env.ENV", {key: json.dumps(value)}):
+            retval = env.as_json(key)
+            self.assertIsInstance(retval, dict)
+            self.assertEqual(value, retval)
+
+    def test_as_json_missing_key_default(self) -> None:
+        """Test the `as_json` method with a missing key, when a default is provided."""
+        key = "_key"
+        default = {"_key": "_value"}
+        with patch("core.utilities.env.ENV", {}):
+            retval = env.as_json(key, default)
+            self.assertIsInstance(retval, dict)
             self.assertEqual(default, retval)
 
 

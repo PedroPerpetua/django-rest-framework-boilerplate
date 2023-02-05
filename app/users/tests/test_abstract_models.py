@@ -101,37 +101,6 @@ class TestAbstractUserWithUsername(AbstractModelTestCase):
 
     MODEL = UserWithUsername
 
-    def sample_user(
-        self,
-        *,
-        id: Optional[str] = None,
-        username: Optional[str] = None,
-        password: str = VALID_PASSWORD,
-        is_staff: Optional[bool] = None,
-        is_superuser: Optional[bool] = None,
-        is_active: Optional[bool] = None,
-    ) -> UserWithUsername:
-        """
-        Create a sample user with the following default values:
-        - `id`: auto-generated
-        - `username`: unique username
-        - `password`: pre-defined valid password
-        - `is_staff`: default value
-        - `is_superuser`: default value
-        """
-        if username is None:
-            username = uuid()
-        return self.UserWithUsername.objects.create_user(
-            **clear_Nones(
-                id=id,
-                username=username,
-                password=password,
-                is_staff=is_staff,
-                is_superuser=is_superuser,
-                is_active=is_active,
-            )
-        )
-
     def test_create_user(self) -> None:
         """Test creating a UserWithUsername."""
         username = uuid()
@@ -157,6 +126,12 @@ class TestCombinedUserEmail(AbstractModelTestCase):
         objects = UserManager[Self]()  # type: ignore # https://github.com/python/mypy/issues/14167
 
     MODEL = CombinedUserEmail
+
+    def test_REQUIRED_FIELDS(self) -> None:
+        """Test the `REQUIRED_FIELDS` class property."""
+        fields = self.CombinedUserEmail.REQUIRED_FIELDS
+        self.assertNotIn("email", fields)  # USERNAME_FIELD
+        self.assertNotIn("username", fields)
 
     def test_create_user(self) -> None:
         """Test creating a CombinedUseremail."""
@@ -191,6 +166,12 @@ class TestCombinedUserEmailRequireUsername(AbstractModelTestCase):
 
     MODEL = CombinedUserEmailRequireUsername
 
+    def test_REQUIRED_FIELDS(self) -> None:
+        """Test the `REQUIRED_FIELDS` class property."""
+        fields = self.CombinedUserEmailRequireUsername.REQUIRED_FIELDS
+        self.assertNotIn("email", fields)  # USERNAME_FIELD
+        self.assertIn("username", fields)
+
     def test_create_user_no_username_fails(self) -> None:
         """Test that username is a required field."""
         email = generate_valid_email()
@@ -219,6 +200,12 @@ class TestCombinedUserUsername(AbstractModelTestCase):
         objects = UserManager[Self]()  # type: ignore # https://github.com/python/mypy/issues/14167
 
     MODEL = CombinedUserUsername
+
+    def test_REQUIRED_FIELDS(self) -> None:
+        """Test the `REQUIRED_FIELDS` class property."""
+        fields = self.CombinedUserUsername.REQUIRED_FIELDS
+        self.assertNotIn("username", fields)  # USERNAME_FIELD
+        self.assertNotIn("email", fields)
 
     def test_create_user(self) -> None:
         """Test creating a CombinedUserUsername."""
@@ -253,6 +240,12 @@ class TestCombinedUserUsernameRequireEmail(AbstractModelTestCase):
         objects = UserManager[Self]()  # type: ignore # https://github.com/python/mypy/issues/14167
 
     MODEL = CombinedUserUsernameRequireEmail
+
+    def test_REQUIRED_FIELDS(self) -> None:
+        """Test the `REQUIRED_FIELDS` class property."""
+        fields = self.CombinedUserUsernameRequireEmail.REQUIRED_FIELDS
+        self.assertNotIn("username", fields)  # USERNAME_FIELD
+        self.assertIn("email", fields)
 
     def test_create_user_no_email_fails(self) -> None:
         """Test that username is a required field."""
