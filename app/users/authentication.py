@@ -25,3 +25,10 @@ class IsAuthenticated(BaseIsAuthenticated):
 
     def has_permission(self, request: AuthenticatedRequest, view: APIView) -> bool:  # type: ignore # Use our User
         return super().has_permission(request, view) and request.user.is_active and not request.user.is_deleted
+
+
+class IsStaff(IsAuthenticated):
+    """Extend the `IsAuthenticated` permission to only allow users with `is_staff == True`."""
+
+    def has_permission(self, request: AuthenticatedRequest, view: APIView) -> bool:  # type: ignore # Use our User
+        return super().has_permission(request, view) and request.user.is_staff
