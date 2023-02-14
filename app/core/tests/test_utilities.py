@@ -249,11 +249,8 @@ class TestLoggingBuilder(TestCase):
         self.assertEqual({"class": "logging.StreamHandler", "kwarg": kwarg}, built["handlers"][name])
 
     @patch("pathlib.Path.mkdir")
-    @patch("pathlib.Path.is_dir")
-    def test_add_file_handler(self, is_dir_mock: MagicMock, mkdir_mock: MagicMock) -> None:
+    def test_add_file_handler(self, mkdir_mock: MagicMock) -> None:
         """Test the `add_file_handler` method."""
-        # Simulate that the path doesn't exist (it shouldn't, but still)
-        is_dir_mock.return_value = False
         builder = LoggingConfigurationBuilder()
         name = "_name"
         file_path = utils.uuid()
@@ -265,8 +262,7 @@ class TestLoggingBuilder(TestCase):
             {"class": "logging.FileHandler", "filename": file_path, "kwarg": kwarg}, built["handlers"][name]
         )
         # Make sure the mock was called correctly
-        is_dir_mock.assert_called_once()
-        mkdir_mock.assert_called_once_with(parents=True)
+        mkdir_mock.assert_called_once_with(parents=True, exist_ok=True)
 
     def test_add_logger(self) -> None:
         """Test the `add_logger` method."""
