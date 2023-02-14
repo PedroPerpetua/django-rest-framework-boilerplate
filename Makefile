@@ -13,7 +13,7 @@ endif
 .PHONY: build run test clear command
 
 build:
-	docker compose build
+	docker compose build app test
 
 run:
 	-docker compose up
