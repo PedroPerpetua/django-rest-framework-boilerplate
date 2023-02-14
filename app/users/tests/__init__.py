@@ -56,9 +56,9 @@ def sample_user(
     - `is_staff`: default value
     - `is_superuser`: default value
     """
-    if username is None and hasattr(User, "username"):
+    if username is None and hasattr(User, "username"): # pragma: no cover
         username = uuid()
-    if email is None and hasattr(User, "email"):
+    if email is None and hasattr(User, "email"): # pragma: no cover
         email = generate_valid_email()
     return User.objects.create_user(
         **clear_Nones(
