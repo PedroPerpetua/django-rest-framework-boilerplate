@@ -7,8 +7,8 @@ __pycache__
 
 # Config files
 config.env
+
+# App "temp" files
+app/logs
 app/static/**
 app/media/**
-
-# Log files
-*.log
