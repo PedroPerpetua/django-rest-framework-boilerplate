@@ -28,11 +28,12 @@ class TestWaitForDBCommand(TestCase):
         # Make the call
         call_command("wait_for_db", stdout=output_buffer)
         # Check the result
-        self.assertEqual(getitem_mock.call_count, 1)
         self.assertEqual(
             "Waiting for database connection...\nDatabase connection available!\n",
             clear_colors(output_buffer.getvalue()),
         )
+        # Make sure the mock was called correctly
+        getitem_mock.assert_called_once()
 
     @patch("time.sleep")
     @patch("django.db.utils.ConnectionHandler.__getitem__")
@@ -50,7 +51,6 @@ class TestWaitForDBCommand(TestCase):
         # Make the call
         call_command("wait_for_db", stdout=output_buffer, stderr=error_buffer)
         # Check the result
-        self.assertEqual(getitem_mock.call_count, self.MAX_RETRIES + 1)
         self.assertEqual(
             "Waiting for database connection...\nDatabase connection available!\n",
             clear_colors(output_buffer.getvalue()),
@@ -59,6 +59,8 @@ class TestWaitForDBCommand(TestCase):
             f"Connection unavailable, waiting {self.RETRY_SECONDS} second(s)...\n" * self.MAX_RETRIES,
             clear_colors(error_buffer.getvalue()),
         )
+        # Make sure the mock was called correctly
+        self.assertEqual(self.MAX_RETRIES + 1, getitem_mock.call_count)
 
     @patch("time.sleep")
     @patch("django.db.utils.ConnectionHandler.__getitem__")
@@ -72,13 +74,14 @@ class TestWaitForDBCommand(TestCase):
         # Make the call
         call_command("wait_for_db", stdout=output_buffer, stderr=error_buffer)
         # Check the result
-        self.assertEqual(getitem_mock.call_count, self.MAX_RETRIES + 1)
         self.assertEqual("Waiting for database connection...\n", clear_colors(output_buffer.getvalue()))
         self.assertEqual(
             f"Connection unavailable, waiting {self.RETRY_SECONDS} second(s)...\n" * self.MAX_RETRIES
             + f"Reached {self.MAX_RETRIES} retries with no database connection. Aborting.\n",
             clear_colors(error_buffer.getvalue()),
         )
+        # Make sure the mock was called correctly
+        self.assertEqual(self.MAX_RETRIES + 1, getitem_mock.call_count)
 
 
 class TestSetupCommand(UnitTest):
@@ -97,15 +100,16 @@ class TestSetupCommand(UnitTest):
         # Make the call
         call_command("setup", stdout=output_buffer, stderr=error_buffer)
         # Check the result
-        self.assertEqual(self.TASK_COUNT, call_command_mock.call_count)
         expected = "Setting up app for production...\n"
         for i, (text, task) in enumerate(self.TASKS):
             # Add the expected output
             expected += f"{text} ({i}/{self.TASK_COUNT})\n"
-            # Check that the call was made
+            # Make sure the mock was called correctly
             self.assertEqual(task, call_command_mock.mock_calls[i].args)
         expected += f"Finished Setup! ({self.TASK_COUNT}/{self.TASK_COUNT})\n"
         self.assertEqual(expected, clear_colors(output_buffer.getvalue()))
+        # Make sure the mock was called the right number of times
+        self.assertEqual(self.TASK_COUNT, call_command_mock.call_count)
 
 
 class TestStartAppCommand(UnitTest):
@@ -124,8 +128,8 @@ class TestStartAppCommand(UnitTest):
         error_buffer = StringIO()
         # Make the call
         call_command("startapp", app_name, stdout=output_buffer, stderr=error_buffer)
-        # Check the result
-        self.assertEqual(1, handle_mock.call_count)
+        # Make sure the mock was called correctly
+        handle_mock.assert_called_once()
         kwargs: dict[str, Any] = handle_mock.call_args.kwargs
         self.assertIn("template", kwargs)
         self.assertEquals(self.TEMPLATE_PATH, kwargs["template"])
@@ -143,8 +147,8 @@ class TestStartAppCommand(UnitTest):
         error_buffer = StringIO()
         # Make the call
         call_command("startapp", app_name, template=template, stdout=output_buffer, stderr=error_buffer)
-        # Check the result
-        self.assertEqual(1, handle_mock.call_count)
+        # Make sure the mock was called correctly
+        handle_mock.assert_called_once()
         kwargs: dict[str, Any] = handle_mock.call_args.kwargs
         self.assertIn("template", kwargs)
         self.assertEquals(template, kwargs["template"])

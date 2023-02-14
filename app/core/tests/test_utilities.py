@@ -261,6 +261,7 @@ class TestLoggingBuilder(TestCase):
         self.assertEqual(
             {"class": "logging.FileHandler", "filename": file_path, "kwarg": kwarg}, built["handlers"][name]
         )
+        # Make sure the mock was called correctly
         mkdir_mock.assert_called_once_with(parents=True, exist_ok=True)
 
     def test_add_logger(self) -> None:
