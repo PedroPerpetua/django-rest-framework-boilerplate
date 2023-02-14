@@ -5,6 +5,10 @@ on:
   pull_request:
     types: [closed]
 
+permissions:
+  contents: write
+  repository-projects: write
+
 jobs:
   lint-and-test:
     runs-on: ubuntu-latest
