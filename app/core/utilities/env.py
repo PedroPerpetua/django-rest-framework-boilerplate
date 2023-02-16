@@ -1,4 +1,4 @@
-from __future__ import annotations
+from __future__ import annotations  # Required by the `if TYPE_CHECKING` block
 import json
 import os
 from typing import TYPE_CHECKING, Optional, TypeVar

@@ -18,7 +18,7 @@ class User(UserUsernameMixin, UserEmailMixin, BaseAbstractUser):
     """
 
     USERNAME_FIELD = "username"
-    objects = UserManager[Self]()  # type: ignore # https://github.com/python/mypy/issues/14167
+    objects = UserManager[Self]()
 
     class Meta(BaseAbstractUser.Meta):
         ...
