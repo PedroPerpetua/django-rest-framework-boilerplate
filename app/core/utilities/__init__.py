@@ -26,17 +26,17 @@ def empty(string: Optional[str]) -> bool:
 
 
 @overload
-def clear_Nones(json_obj: None = None, **kwargs: Any) -> dict[str, Any]:
+def clear_Nones(**kwargs: Any) -> dict[str, Any]:
     ...
 
 
 @overload
-def clear_Nones(json_obj: JSON_BASE = {}, **kwargs: Any) -> JSON_BASE:
+def clear_Nones(json_obj: JSON_BASE, **kwargs: Any) -> JSON_BASE:
     ...
 
 
 def clear_Nones(json_obj: Optional[JSON_BASE] = None, **kwargs: Any) -> JSON_BASE:
-    """Clear an object before serializing by removing all 'None' values."""
+    """Clear an object intended to be serialized as JSON by removing all `None` values, recursively."""
     if json_obj is None:
         return clear_Nones(kwargs)
     if isinstance(json_obj, dict):
