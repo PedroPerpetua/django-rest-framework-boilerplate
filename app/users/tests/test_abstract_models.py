@@ -13,7 +13,7 @@ class TestAbstractUserWithEmail(AbstractModelTestCase):
 
     class UserWithEmail(UserEmailMixin, DjangoAbstractBaseUser):  # type: ignore # _meta issue
         USERNAME_FIELD = "email"
-        objects = UserManager[Self]()  # type: ignore # https://github.com/python/mypy/issues/14167
+        objects = UserManager[Self]()
 
     MODEL = UserWithEmail
 
@@ -97,7 +97,7 @@ class TestAbstractUserWithUsername(AbstractModelTestCase):
 
     class UserWithUsername(UserUsernameMixin, DjangoAbstractBaseUser):  # type: ignore # _meta issue
         USERNAME_FIELD = "username"
-        objects = UserManager[Self]()  # type: ignore #https://github.com/python/mypy/issues/14167
+        objects = UserManager[Self]()
 
     MODEL = UserWithUsername
 
@@ -123,7 +123,7 @@ class TestCombinedUserEmail(AbstractModelTestCase):
 
     class CombinedUserEmail(UserEmailMixin, UserUsernameMixin, DjangoAbstractBaseUser):  # type: ignore # _meta issue
         USERNAME_FIELD = "email"
-        objects = UserManager[Self]()  # type: ignore # https://github.com/python/mypy/issues/14167
+        objects = UserManager[Self]()
 
     MODEL = CombinedUserEmail
 
@@ -162,7 +162,7 @@ class TestCombinedUserEmailRequireUsername(AbstractModelTestCase):
     class CombinedUserEmailRequireUsername(UserEmailMixin, UserUsernameMixin, DjangoAbstractBaseUser):  # type: ignore
         USERNAME_FIELD = "email"
         REQUIRE_USERNAME = True
-        objects = UserManager[Self]()  # type: ignore # https://github.com/python/mypy/issues/14167
+        objects = UserManager[Self]()
 
     MODEL = CombinedUserEmailRequireUsername
 
@@ -195,9 +195,8 @@ class TestCombinedUserUsername(AbstractModelTestCase):
 
     # 'type: ignore'd because of _meta issue
     class CombinedUserUsername(UserEmailMixin, UserUsernameMixin, DjangoAbstractBaseUser):  # type: ignore
-
         USERNAME_FIELD = "username"
-        objects = UserManager[Self]()  # type: ignore # https://github.com/python/mypy/issues/14167
+        objects = UserManager[Self]()
 
     MODEL = CombinedUserUsername
 
@@ -234,10 +233,9 @@ class TestCombinedUserUsernameRequireEmail(AbstractModelTestCase):
 
     # 'type: ignore'd because of _meta issue
     class CombinedUserUsernameRequireEmail(UserEmailMixin, UserUsernameMixin, DjangoAbstractBaseUser):  # type: ignore
-
         USERNAME_FIELD = "username"
         REQUIRE_EMAIL = True
-        objects = UserManager[Self]()  # type: ignore # https://github.com/python/mypy/issues/14167
+        objects = UserManager[Self]()
 
     MODEL = CombinedUserUsernameRequireEmail
 

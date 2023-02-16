@@ -1,6 +1,5 @@
-from __future__ import annotations
 from pathlib import Path
-from typing import Any, TypedDict
+from typing import Any, Self, TypedDict
 
 
 class ConfigDict(TypedDict):
@@ -40,14 +39,14 @@ class LoggingConfigurationBuilder:
             "loggers": {},
         }
 
-    def add_formatter(self, name: str, format: str, style: str = "{", **kwargs: Any) -> LoggingConfigurationBuilder:
+    def add_formatter(self, name: str, format: str, style: str = "{", **kwargs: Any) -> Self:
         """Add a formatter to the configuration."""
         kwargs.update({"format": format})
         kwargs.update({"style": style})
         self._data["formatters"].update({name: kwargs})
         return self
 
-    def add_handler(self, name: str, **kwargs: Any) -> LoggingConfigurationBuilder:
+    def add_handler(self, name: str, **kwargs: Any) -> Self:
         """
         Add a handler to the configuration. Data should be formatted as Django expects it. For more precise handlers,
         use the shortcut methods `add_console_handler` and `add_file_handler`.
@@ -55,12 +54,12 @@ class LoggingConfigurationBuilder:
         self._data["handlers"].update({name: kwargs})
         return self
 
-    def add_console_handler(self, name: str, **kwargs: Any) -> LoggingConfigurationBuilder:
+    def add_console_handler(self, name: str, **kwargs: Any) -> Self:
         """Shortcut method to add a console handler using a StreamHandler."""
         kwargs.update({"class": "logging.StreamHandler"})
         return self.add_handler(name, **kwargs)
 
-    def add_file_handler(self, name: str, file_path: Path | str, **kwargs: Any) -> LoggingConfigurationBuilder:
+    def add_file_handler(self, name: str, file_path: Path | str, **kwargs: Any) -> Self:
         """Shortcut method to add a file handler using FileHandler."""
         # Create the parent folder if it doesn't exist
         Path(file_path).parent.mkdir(parents=True, exist_ok=True)
@@ -68,13 +67,13 @@ class LoggingConfigurationBuilder:
         kwargs.update({"filename": str(file_path)})
         return self.add_handler(name, **kwargs)
 
-    def add_logger(self, name: str, handlers: list[str], **kwargs: Any) -> LoggingConfigurationBuilder:
+    def add_logger(self, name: str, handlers: list[str], **kwargs: Any) -> Self:
         """Add a logger to the configuration."""
         kwargs.update({"handlers": handlers})
         self._data["loggers"].update({name: kwargs})
         return self
 
-    def modify_root_logger(self, **kwargs: Any) -> LoggingConfigurationBuilder:
+    def modify_root_logger(self, **kwargs: Any) -> Self:
         """Modify the root logger configuration. This method only extends and overrides, does not delete."""
         self._data["root"].update(kwargs)
         return self

@@ -91,7 +91,8 @@ class UserEmailMixin(BaseUserMixin):
     email = models.EmailField(max_length=255, unique=True)
 
     @classproperty
-    def REQUIRED_FIELDS(cls) -> list[str]:  # type: ignore # mypy bug: https://github.com/python/mypy/issues/4125
+    # Django-stubs bug: https://github.com/typeddjango/django-stubs/issues/1367
+    def REQUIRED_FIELDS(cls) -> list[str]:  # type: ignore
         should_add = cls.REQUIRE_EMAIL and cls.USERNAME_FIELD != "email"
         return BaseAbstractUser.set_required_field(super().REQUIRED_FIELDS, "email", should_add)
 
@@ -132,7 +133,8 @@ class UserUsernameMixin(BaseUserMixin):
     username = models.CharField(max_length=255, unique=True)
 
     @classproperty
-    def REQUIRED_FIELDS(cls) -> list[str]:  # type: ignore # mypy bug: https://github.com/python/mypy/issues/4125
+    # Django-stubs bug: https://github.com/typeddjango/django-stubs/issues/1367
+    def REQUIRED_FIELDS(cls) -> list[str]:  # type: ignore
         should_add = cls.REQUIRE_USERNAME and cls.USERNAME_FIELD != "username"
         return BaseAbstractUser.set_required_field(super().REQUIRED_FIELDS, "username", should_add)
 

@@ -1,4 +1,4 @@
-from __future__ import annotations
+from __future__ import annotations  # Required by the `if TYPE_CHECKING` block
 import xml.etree.cElementTree as et
 from io import TextIOWrapper
 from pathlib import Path

@@ -22,7 +22,7 @@ class AbstractModelTestCase(TestCase):
     class MyAbstractClassTests(AbstractModelTestCase):
 
         class MyConcreteModel(MyAbstractModel):
-            # Any adittional settings
+            # Any additional settings
             ...
 
         MODEL = MyConcreteModel
