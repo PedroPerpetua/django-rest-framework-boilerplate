@@ -2,7 +2,7 @@ Django == 4.1.7
 djangorestframework == 3.14.0
 djangorestframework-simplejwt == 5.2.2
 drf-standardized-errors == 0.12.5
-drf-spectacular == 0.25.1
+drf-spectacular == 0.26.0
 django-cors-headers == 3.14.0
 psycopg2-binary == 2.9.5
 requests == 2.28.2
