@@ -15,7 +15,7 @@ class TestAbstractUserWithEmail(AbstractModelTestCase):
         USERNAME_FIELD = "email"
         objects = UserManager[Self]()
 
-    MODEL = UserWithEmail
+    MODELS = [UserWithEmail]
 
     def sample_user(
         self,
@@ -99,7 +99,7 @@ class TestAbstractUserWithUsername(AbstractModelTestCase):
         USERNAME_FIELD = "username"
         objects = UserManager[Self]()
 
-    MODEL = UserWithUsername
+    MODELS = [UserWithUsername]
 
     def test_create_user(self) -> None:
         """Test creating a UserWithUsername."""
@@ -125,7 +125,7 @@ class TestCombinedUserEmail(AbstractModelTestCase):
         USERNAME_FIELD = "email"
         objects = UserManager[Self]()
 
-    MODEL = CombinedUserEmail
+    MODELS = [CombinedUserEmail]
 
     def test_REQUIRED_FIELDS(self) -> None:
         """Test the `REQUIRED_FIELDS` class property."""
@@ -164,7 +164,7 @@ class TestCombinedUserEmailRequireUsername(AbstractModelTestCase):
         REQUIRE_USERNAME = True
         objects = UserManager[Self]()
 
-    MODEL = CombinedUserEmailRequireUsername
+    MODELS = [CombinedUserEmailRequireUsername]
 
     def test_REQUIRED_FIELDS(self) -> None:
         """Test the `REQUIRED_FIELDS` class property."""
@@ -198,7 +198,7 @@ class TestCombinedUserUsername(AbstractModelTestCase):
         USERNAME_FIELD = "username"
         objects = UserManager[Self]()
 
-    MODEL = CombinedUserUsername
+    MODELS = [CombinedUserUsername]
 
     def test_REQUIRED_FIELDS(self) -> None:
         """Test the `REQUIRED_FIELDS` class property."""
@@ -237,7 +237,7 @@ class TestCombinedUserUsernameRequireEmail(AbstractModelTestCase):
         REQUIRE_EMAIL = True
         objects = UserManager[Self]()
 
-    MODEL = CombinedUserUsernameRequireEmail
+    MODELS = [CombinedUserUsernameRequireEmail]
 
     def test_REQUIRED_FIELDS(self) -> None:
         """Test the `REQUIRED_FIELDS` class property."""

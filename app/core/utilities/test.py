@@ -2,6 +2,7 @@ from __future__ import annotations
 import re
 from pathlib import Path
 from typing import Any, Optional, Type, cast
+from unittest import SkipTest
 import requests
 from django.core.files.uploadedfile import SimpleUploadedFile
 from django.db import connection
@@ -13,10 +14,10 @@ from core.utilities.types import JSON_BASE
 
 class AbstractModelTestCase(TestCase):
     """
-    Test case class to generate a new model from an abstract at runtime.
+    TestCase class to generate new models from an abstract at runtime.
 
-    Usage: use this class as the test class, and set the class variable MODEL to the concrete model you generated with
-    the abstract class. For example, to test `MyAbstractModel`:
+    Usage: use this class as the test class, and set the class variable MODELS to a list of concrete models generated
+    from the abstract class under test. For example, to test `MyAbstractModel`:
 
     ```py
     class MyAbstractClassTests(AbstractModelTestCase):
@@ -25,29 +26,38 @@ class AbstractModelTestCase(TestCase):
             # Any additional settings
             ...
 
-        MODEL = MyConcreteModel
+        MODELS = [MyConcreteModel]
 
         def my_test(self) -> None:
-            # Use self.MyConcreteModel or self.MODEL here
+            # Use self.MyConcreteModel
             ...
     ```
 
     Adapted from: https://michael.mior.ca/blog/unit-testing-django-model-mixins/
     """
 
-    MODEL: Type[Model] = None  # type: ignore # Intentional to raise an error if not defined
+    MODELS: list[Type[Model]] = []
 
-    def setUp(self) -> None:
-        super().setUp()
-        # Create the schema for our model
+    @classmethod
+    def setUpClass(cls) -> None:
+        if len(cls.MODELS) == 0:
+            raise SkipTest(
+                "AbstractModelTestCase class used with no MODELS. Did you forget to include your abstract models in "
+                "the class variable?",
+            )
+        # Create the schemas for all models
         with connection.schema_editor() as schema_editor:
-            schema_editor.create_model(self.MODEL)
+            for model in cls.MODELS:
+                schema_editor.create_model(model)
+        super().setUpClass()
 
-    def tearDown(self) -> None:
-        super().tearDown()
-        # Delete the schema for the model
+    @classmethod
+    def tearDownClass(cls) -> None:
+        super().tearDownClass()
+        # Delete the created schemas
         with connection.schema_editor() as schema_editor:
-            schema_editor.delete_model(self.MODEL)
+            for model in cls.MODELS:
+                schema_editor.delete_model(model)
 
 
 class MockResponse(requests.Response):
