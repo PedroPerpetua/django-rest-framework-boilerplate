@@ -264,6 +264,17 @@ class TestLoggingBuilder(TestCase):
         self.assertEqual(f"No formatter named {name} added.", str(ctx.exception))
         self.assertIsNone(builder._default_formatter)
 
+    def test_add_filter(self) -> None:
+        """Test the `add_filter` method."""
+        builder = LoggingConfigurationBuilder()
+        name = "_name"
+        filter = "_filter"
+        kwarg = "_kwarg"
+        retval = builder.add_filter(name, filter, kwarg=kwarg)
+        self.assertEqual(retval, builder)  # Builder returned itself
+        built = builder.build()
+        self.assertEqual({"()": filter, "kwarg": kwarg}, built["filters"][name])
+
     def test_add_handler(self) -> None:
         """Test the `add_handler` method."""
         builder = LoggingConfigurationBuilder()
@@ -330,10 +341,9 @@ class TestLoggingBuilder(TestCase):
                 "version": 1,
                 "disable_existing_loggers": disable_existing,
                 "formatters": {},
+                "filters": {},
                 "handlers": {},
-                "root": {
-                    "handlers": [],
-                },
+                "root": {},
                 "loggers": {},
             },
             built,
