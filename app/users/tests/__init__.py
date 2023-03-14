@@ -19,13 +19,13 @@ INVALID_PASSWORD = INVALID_PASSWORDS[0]
 
 
 def generate_valid_email() -> str:
-    """Auxiliary method to generate a unique valid email with the `example.com` domain."""
+    """Auxiliary function to generate a unique valid email with the `example.com` domain."""
     return f"{uuid()}@example.com"
 
 
 def generate_valid_username(field_name: Literal["username", "email"] | str) -> str:
     """
-    Auxiliary method to generate a unique valid string for the corresponding `field_name`. Supports `email` and
+    Auxiliary function to generate a unique valid string for the corresponding `field_name`. Supports `email` and
     `username`. If the `field_name` has another value, raises `AssertionError`.
     """
     match field_name:  # pragma: no cover

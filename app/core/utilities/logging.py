@@ -22,6 +22,7 @@ class LoggingConfigurationBuilder:
         The following methods are available:
         - `add_formatter`
         - `set_default_formatter`
+        - `add_filter`
         - `add_handler`
         - `add_console_handler`
         - `add_file_handler`

@@ -17,7 +17,7 @@ class TestBaseAbstractModel(AbstractModelTestCase):
 
     MODELS = [ConcreteModel, ConcreteRelatedModel]
 
-    # Utility functions
+    # Utility method
     def sample_object(self) -> ConcreteModel:
         return self.ConcreteModel.objects.create()
 
