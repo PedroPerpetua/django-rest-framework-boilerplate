@@ -33,7 +33,12 @@ class BaseAbstractModel(models.Model):
         data = {"model": self.__class__.__name__}
         for field in self._meta.get_fields():
             try:
-                data.update({field.name: getattr(self, field.name)})
+                obj = getattr(self, field.name)
+                if isinstance(field, models.OneToOneRel):
+                    # Prevent infinite recursion
+                    data.update({field.name: f"{obj.__class__.__name__} ({obj.id})"})
+                else:
+                    data.update({field.name: obj})
             except AttributeError:
                 # Field is in the meta but for some reason doesn't have it.
                 continue

@@ -83,29 +83,33 @@ WSGI_APPLICATION = "app.wsgi.application"
 
 # Logging configuration
 
-LOG_FOLDER = BASE_DIR / "logs" / datetime.now().strftime("%Y-%m-%d--%H-%M-%S")
+LOG_FOLDER = BASE_DIR / "logs" / datetime.now().strftime("%Y-%m-%d")
+
 # Use our custom log configuration builder to setup the logger
-log_config_builder = LoggingConfigurationBuilder().add_formatter(
-    "default", "[{levelname}] {asctime} {module}: {message}"
-)
-# Setup the root logger
-log_config_builder.add_file_handler("root_handler", LOG_FOLDER / "root.log", formatter="default").modify_root_logger(
-    handlers=["root_handler"]
-)
-# Setup the default Django logger
-log_config_builder.add_file_handler("django_handler", LOG_FOLDER / "django.log", formatter="default").add_logger(
-    "django", ["django_handler"], level=logging.DEBUG, propagate=False
-)
-# Setup the default Server logger
-log_config_builder.add_file_handler("server_handler", LOG_FOLDER / "server.log", formatter="default").add_logger(
-    "django.server", ["server_handler"], level=logging.DEBUG, propagate=False
-)
-# Add our app-specific loggers
-log_config_builder.add_file_handler("core_handler", LOG_FOLDER / "core.log", formatter="default").add_logger(
-    "core", ["core_handler"], level=logging.DEBUG, propagate=False
-)
-# Finally build the config and assign it.
-LOGGING = log_config_builder.build()
+LOGGING = (
+    LoggingConfigurationBuilder()
+    # Setup the default formatter
+    .add_formatter("default", "[{levelname}] {asctime} {module}: {message}")
+    .set_default_formatter("default")
+    # Add debug filters
+    .add_filter("debug_only", "django.utils.log.RequireDebugTrue")
+    .add_filter("prod_only", "django.utils.log.RequireDebugFalse")
+    # Add a console handler for debug only
+    .add_console_handler("debug_handler", filters=["debug_only"])
+    # Setup the root logger
+    .add_file_handler("root_handler", LOG_FOLDER / "root.log")
+    .modify_root_logger(handlers=["debug_handler", "root_handler"])
+    # Setup the default Django logger
+    .add_file_handler("django_handler", LOG_FOLDER / "django.log")
+    .add_logger("django", ["debug_handler", "django_handler"], level=logging.DEBUG, propagate=False)
+    # Setup the default Server logger
+    .add_file_handler("server_handler", LOG_FOLDER / "server.log")
+    .add_logger("django.server", ["debug_handler", "server_handler"], level=logging.DEBUG, propagate=False)
+    # Add our app-specific loggers
+    # Core app
+    .add_file_handler("core_handler", LOG_FOLDER / "core.log")
+    .add_logger("core", ["debug_handler", "core_handler"], level=logging.DEBUG, propagate=False)
+).build()
 
 
 # Database
@@ -137,6 +141,7 @@ REST_FRAMEWORK = {
     "EXCEPTION_HANDLER": "drf_standardized_errors.handler.exception_handler",
     "DEFAULT_AUTHENTICATION_CLASSES": ("rest_framework_simplejwt.authentication.JWTAuthentication",),
     "DEFAULT_SCHEMA_CLASS": "drf_spectacular.openapi.AutoSchema",
+    "TEST_REQUEST_DEFAULT_FORMAT": "json",
 }
 
 
@@ -153,10 +158,12 @@ SIMPLE_JWT = {
 
 
 # DRF Standardized Errors settings
+
 DRF_STANDARDIZED_ERRORS = {"EXCEPTION_FORMATTER_CLASS": "core.exceptions.formatter.ExceptionFormatter"}
 
 
 # DRF Spectacular settings
+
 SPECTACULAR_SETTINGS = {
     "TITLE": env.as_string("SWAGGER_TITLE", "API"),
     "DESCRIPTION": env.as_string("SWAGGER_DESCRIPTION", "API Schema"),

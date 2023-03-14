@@ -13,7 +13,7 @@ class TestUtilities(TestCase):
     """Test the base utilities provided."""
 
     def test_empty(self) -> None:
-        """Test the `empty` method."""
+        """Test the `empty` function."""
         # Test for True
         values = [None, "", "   \n\t   "]
         for value in values:
@@ -25,7 +25,7 @@ class TestUtilities(TestCase):
             self.assertFalse(utils.empty(value))
 
     def test_clear_Nones(self) -> None:
-        """Test the `clear_Nones` method."""
+        """Test the `clear_Nones` function."""
         # Test for single values
         for value in ["_value", 1, True]:
             with self.subTest("Test single value.", value=value):
@@ -55,7 +55,7 @@ class TestUtilities(TestCase):
             self.assertEqual({"_key1": "_value1"}, utils.clear_Nones(_key1="_value1", _key2=None))
 
     def test_ext(self) -> None:
-        """Test the `ext` method."""
+        """Test the `ext` function."""
         cases = [
             ("_path/_to/_file/_filename._ext", "._ext"),
             ("_path/_file._with._multiple._exts", "._with._multiple._exts"),
@@ -66,7 +66,7 @@ class TestUtilities(TestCase):
                 self.assertEqual(expected, utils.ext(case))
 
     def test_is_svg(self) -> None:
-        """Test the `is_svg` method."""
+        """Test the `is_svg` function."""
         PNG_FILE = FILES_FOLDER / "icon.png"
         SVG_FILE = FILES_FOLDER / "icon.svg"
         # Test from file object
@@ -104,7 +104,7 @@ class TestEnvUtilities(TestCase):
     """Test the provided utilities to deal with environment variables."""
 
     def test__get_value(self) -> None:
-        """Test the `_get_value` method."""
+        """Test the `_get_value` function."""
         key = "_key"
         value = "_value"
         with patch("core.utilities.env.ENV", {key: value}):
@@ -112,14 +112,14 @@ class TestEnvUtilities(TestCase):
             self.assertEqual(value, retval)
 
     def test__get_value_missing_key(self) -> None:
-        """Test the `_get_value` method with a missing key."""
+        """Test the `_get_value` function with a missing key."""
         key = "_key"
         with patch("core.utilities.env.ENV", {}):
             with self.assertRaises(KeyError):
                 env._get_value(key)
 
     def test__get_value_missing_key_default(self) -> None:
-        """Test the `_get_value` method with a missing key, when a default is provided."""
+        """Test the `_get_value` function with a missing key, when a default is provided."""
         key = "_key"
         default = "_value"
         with patch("core.utilities.env.ENV", {}):
@@ -127,7 +127,7 @@ class TestEnvUtilities(TestCase):
             self.assertEqual(default, retval)
 
     def test__get_value_empty_value_default(self) -> None:
-        """Test the `_get_value` method with a key with an empty value, when a default is provided."""
+        """Test the `_get_value` function with a key with an empty value, when a default is provided."""
         key = "_key"
         default = "_value"
         with patch("core.utilities.env.ENV", {key: ""}):
@@ -135,7 +135,7 @@ class TestEnvUtilities(TestCase):
             self.assertEqual(default, retval)
 
     def test_as_string(self) -> None:
-        """Test the `as_string` method."""
+        """Test the `as_string` function."""
         key = "_key"
         value = "_value"
         with patch("core.utilities.env.ENV", {key: value}):
@@ -144,7 +144,7 @@ class TestEnvUtilities(TestCase):
             self.assertEqual(value, retval)
 
     def test_as_int(self) -> None:
-        """Test the `as_int` method."""
+        """Test the `as_int` function."""
         key = "_key"
         value = 1
         with patch("core.utilities.env.ENV", {key: str(value)}):
@@ -153,7 +153,7 @@ class TestEnvUtilities(TestCase):
             self.assertEqual(value, retval)
 
     def test_as_list(self) -> None:
-        """Test the `as_list` method."""
+        """Test the `as_list` function."""
         key = "_key"
         value = ["_first", "_second", "_third"]
         with patch("core.utilities.env.ENV", {key: ",".join(value)}):
@@ -162,7 +162,7 @@ class TestEnvUtilities(TestCase):
             self.assertEqual(value, retval)
 
     def test_as_list_missing_key_default(self) -> None:
-        """Test the `as_list` method with a missing key, when a default is provided."""
+        """Test the `as_list` function with a missing key, when a default is provided."""
         key = "_key"
         default = ["_first", "_second", "_third"]
         with patch("core.utilities.env.ENV", {}):
@@ -170,7 +170,7 @@ class TestEnvUtilities(TestCase):
             self.assertEqual(default, retval)
 
     def test_as_bool(self) -> None:
-        """Test the `as_bool` method."""
+        """Test the `as_bool` function."""
         key = "_key"
         true_values = ["TRUE", "true", "tRuE", "1", "T", "t"]
         false_values = ["FALSE", "false", "fAlSe", "f", "F", "0"]
@@ -187,7 +187,7 @@ class TestEnvUtilities(TestCase):
                 self.assertEqual(False, retval)
 
     def test_as_bool_missing_key_default(self) -> None:
-        """Test the `as_bool` method with a missing key, when a default is provided."""
+        """Test the `as_bool` function with a missing key, when a default is provided."""
         key = "_key"
         default = True
         with patch("core.utilities.env.ENV", {}):
@@ -195,7 +195,7 @@ class TestEnvUtilities(TestCase):
             self.assertEqual(default, retval)
 
     def test_as_json(self) -> None:
-        """Test the `as_json` method."""
+        """Test the `as_json` function."""
         key = "_key"
         value = {"_key": "_value"}
         with patch("core.utilities.env.ENV", {key: json.dumps(value)}):
@@ -204,7 +204,7 @@ class TestEnvUtilities(TestCase):
             self.assertEqual(value, retval)
 
     def test_as_json_missing_key_default(self) -> None:
-        """Test the `as_json` method with a missing key, when a default is provided."""
+        """Test the `as_json` function with a missing key, when a default is provided."""
         key = "_key"
         default = {"_key": "_value"}
         with patch("core.utilities.env.ENV", {}):
@@ -227,6 +227,53 @@ class TestLoggingBuilder(TestCase):
         self.assertEqual(retval, builder)  # Builder returned itself
         built = builder.build()
         self.assertEqual({"format": format, "style": style, "kwarg": kwarg}, built["formatters"][name])
+
+    def test_set_default_formatter(self) -> None:
+        """Test the `set_default_formatter` method."""
+        builder = LoggingConfigurationBuilder()
+        name = "_name"
+        builder.add_formatter(name, "_format", "_style")
+        retval = builder.set_default_formatter(name)
+        self.assertEqual(retval, builder)  # Builder returned itself
+        self.assertEqual(name, builder._default_formatter)
+        # Attempt to add a handler
+        handler_name = "_handler_name"
+        builder.add_handler(handler_name)
+        built = builder.build()
+        self.assertEqual(name, built["handlers"][handler_name]["formatter"])
+
+    def test_set_default_formatter_overridden(self) -> None:
+        """Test the default formatter can be overridden by passing the formatter when adding the handler."""
+        builder = LoggingConfigurationBuilder()
+        name = "_name"
+        builder.add_formatter(name, "_format", "_style")
+        builder.set_default_formatter(name)
+        # Attempt to add a handler
+        handler_name = "_handler_name"
+        formatter_name = "_formatter_name"
+        builder.add_handler(handler_name, formatter=formatter_name)
+        built = builder.build()
+        self.assertEqual(formatter_name, built["handlers"][handler_name]["formatter"])
+
+    def test_set_default_formatter_missing_fails(self) -> None:
+        """Test the `set_default_formatter` method fails if the formatter name passed does not exist."""
+        builder = LoggingConfigurationBuilder()
+        name = "_name"
+        with self.assertRaises(ValueError) as ctx:
+            builder.set_default_formatter(name)
+        self.assertEqual(f"No formatter named {name} added.", str(ctx.exception))
+        self.assertIsNone(builder._default_formatter)
+
+    def test_add_filter(self) -> None:
+        """Test the `add_filter` method."""
+        builder = LoggingConfigurationBuilder()
+        name = "_name"
+        filter = "_filter"
+        kwarg = "_kwarg"
+        retval = builder.add_filter(name, filter, kwarg=kwarg)
+        self.assertEqual(retval, builder)  # Builder returned itself
+        built = builder.build()
+        self.assertEqual({"()": filter, "kwarg": kwarg}, built["filters"][name])
 
     def test_add_handler(self) -> None:
         """Test the `add_handler` method."""
@@ -294,10 +341,9 @@ class TestLoggingBuilder(TestCase):
                 "version": 1,
                 "disable_existing_loggers": disable_existing,
                 "formatters": {},
+                "filters": {},
                 "handlers": {},
-                "root": {
-                    "handlers": [],
-                },
+                "root": {},
                 "loggers": {},
             },
             built,

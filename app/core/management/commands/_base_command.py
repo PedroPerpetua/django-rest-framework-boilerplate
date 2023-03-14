@@ -21,7 +21,7 @@ class BaseCommand(DjangoCommand):
             super().__init__(out=out_source, ending="")  # type: ignore # Supertype "incompatibility"
             # Mypy seems to think 'level' is a callable?
             self.level = 1 if not hasattr(source, "level") else source.level + 1  # type: ignore
-            # Setting 'None' sets it to the default function
+            # Setting 'None' sets it to the default style_func
             self.style_func = None if not hasattr(source, "style_func") else source.style_func  # type: ignore
 
         def write(self, msg: str, *args: Any, **kwargs: Any) -> None:  # type: ignore # Supertype "incompatibility"

@@ -1,5 +1,6 @@
 from datetime import datetime
 from unittest.mock import MagicMock, patch
+from django.db.models import DO_NOTHING, OneToOneField
 from django.utils.timezone import make_aware
 from core.extensions.models import BaseAbstractModel
 from core.utilities.test import AbstractModelTestCase
@@ -9,9 +10,14 @@ class TestBaseAbstractModel(AbstractModelTestCase):
     class ConcreteModel(BaseAbstractModel):
         ...
 
-    MODEL = ConcreteModel
+    class ConcreteRelatedModel(BaseAbstractModel):
+        # A previous bug would generate a `RecursionError` on the `__repr__` with OneToOne fields
+        # This model is here to test that it doesn't happen anymore
+        related = OneToOneField("ConcreteModel", on_delete=DO_NOTHING)
 
-    # Utility functions
+    MODELS = [ConcreteModel, ConcreteRelatedModel]
+
+    # Utility method
     def sample_object(self) -> ConcreteModel:
         return self.ConcreteModel.objects.create()
 
@@ -58,3 +64,10 @@ class TestBaseAbstractModel(AbstractModelTestCase):
         obj.soft_delete()
         self.assertEqual(dt_updated, obj.updated_at)
         self.assertTrue(obj.is_deleted)
+
+    def test_repr_recursion(self) -> None:
+        """Assure that `repr` on a model with a OneToOneField doesn't generate a `RecursionError`."""
+        obj = self.sample_object()
+        related_obj = self.ConcreteRelatedModel.objects.create(related=obj)
+        self.assertIn(f"'related': {repr(obj)}", repr(related_obj))
+        self.assertIn(f"'concreterelatedmodel': '{self.ConcreteRelatedModel.__name__} ({related_obj.id})'", repr(obj))

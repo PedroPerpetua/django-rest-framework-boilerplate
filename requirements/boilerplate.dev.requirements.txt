@@ -2,16 +2,16 @@
 
 # Linting
 isort == 5.12.0
-autoflake == 2.0.1
+autoflake == 2.0.2
 black == 23.1.0
-mypy == 1.0.0
+mypy == 1.1.1
 
 # Testing
-coverage == 7.1.0
+coverage == 7.2.1
 
 # Extra
-pyclean == 2.6.0
+pyclean == 2.7.0
 
 # Type hint stubs
-django-stubs == 1.14.0
-djangorestframework-stubs == 1.8.0
+django-stubs == 1.15.0
+djangorestframework-stubs == 1.9.1

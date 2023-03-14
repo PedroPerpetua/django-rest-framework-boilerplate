@@ -1,6 +1,7 @@
 from unittest import TestCase
 from django.conf import settings
 from rest_framework.settings import api_settings
+from rest_framework.test import APIClient
 
 
 class TestSettings(TestCase):
@@ -20,3 +21,10 @@ class TestSettings(TestCase):
         up. This can be fixed by importing the type with an `if TYPE_CHECKING` block.
         """
         self.assertEqual(settings.REST_FRAMEWORK, api_settings.user_settings)
+
+    def test_restframework_defaults_json(self) -> None:
+        """Test that restframework's test client defaults to json."""
+        client = APIClient()
+        # Nesting the `data` key fails with the default "multipart" format.
+        req = client.post("", data={"data": {"nested": "_data"}})
+        self.assertEqual("application/json", req.request["CONTENT_TYPE"])
