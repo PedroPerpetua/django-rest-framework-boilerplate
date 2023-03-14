@@ -1,5 +1,5 @@
 from pathlib import Path
-from typing import Any, Self, TypedDict
+from typing import Any, Optional, Self, TypedDict
 
 
 class ConfigDict(TypedDict):
@@ -20,6 +20,7 @@ class LoggingConfigurationBuilder:
 
         The following methods are available:
         - `add_formatter`
+        - `set_default_formatter`
         - `add_handler`
         - `add_console_handler`
         - `add_file_handler`
@@ -38,6 +39,7 @@ class LoggingConfigurationBuilder:
             },
             "loggers": {},
         }
+        self._default_formatter: Optional[str] = None
 
     def add_formatter(self, name: str, format: str, style: str = "{", **kwargs: Any) -> Self:
         """Add a formatter to the configuration."""
@@ -46,11 +48,20 @@ class LoggingConfigurationBuilder:
         self._data["formatters"].update({name: kwargs})
         return self
 
+    def set_default_formatter(self, name: str) -> Self:
+        """Set a default formatter to use for all handlers if none is passed."""
+        if name not in self._data["formatters"]:
+            raise ValueError(f"No formatter named {name} added.")
+        self._default_formatter = name
+        return self
+
     def add_handler(self, name: str, **kwargs: Any) -> Self:
         """
         Add a handler to the configuration. Data should be formatted as Django expects it. For more precise handlers,
         use the shortcut methods `add_console_handler` and `add_file_handler`.
         """
+        if self._default_formatter is not None:
+            kwargs.setdefault("formatter", self._default_formatter)
         self._data["handlers"].update({name: kwargs})
         return self
 

@@ -228,6 +228,42 @@ class TestLoggingBuilder(TestCase):
         built = builder.build()
         self.assertEqual({"format": format, "style": style, "kwarg": kwarg}, built["formatters"][name])
 
+    def test_set_default_formatter(self) -> None:
+        """Test the `set_default_formatter` method."""
+        builder = LoggingConfigurationBuilder()
+        name = "_name"
+        builder.add_formatter(name, "_format", "_style")
+        retval = builder.set_default_formatter(name)
+        self.assertEqual(retval, builder)  # Builder returned itself
+        self.assertEqual(name, builder._default_formatter)
+        # Attempt to add a handler
+        handler_name = "_handler_name"
+        builder.add_handler(handler_name)
+        built = builder.build()
+        self.assertEqual(name, built["handlers"][handler_name]["formatter"])
+
+    def test_set_default_formatter_overridden(self) -> None:
+        """Test the default formatter can be overridden by passing the formatter when adding the handler."""
+        builder = LoggingConfigurationBuilder()
+        name = "_name"
+        builder.add_formatter(name, "_format", "_style")
+        builder.set_default_formatter(name)
+        # Attempt to add a handler
+        handler_name = "_handler_name"
+        formatter_name = "_formatter_name"
+        builder.add_handler(handler_name, formatter=formatter_name)
+        built = builder.build()
+        self.assertEqual(formatter_name, built["handlers"][handler_name]["formatter"])
+
+    def test_set_default_formatter_missing_fails(self) -> None:
+        """Test the `set_default_formatter` method fails if the formatter name passed does not exist."""
+        builder = LoggingConfigurationBuilder()
+        name = "_name"
+        with self.assertRaises(ValueError) as ctx:
+            builder.set_default_formatter(name)
+        self.assertEqual(f"No formatter named {name} added.", str(ctx.exception))
+        self.assertIsNone(builder._default_formatter)
+
     def test_add_handler(self) -> None:
         """Test the `add_handler` method."""
         builder = LoggingConfigurationBuilder()
