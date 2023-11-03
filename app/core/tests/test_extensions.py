@@ -19,7 +19,7 @@ class TestBaseAbstractModel(AbstractModelTestCase):
 
     # Utility method
     def sample_object(self) -> ConcreteModel:
-        return self.ConcreteModel.objects.create()
+        return self.ConcreteModel._default_manager.create()
 
     @patch("django.utils.timezone.now")
     def test_create(self, timezone_mock: MagicMock) -> None:
@@ -68,6 +68,6 @@ class TestBaseAbstractModel(AbstractModelTestCase):
     def test_repr_recursion(self) -> None:
         """Assure that `repr` on a model with a OneToOneField doesn't generate a `RecursionError`."""
         obj = self.sample_object()
-        related_obj = self.ConcreteRelatedModel.objects.create(related=obj)
+        related_obj = self.ConcreteRelatedModel._default_manager.create(related=obj)
         self.assertIn(f"'related': {repr(obj)}", repr(related_obj))
         self.assertIn(f"'concreterelatedmodel': '{self.ConcreteRelatedModel.__name__} ({related_obj.id})'", repr(obj))

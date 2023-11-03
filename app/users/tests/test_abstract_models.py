@@ -11,7 +11,7 @@ from users.tests import VALID_PASSWORD, generate_valid_email
 class TestAbstractUserWithEmail(AbstractModelTestCase):
     """Test using the UserEmailMixin."""
 
-    class UserWithEmail(UserEmailMixin, DjangoAbstractBaseUser):  # type: ignore # _meta issue
+    class UserWithEmail(UserEmailMixin, DjangoAbstractBaseUser):
         USERNAME_FIELD = "email"
         objects = UserManager[Self]()
 
@@ -95,7 +95,7 @@ class TestAbstractUserWithEmail(AbstractModelTestCase):
 class TestAbstractUserWithUsername(AbstractModelTestCase):
     """Test using the UserUsernameMixin."""
 
-    class UserWithUsername(UserUsernameMixin, DjangoAbstractBaseUser):  # type: ignore # _meta issue
+    class UserWithUsername(UserUsernameMixin, DjangoAbstractBaseUser):
         USERNAME_FIELD = "username"
         objects = UserManager[Self]()
 

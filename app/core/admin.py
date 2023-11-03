@@ -1,4 +1,4 @@
-from typing import Any, Callable, TypeVar
+from typing import Any, Callable, Optional, TypeVar
 from django.contrib import admin
 from django.http import HttpRequest
 
@@ -29,7 +29,7 @@ class AdminSite(admin.AdminSite):
                 unordered.append(value)
         return [v for v in retval if v is not None] + unordered
 
-    def get_app_list(self, request: HttpRequest) -> list[Any]:
+    def get_app_list(self, request: HttpRequest, app_label: Optional[str] = None) -> list[Any]:
         app_dict = super()._build_app_dict(request)
         if len(app_dict) == 0:
             # No apps to display
