@@ -49,6 +49,12 @@ command() {
     $DOCKER_COMMAND stop
 }
 
+admin() {
+    log "[$RUNNING_MODE] Creating admin user..."
+    $DOCKER_COMMAND run --rm app sh -c "python manage.py createsuperuser"
+    $DOCKER_COMMAND stop
+}
+
 clean() {
     local ALL_FLAG=0
 
@@ -109,6 +115,9 @@ case "$1" in
     command)
         shift
         command "$@"
+        ;;
+    admin)
+        admin
         ;;
     clean)
         shift

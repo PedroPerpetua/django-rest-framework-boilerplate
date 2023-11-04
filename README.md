@@ -28,7 +28,6 @@ Currently set up for `python 3.11` with `Django 4.2.7` and `Django Rest Framewor
 - Multiple utility functions and extensions frequently used in Django projects.
 - Template app for the `startapp` command that follows the usual restframework patterns.
 - Base command to ease command development, with additional `wait_for_db` and `setup` commands.
-- Migration to auto setup a Superuser.
 - Ready to edit custom Admin page.
   - Also features an ordering utility to easily re-order apps and models on the admin page.
 - A base for a custom user model with the full JWT authentication flow.
@@ -54,6 +53,7 @@ Currently set up for `python 3.11` with `Django 4.2.7` and `Django Rest Framewor
 
 Other project specific settings can be changed in Django's `settings.py` file like a regular Django project, to better suit your needs.
 
+
 ## Requirements
 Python requirements can be added on the `requirements` folder. Production requirements go on `requirements.txt` and dev-only requirements go on `dev.requirements.txt`. For production, `pip install -r requirements/requirements.txt` will install all needed dependencies. For development, `pip install -r requirements/dev.requirements.txt` will install all needed dependencies (including the dev ones). The `boilerplate.requirements.txt` and `boilerplate.dev.requirements.txt` contain the base requirements that this boilerplate needs, and are automatically installed with the respective production/development requirements files.
 
@@ -65,6 +65,7 @@ A convenience `make.sh` script is available for use. It has the following comman
 - `test`: Runs the linting tools (fixing issues), `mypy` and the test cases, while also generating a coverage report.
   - Note: if `mypy` fails, the tests won't run.
 - `command <command>`: runs the passed command with Django in the `app` service. Equivalent to running `python manage.py <command>` inside the container.
+- `admin`: shortcut for Django's `createsuperuser` command.
 - `clean` This command will clear all the `__pycache__` in the project. If the `-a|--all` flag is passed, it will also clear the `db`, `logs`, `media` and `coverage` folders.
 
 The flag `-p|--production` can be passed to any of these commands to instead used the production docker compose.
