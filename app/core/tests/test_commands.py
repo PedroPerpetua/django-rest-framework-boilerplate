@@ -15,15 +15,19 @@ from core.utilities.test import clear_colors
 class TestWaitForDBCommand(TestCase):
     """Test the wait_for_db command."""
 
+    class MockCursor:
+        def close(self) -> None:
+            ...
+
     # Get the command's parameters
     RETRY_SECONDS = WaitForDBCommand.RETRY_SECONDS
     MAX_RETRIES = WaitForDBCommand.MAX_RETRIES
 
-    @patch("django.db.utils.ConnectionHandler.__getitem__")
-    def test_wait_for_db_ready(self, getitem_mock: MagicMock) -> None:
+    @patch("django.db.backends.base.base.BaseDatabaseWrapper.cursor")
+    def test_wait_for_db_ready(self, cursor_mock: MagicMock) -> None:
         """Test wait_for_db when the database is available."""
         # Setup the mock and buffers
-        getitem_mock.return_value = True
+        cursor_mock.return_value = self.MockCursor()
         output_buffer = StringIO()
         # Make the call
         call_command("wait_for_db", stdout=output_buffer)
@@ -33,18 +37,18 @@ class TestWaitForDBCommand(TestCase):
             clear_colors(output_buffer.getvalue()),
         )
         # Make sure the mock was called correctly
-        getitem_mock.assert_called_once()
+        cursor_mock.assert_called_once()
 
     @patch("time.sleep")
-    @patch("django.db.utils.ConnectionHandler.__getitem__")
-    def test_wait_for_db_retry(self, getitem_mock: MagicMock, sleep_mock: MagicMock) -> None:
+    @patch("django.db.backends.base.base.BaseDatabaseWrapper.cursor")
+    def test_wait_for_db_retry(self, cursor_mock: MagicMock, sleep_mock: MagicMock) -> None:
         """Test wait_for_db retries if database is not available."""
         if self.MAX_RETRIES == 0:  # pragma: no cover
             # No retries; nothing to test.
             self.assertTrue(True)
             return
         # Setup the mock and buffers
-        getitem_mock.side_effect = ([OperationalError] * self.MAX_RETRIES) + [True]
+        cursor_mock.side_effect = ([OperationalError] * self.MAX_RETRIES) + [self.MockCursor()]
         sleep_mock.return_value = True
         output_buffer = StringIO()
         error_buffer = StringIO()
@@ -60,14 +64,14 @@ class TestWaitForDBCommand(TestCase):
             clear_colors(error_buffer.getvalue()),
         )
         # Make sure the mock was called correctly
-        self.assertEqual(self.MAX_RETRIES + 1, getitem_mock.call_count)
+        self.assertEqual(self.MAX_RETRIES + 1, cursor_mock.call_count)
 
     @patch("time.sleep")
-    @patch("django.db.utils.ConnectionHandler.__getitem__")
-    def test_wait_for_db_fails(self, getitem_mock: MagicMock, sleep_mock: MagicMock) -> None:
+    @patch("django.db.backends.base.base.BaseDatabaseWrapper.cursor")
+    def test_wait_for_db_fails(self, cursor_mock: MagicMock, sleep_mock: MagicMock) -> None:
         """Test wait_for_db aborts after max retries."""
         # Setup the mock and buffers
-        getitem_mock.side_effect = [OperationalError] * (self.MAX_RETRIES + 1)
+        cursor_mock.side_effect = [OperationalError] * (self.MAX_RETRIES + 1)
         sleep_mock.return_value = True
         output_buffer = StringIO()
         error_buffer = StringIO()
@@ -81,7 +85,7 @@ class TestWaitForDBCommand(TestCase):
             clear_colors(error_buffer.getvalue()),
         )
         # Make sure the mock was called correctly
-        self.assertEqual(self.MAX_RETRIES + 1, getitem_mock.call_count)
+        self.assertEqual(self.MAX_RETRIES + 1, cursor_mock.call_count)
 
 
 class TestSetupCommand(UnitTest):

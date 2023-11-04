@@ -23,9 +23,10 @@ class Command(BaseCommand):
         retries = 0
         while True:
             try:
-                if connections["default"]:
-                    self.success("Database connection available!")
-                    return
+                cursor = connections["default"].cursor()
+                cursor.close()
+                self.success("Database connection available!")
+                return
             except OperationalError:
                 if retries == self.MAX_RETRIES:
                     self.error(f"Reached {self.MAX_RETRIES} retries with no database connection. Aborting.")
