@@ -55,7 +55,7 @@ extend-exclude = '''
 
 
 [tool.mypy]
-mypy_path = "$MYPY_CONFIG_FILE_DIR/app, $MYPY_CONFIG_FILE_DIR/stubs"
+mypy_path = "$MYPY_CONFIG_FILE_DIR/app, $MYPY_CONFIG_FILE_DIR/typing"
 files = "./app"
 # Exclude django files
 exclude = [
@@ -78,6 +78,7 @@ warn_unused_ignores = true
 warn_no_return = true
 warn_return_any = true
 warn_unreachable = true
+
 
 [tool.django-stubs]
 django_settings_module = "app.settings"
