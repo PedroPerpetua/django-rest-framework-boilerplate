@@ -10,7 +10,7 @@ Provided by [PedroPerpetua](https://github.com/PedroPerpetua).
 
 
 ## Version
-Currently set up for `python 3.11` with `Django 4.1.5` and `Django Rest Framework 3.14.0`.
+Currently set up for `python 3.11` with `Django 4.2.7` and `Django Rest Framework 3.14.0`.
 
 
 ## Features
@@ -18,11 +18,11 @@ Currently set up for `python 3.11` with `Django 4.1.5` and `Django Rest Framewor
 ### Project
 - Configuration trough environment variables.
 - Separated requirement file structure for both production and development.
-- Dockerized application.
+- Dockerized application, both for development and production environments.
 - Separate dockerfile for linting, testing and coverage using `isort`, `black`, `autoflake`, `mypy` and `coverage`.
 - CI/CD for linting and testing trough Github Actions.
 - Tests for the implemented features.
-- A Makefile to support basic operations.
+- A `make.sh` script to support basic operations.
 
 ### Django Functionality
 - Multiple utility functions and extensions frequently used in Django projects.
@@ -50,7 +50,7 @@ Currently set up for `python 3.11` with `Django 4.1.5` and `Django Rest Framewor
 ## Configuration
 
 ### Config files
-`config.env` is the main configuration file. It's recommended to use `core.utilities.env` functions to extract variables in multiple formats from here. See `config.env.example` for available configurations and more details.
+`config.env` is the main configuration file. It's recommended to use `core.utilities.env` functions to extract variables in multiple formats from here. See `config.env.example` for available configurations and more details. This file should be placed in the respective docker folders: `./docker/dev/config.env` and / or `./docker/prod/config.env`.
 
 Other project specific settings can be changed in Django's `settings.py` file like a regular Django project, to better suit your needs.
 
@@ -58,36 +58,13 @@ Other project specific settings can be changed in Django's `settings.py` file li
 Python requirements can be added on the `requirements` folder. Production requirements go on `requirements.txt` and dev-only requirements go on `dev.requirements.txt`. For production, `pip install -r requirements/requirements.txt` will install all needed dependencies. For development, `pip install -r requirements/dev.requirements.txt` will install all needed dependencies (including the dev ones). The `boilerplate.requirements.txt` and `boilerplate.dev.requirements.txt` contain the base requirements that this boilerplate needs, and are automatically installed with the respective production/development requirements files.
 
 
-## Makefile
-A convenience `Makefile` is available for use. It has the following commands:
+## Make
+A convenience `make.sh` script is available for use. It has the following commands:
+- `build`: builds all services and pulls the required ones.
+- `run`: runs the `app` service, starting the Django server.
+- `test`: Runs the linting tools (fixing issues), `mypy` and the test cases, while also generating a coverage report.
+  - Note: if `mypy` fails, the tests won't run.
+- `command <command>`: runs the passed command with Django in the `app` service. Equivalent to running `python manage.py <command>` inside the container.
+- `clean` This command will clear all the `__pycache__` in the project. If the `-a|--all` flag is passed, it will also clear the `db`, `logs`, `media` and `coverage` folders.
 
-### `build`
-The build command will build all services (`db`, `app` and `test`). This is usually a required step when files not in the /app folder are changed (for example, requirements files).
-
-### `run`
-Runs the `app` service, starting the Django server.
-
-### `test`
-Runs the `test` service; this will run all linting tools in the following order:
-- `isort`
-- `autoflake`
-- `black`
-  - All commands above are done _in place_, meaning they will change the files in /app as they see fit.
-- `mypy`
-  - If `mypy` fails, execution will be stopped (before tests are ran). **This will still leave the _in place_ changes of the linting tools** (they will not be reverted).
-
-Afterwards, runs the test suite trough Django, wrapped in the `coverage` module to generate a coverage report in the `/coverage` folder IF the tests are successful.
-
-### `clean`
-This command will clear all cache files from Python and `mypy`, clear all logs and clear the coverage report.
-
-
-### `command`
-This is a shortcut command to run Django management commands. This command should be used as follows: `make command <commands to be passed>`. Under the hood, the `app` service will start and run `python manage.py <commands passed>`.
-
-Examples:
-- `make command makemigrations` will run the Django `makemigrations` command;
-- `make command test appname.tests.Testclass.test_name` will run a specific test by itself as given by the "Python import statement" (see [Django's documentation](https://docs.djangoproject.com/en/4.1/topics/testing/overview/#running-tests) about it);
-- `make command "test -v2"` (notice the `"`; this is because we're using a command with a `-` flag) will run the test suit with `verbosity=2`.
-
-It's also worth nothing that once this command is used, Makefile will show an `ignore_this_error` error. This is because of the way we're passing arguments to the command, and it's just a safety mechanism that can be ignored. See the `Makefile` for more information.
+The flag `-p|--production` can be passed to any of these commands to instead used the production docker compose.

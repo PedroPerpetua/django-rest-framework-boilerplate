@@ -9,9 +9,6 @@ mypy == 1.6.1
 # Testing
 coverage == 7.3.2
 
-# Extra
-pyclean == 2.7.5
-
 # Type hint stubs
 django-stubs == 4.2.6
 djangorestframework-stubs == 3.14.4

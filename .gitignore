@@ -9,6 +9,8 @@ __pycache__
 config.env
 
 # App "temp" files
-app/logs
-app/static/**
-app/media/**
+db
+logs
+media
+static
+coverage
