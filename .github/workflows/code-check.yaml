@@ -13,12 +13,16 @@ jobs:
   lint-and-test:
     runs-on: ubuntu-latest
     steps:
+
     - name: Checkout the repository
       uses: actions/checkout@v3.3.0
+
     - name: Copy the test config file
-      run: cp .github/workflows/code-check.env config.env
+      run: cp .github/workflows/code-check.env docker/dev/config.env
+
     - name: Run the Test container
       run: docker compose -f docker/dev/compose.yml run test
+
     - name: Commit the changes
       uses: stefanzweifel/git-auto-commit-action@v4.16.0
       with:
