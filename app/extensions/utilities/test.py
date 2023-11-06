@@ -12,7 +12,7 @@ from extensions.utilities import uuid
 from extensions.utilities.types import JSON_BASE
 
 
-class AbstractModelTestCase(TestCase):
+class AbstractModelTestCase(TestCase):  # pragma: no cover
     """
     TestCase class to generate new models from an abstract at runtime.
 
