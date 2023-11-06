@@ -37,9 +37,9 @@ COPY ./pyproject.toml /pyproject.toml
 # Command steps:
 # - Run isort, autoflake, black and mypy
 # - Run tests under the Coverage module
-CMD sh -c "isort ./app; \
-           autoflake ./app; \
-           black ./app; \
+CMD sh -c "isort ./app ./typing; \
+           autoflake ./app ./typing; \
+           black ./app ./typing; \
            mypy && \
            coverage run ./app/manage.py test ./app && \
            coverage html;"

@@ -42,6 +42,7 @@ services:
       dockerfile: ./docker/dev/Dockerfile.test
     volumes:
       - ../../app:/app
+      - ../../typing:/typing
       - ./coverage:/coverage
     env_file:
       - config.env
