@@ -1,9 +1,7 @@
 import json
 from unittest import TestCase
 from unittest.mock import MagicMock, patch
-from django.core.files import File
 import core.utilities as utils
-from core.tests import FILES_FOLDER
 from core.utilities import env
 from core.utilities.logging import LoggingConfigurationBuilder
 from core.utilities.test import MockResponse
@@ -57,29 +55,16 @@ class TestUtilities(TestCase):
     def test_ext(self) -> None:
         """Test the `ext` function."""
         cases = [
-            ("_path/_to/_file/_filename._ext", "._ext"),
-            ("_path/_file._with._multiple._exts", "._with._multiple._exts"),
-            ("_path/_dot._in._the/middle._with_ext", "._with_ext"),
+            ("_path/_to/_file/_filename._ext", "_ext"),
+            ("_path/_file._with._multiple._exts", "_with._multiple._exts"),
+            ("_path/_dot._in._the/middle._with_ext", "_with_ext"),
         ]
         for case, expected in cases:
             with self.subTest("Testing the extensions", case=case, ext=expected):
                 self.assertEqual(expected, utils.ext(case))
-
-    def test_is_svg(self) -> None:
-        """Test the `is_svg` function."""
-        PNG_FILE = FILES_FOLDER / "icon.png"
-        SVG_FILE = FILES_FOLDER / "icon.svg"
-        # Test from file object
-        with open(PNG_FILE) as png, open(SVG_FILE) as svg:
-            with self.subTest("Test is_svg with file objects", file=PNG_FILE):
-                self.assertFalse(utils.is_svg(File(png)))
-            with self.subTest("Test is_svg with file objects", file=SVG_FILE):
-                self.assertTrue(utils.is_svg(File(svg)))
-        # Test from file path
-        with self.subTest("Test is_svg with file paths", path=PNG_FILE):
-            self.assertFalse(utils.is_svg(PNG_FILE))
-        with self.subTest("Test is_svg with file paths", path=SVG_FILE):
-            self.assertTrue(utils.is_svg(SVG_FILE))
+                self.assertEqual(f".{expected}", utils.ext(case, leading_dot=True))
+        # Edge case
+        self.assertEqual("", utils.ext("filename_with_no_ext", leading_dot=True))
 
 
 class TestTestUtilities(TestCase):

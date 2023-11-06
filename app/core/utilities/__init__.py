@@ -16,6 +16,11 @@ if TYPE_CHECKING:
     from core.utilities.types import JSON_BASE
 
 
+def uuid() -> str:
+    """Generate a random uuid4. This is a shorthand; equivalent to `str(uuid4())`."""
+    return str(uuid4())
+
+
 def empty(string: Optional[str]) -> bool:
     """Given a string, returns True if it's None or empty, or only whitespace."""
     if not string:
@@ -47,35 +52,13 @@ def clear_Nones(json_obj: Optional[JSON_BASE] = None, **kwargs: Any) -> JSON_BAS
     return json_obj
 
 
-def ext(filename: str) -> str:
-    """Given a filename, returns the extension."""
-    return "".join(Path(filename).suffixes)
-
-
-def uuid() -> str:
-    """Generate a random uuid4. This is a shorthand; equivalent to `str(uuid4())`."""
-    return str(uuid4())
-
-
-def is_svg(filepath: str | Path | File) -> bool:
+def ext(filename: str, leading_dot: bool = False) -> str:
     """
-    Validate that a file is a valid SVG file.
+    Given a filename, returns the extension.
 
-    Taken and adjusted from: https://stackoverflow.com/questions/15136264/
+    If leading_dot is true and there is an extension, will return the leading dot along the extensions.
     """
-
-    def parse_file(f: TextIOWrapper | File) -> bool:
-        tag = None
-        try:
-            for _, el in et.iterparse(f, ("start",)):
-                tag = el.tag
-                break
-        except Exception:
-            pass
-        return tag == "{http://www.w3.org/2000/svg}svg"
-
-    if isinstance(filepath, File):
-        return parse_file(filepath)
-    else:
-        with open(filepath, "r") as file:
-            return parse_file(file)
+    extensions = "".join(Path(filename).suffixes)
+    if leading_dot or len(extensions) == 0:
+        return extensions
+    return extensions[1:]
