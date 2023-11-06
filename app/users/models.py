@@ -1,11 +1,11 @@
-from typing import Self
+from extensions.models import AbstractBaseModel
+from extensions.models.mixins import SoftDeleteMixin
 from django.contrib.auth.models import AbstractBaseUser, PermissionsMixin
 from django.db import models
-from core.extensions.models.base_abstract_model import BaseAbstractModel
 from users.managers import UserManager
 
 
-class User(AbstractBaseUser, PermissionsMixin, BaseAbstractModel):
+class User(AbstractBaseUser, PermissionsMixin, SoftDeleteMixin, AbstractBaseModel):
     """
     The concrete user class that will be used in the database.
 
@@ -23,9 +23,9 @@ class User(AbstractBaseUser, PermissionsMixin, BaseAbstractModel):
     )
 
     USERNAME_FIELD = "username"
-    objects = UserManager[Self]()
+    objects = UserManager()
 
-    class Meta(BaseAbstractModel.Meta):
+    class Meta(AbstractBaseModel.Meta):
         ...
 
     def __str__(self) -> str:
