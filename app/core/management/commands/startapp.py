@@ -9,7 +9,8 @@ class Command(StartAppCommand):
 
     TEMPLATE_PATH: Path = settings.BASE_DIR / "core" / "app_template"
 
-    def handle(self, *args: Any, **options: Any) -> Optional[str]:  # type: ignore # Supertype "incompatibility"
+    # https://github.com/typeddjango/django-stubs/issues/1820
+    def handle(self, *args: Any, **options: Any) -> Optional[str]:  # type: ignore
         """Override the `handle` method to add the option "template" with our template if None were passed."""
         if options.get("template", None) is None:
             options["template"] = str(self.TEMPLATE_PATH)

@@ -10,8 +10,9 @@ class AuthenticationBackend(ModelBackend):
     """Custom authentication backend that also checks for the `is_deleted` status."""
 
     def user_can_authenticate(self, user: Optional[User]) -> bool:  # type: ignore # Use our User
-        not_deleted = not getattr(user, "is_deleted", False)
-        return not_deleted and super().user_can_authenticate(user)
+        if user and user.is_deleted:
+            return False
+        return super().user_can_authenticate(user)
 
 
 class AuthenticatedRequest(Request):

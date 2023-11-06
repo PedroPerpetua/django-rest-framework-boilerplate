@@ -7,8 +7,8 @@ from users import models
 
 @admin.register(models.User, site=admin_site)
 class UserAdmin(BaseUserAdmin):
-    list_display = (models.User.USERNAME_FIELD, "id")
-    search_fields = (models.User.USERNAME_FIELD,)
+    list_display = ("id", "username")
+    search_fields = ("username",)
     ordering = ("created_at",)
 
     add_fieldsets = (
@@ -23,8 +23,8 @@ class UserAdmin(BaseUserAdmin):
 
     readonly_fields = ("id", "created_at", "updated_at", "last_login")
     fieldsets = (
-        ("Object details", {"fields": ("id", models.User.USERNAME_FIELD, "is_active", "is_deleted", "password")}),
-        ("Datetime information", {"fields": ("created_at", "updated_at", "last_login")}),
+        ("User details", {"fields": ("username", "is_active", "password", "last_login")}),
+        ("Object details", {"fields": ("id", "is_deleted", "created_at", "updated_at")}),
         ("Permissions", {"fields": ("is_superuser", "is_staff", "groups", "user_permissions")}),
     )
 

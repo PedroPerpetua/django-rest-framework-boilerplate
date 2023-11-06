@@ -1,7 +1,7 @@
 from django.conf import settings
 from django.conf.urls.static import static
 from django.urls import include, path
-from core.utilities.types import URLPatternsList
+from extensions.utilities.types import URLPatternsList
 
 
 urlpatterns: URLPatternsList = [

@@ -1,8 +1,8 @@
 import logging
 from datetime import datetime, timedelta
 from pathlib import Path
-from core.utilities import env
-from core.utilities.logging import LoggingConfigurationBuilder
+from extensions.utilities import env
+from extensions.utilities.logging import LoggingConfigurationBuilder
 
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -17,21 +17,18 @@ DEBUG = env.as_bool("DEBUG")
 ALLOWED_HOSTS = env.as_list("ALLOWED_HOSTS")
 
 
-# HTTPS configuration. As per Django documentation, these settings should be enabled if we use HTTPS.
-# TODO: Check what they actually do?
-
-HTTPS_ENABLED = env.as_bool("HTTPS_ENABLED")
-SESSION_COOKIE_SECURE = HTTPS_ENABLED
-CRSF_COOKIE_SECURE = HTTPS_ENABLED
-
-
-# Cors configuration
+# CORS configuration
 
 CORS_ALLOW_ALL_ORIGINS = env.as_bool("CORS_ALLOW_ALL_ORIGINS")
 # If CORS_ALLOW_ALL_ORIGINS is True, this setting is ignored
 CORS_ALLOWED_ORIGINS = env.as_list("CORS_ALLOWED_ORIGINS")
-CSRF_TRUSTED_ORIGINS = CORS_ALLOWED_ORIGINS  # TODO: is this right?
 
+
+# CSRF configuration
+
+CSRF_TRUSTED_ORIGINS = env.as_list("CSRF_TRUSTED_ORIGINS")
+CSRF_COOKIE_SECURE = env.as_bool("CSRF_COOKIE_SECURE")
+SESSION_COOKIE_SECURE = env.as_bool("SESSION_COOKIE_SECURE")
 
 # Application definition
 
@@ -83,7 +80,8 @@ WSGI_APPLICATION = "app.wsgi.application"
 
 # Logging configuration
 
-LOG_FOLDER = BASE_DIR / "logs" / datetime.now().strftime("%Y-%m-%d")
+LOG_FOLDER = Path("/logs") / datetime.now().strftime("%Y-%m-%d")
+LOG_LEVEL = env.as_int("LOG_LEVEL", logging.NOTSET)
 
 # Use our custom log configuration builder to setup the logger
 LOGGING = (
@@ -101,14 +99,14 @@ LOGGING = (
     .modify_root_logger(handlers=["debug_handler", "root_handler"])
     # Setup the default Django logger
     .add_file_handler("django_handler", LOG_FOLDER / "django.log")
-    .add_logger("django", ["debug_handler", "django_handler"], level=logging.DEBUG, propagate=False)
+    .add_logger("django", ["debug_handler", "django_handler"], level=LOG_LEVEL, propagate=False)
     # Setup the default Server logger
     .add_file_handler("server_handler", LOG_FOLDER / "server.log")
-    .add_logger("django.server", ["debug_handler", "server_handler"], level=logging.DEBUG, propagate=False)
+    .add_logger("django.server", ["debug_handler", "server_handler"], level=LOG_LEVEL, propagate=False)
     # Add our app-specific loggers
     # Core app
     .add_file_handler("core_handler", LOG_FOLDER / "core.log")
-    .add_logger("core", ["debug_handler", "core_handler"], level=logging.DEBUG, propagate=False)
+    .add_logger("core", ["debug_handler", "core_handler"], level=LOG_LEVEL, propagate=False)
 ).build()
 
 
@@ -130,9 +128,9 @@ DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 # File handling
 
 STATIC_URL = "static/"
-STATIC_ROOT = BASE_DIR / "static"
+STATIC_ROOT = Path("/static")
 MEDIA_URL = "media/"
-MEDIA_ROOT = BASE_DIR / "media"
+MEDIA_ROOT = Path("/media")
 
 
 # Rest framework settings
