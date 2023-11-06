@@ -13,15 +13,10 @@ else:
 
 class SoftDeleteManager(models.Manager[SoftDeleteModel]):
     """
-    Custom manager for models that implement the `SoftDeleteMixin`.
-    Queries made to this manager will return a queryset with soft-deleted instances filtered out.
-    An alternative `include_deleted` method is implemented to return all instances.
+    Custom manager for models that implement the `SoftDeleteMixin`. Includes a method `exclude_deleted` to return the
+    queryset with the soft deleted models filtered out.
     """
 
-    def get_queryset(self) -> models.QuerySet[SoftDeleteModel]:
-        """Return this model's queryset. Soft-deleted instances are filtered out."""
-        return super().get_queryset().filter(is_deleted=False)
-
-    def include_deleted(self) -> models.QuerySet[SoftDeleteModel]:
+    def exclude_deleted(self) -> models.QuerySet[SoftDeleteModel]:
         """Return this model's queryset, with soft-deleted instances included."""
-        return super().get_queryset()
+        return super().get_queryset().filter(is_deleted=False)

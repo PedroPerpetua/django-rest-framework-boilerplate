@@ -121,15 +121,10 @@ class TestSoftDeleteMixin(AbstractModelTestCase):
         obj.refresh_from_db()
         self.assertTrue(obj.is_deleted)
 
-    def test_manager_get_queryset(self) -> None:
-        """Test that the manager doesn't return soft-deleted instances."""
+    def test_manager_exclude_deleted(self) -> None:
+        """Test that this method excludes soft-deleted instanced."""
         obj = self.ConcreteModel._default_manager.create(is_deleted=True)
-        self.assertNotIn(obj, self.ConcreteModel._default_manager.get_queryset())
-
-    def test_manager_include_deleted(self) -> None:
-        """Test the manager's `include_deleted` method."""
-        obj = self.ConcreteModel._default_manager.create(is_deleted=True)
-        self.assertIn(obj, self.ConcreteModel.objects.include_deleted())
+        self.assertNotIn(obj, self.ConcreteModel.objects.exclude_deleted())
 
 
 class TestExtendedReprMixin(AbstractModelTestCase):
