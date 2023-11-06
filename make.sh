@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/sh
 
 RUNNING_MODE="DEVELOPMENT"
 DOCKER_COMMAND="docker compose -f ./docker/dev/compose.yml"

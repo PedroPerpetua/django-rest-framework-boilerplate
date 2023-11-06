@@ -8,21 +8,8 @@ class UserRegisterSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = models.User
+        fields = ("id", "username", "password")
         extra_kwargs = {"password": {"write_only": True}}
-        # Because more fields can be included in the user, instead exclude all that we know we don't want
-        # Exception: do not exclude password
-        exclude = (
-            "id",
-            "created_at",
-            "updated_at",
-            "is_deleted",
-            "is_staff",
-            "is_active",
-            "is_superuser",
-            "last_login",
-            "groups",
-            "user_permissions",
-        )
 
     def create(self, validated_data: Any) -> models.User:
         return models.User.objects.create_user(**validated_data)

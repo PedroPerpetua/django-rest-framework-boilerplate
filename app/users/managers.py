@@ -8,11 +8,7 @@ class UserManager(BaseUserManager[GenericUser]):
 
     def create_user(self, password: str, **fields: Any) -> GenericUser:
         """Create, save and return a new User."""
-        # Pop fields that don't exist
-        for key in list(fields.keys()):
-            if not hasattr(self.model, key):
-                del fields[key]
-        user = self.model(password=password, **fields)
+        user = self.model(**fields)
         user.set_password(password)
         user.save()
         return user
