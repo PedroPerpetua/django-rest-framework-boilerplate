@@ -1,5 +1,5 @@
 from rest_framework.generics import GenericAPIView
-from core.utilities.types import GenericViewMixin
+from extensions.utilities.types import GenericViewMixin
 from users.authentication import AuthenticatedRequest, IsAuthenticated, IsStaff
 from users.models import User
 

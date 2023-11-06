@@ -8,7 +8,7 @@ from rest_framework.exceptions import ValidationError as DRFValidationError
 from rest_framework.request import Request
 from rest_framework.response import Response
 from drf_spectacular.utils import extend_schema
-from rest_framework_simplejwt import views as jwt_views  # type: ignore # No stubs available
+from rest_framework_simplejwt import views as jwt_views
 from users import serializers
 from users.view_mixins import TargetAuthenticatedUserMixin
 
@@ -29,21 +29,21 @@ class UserRegisterView(generics.CreateAPIView):
 
 
 @extend_schema(tags=["User Authentication"])
-class UserLoginView(jwt_views.TokenObtainPairView):  # type: ignore # missing stubs
+class UserLoginView(jwt_views.TokenObtainPairView):
     """Endpoint to login a user and obtain a pair of `(access_token, refresh_token)`."""
 
     ...
 
 
 @extend_schema(tags=["User Authentication"])
-class UserLoginRefreshView(jwt_views.TokenRefreshView):  # type: ignore # missing stubs
+class UserLoginRefreshView(jwt_views.TokenRefreshView):
     """Endpoint to refresh the user's `access_token` and `refresh_token`, from a valid `refresh_token`."""
 
     ...
 
 
 @extend_schema(tags=["User Authentication"])
-class UserLogoutView(jwt_views.TokenBlacklistView):  # type: ignore # missing stubs
+class UserLogoutView(jwt_views.TokenBlacklistView):
     """
     Endpoint to logout the user, by blacklisting it's `access_token` and `refresh_token`, from a valid
     `refresh_token`.

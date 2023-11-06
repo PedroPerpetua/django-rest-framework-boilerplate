@@ -1,8 +1,8 @@
 from django.urls import include, path
 from drf_spectacular.views import SpectacularAPIView, SpectacularSwaggerView
 from core.admin import admin_site
-from core.utilities.types import URLPatternsList
 from core.views import PingView
+from extensions.utilities.types import URLPatternsList
 
 
 # This line is commented due to a possible issue with django that breaks the urls

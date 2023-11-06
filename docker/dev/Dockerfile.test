@@ -1,0 +1,45 @@
+ARG PYTHON=python:3.11-alpine
+
+# Building stage +++++++++++++++++++++++++++++++++++++++++
+FROM ${PYTHON} AS builder
+
+# Add build-time dependencies ----------------------------
+RUN apk update
+
+# Create venv --------------------------------------------
+RUN python3 -m venv /venv
+ENV PATH=/venv/bin:$PATH
+
+# Install Python requirements ----------------------------
+COPY ./requirements /requirements
+RUN pip install -r /requirements/dev.requirements.txt
+
+# THIS IS A TEMPORARY FIX - rest_framework_simplejwt is missing the py.typed file
+# REMOVE WHEN UPDATED. Relevant issue: https://github.com/jazzband/djangorestframework-simplejwt/issues/664
+RUN touch /venv/lib/python3.11/site-packages/rest_framework_simplejwt/py.typed
+
+# Final stage ++++++++++++++++++++++++++++++++++++++++++++
+FROM ${PYTHON}
+
+# Add runtime dependencies -------------------------------
+RUN apk update
+
+# Copy Python environment --------------------------------
+COPY --from=builder /venv/ /venv
+ENV PATH=/venv/bin:$PATH
+
+# Copy the app ------------------------------------------
+COPY ./app /app
+# Copy aditional files required for linting
+COPY ./typing /typing
+COPY ./pyproject.toml /pyproject.toml
+
+# Command steps:
+# - Run isort, autoflake, black and mypy
+# - Run tests under the Coverage module
+CMD sh -c "isort ./app ./typing; \
+           autoflake ./app ./typing; \
+           black ./app ./typing; \
+           mypy && \
+           coverage run ./app/manage.py test ./app && \
+           coverage html;"

@@ -1,12 +1,20 @@
 [tool.isort]
 profile = "black"
-known_django = ["django", "rest_framework"]
+known_django = [
+    "django",
+    "rest_framework",
+]
 known_addons = [
     "rest_framework_simplejwt",
     "drf_spectacular",
-    "drf_standardized_errors"
+    "drf_standardized_errors",
 ]
-known_first_party = ["core", "users"] # ADD OTHERS HERE
+known_first_party = [
+    "extensions",
+    "core",
+    "users",
+    # ADD OTHERS HERE
+]
 sections = [
     "FUTURE",
     "STDLIB",
@@ -14,13 +22,14 @@ sections = [
     "DJANGO",
     "ADDONS",
     "FIRSTPARTY",
-    "LOCALFOLDER"
+    "LOCALFOLDER",
 ]
 line_length = 119
 lines_after_imports = 2
 lines_between_sections = 0
 extend_skip_glob = [
-    "app/**/migrations/[0-9][0-9][0-9][0-9]_*.py", "app/manage.py"
+    "app/**/migrations/[0-9][0-9][0-9][0-9]_*.py",
+    "app/manage.py",
 ]
 
 
@@ -29,7 +38,10 @@ recursive = true
 in-place = true
 remove-all-unused-imports = true
 remove-unused-variables = true
-exclude=["app/**/migrations/[0-9][0-9][0-9][0-9]_*.py", "app/manage.py"]
+exclude=[
+    "app/**/migrations/[0-9][0-9][0-9][0-9]_*.py",
+    "app/manage.py",
+]
 ignore-init-module-imports = true
 
 
@@ -44,11 +56,17 @@ extend-exclude = '''
 
 
 [tool.mypy]
-mypy_path = "$MYPY_CONFIG_FILE_DIR/app, $MYPY_CONFIG_FILE_DIR/stubs"
+mypy_path = "$MYPY_CONFIG_FILE_DIR/app, $MYPY_CONFIG_FILE_DIR/typing"
 files = "./app"
 # Exclude django files
-exclude = ["app/.*/migrations/[0-9]{4}_.*.py$", "app/manage.py"]
-plugins = ["mypy_django_plugin.main", "mypy_drf_plugin.main"]
+exclude = [
+    "app/.*/migrations/[0-9]{4}_.*.py$",
+    "app/manage.py",
+]
+plugins = [
+    "mypy_django_plugin.main",
+    "mypy_drf_plugin.main",
+]
 show_error_codes = true
 # Be more strict
 disallow_untyped_defs = true
@@ -61,6 +79,7 @@ warn_unused_ignores = true
 warn_no_return = true
 warn_return_any = true
 warn_unreachable = true
+
 
 [tool.django-stubs]
 django_settings_module = "app.settings"
