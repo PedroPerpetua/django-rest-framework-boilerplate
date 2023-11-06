@@ -17,8 +17,8 @@ class TestSettings(TestCase):
         makes sure the settings are being imported correctly.
 
         If this test fails, make sure to check the imports in your new code. This usually happens because you imported
-        a type from `core.utilities.types` at runtime, resulting in restframework being imported too and screwing it
-        up. This can be fixed by importing the type with an `if TYPE_CHECKING` block.
+        a type from `extensions.utilities.types` at runtime, resulting in restframework being imported too and
+        screwing it up. This can be fixed by importing the type with an `if TYPE_CHECKING` block.
         """
         self.assertEqual(settings.REST_FRAMEWORK, api_settings.user_settings)
 

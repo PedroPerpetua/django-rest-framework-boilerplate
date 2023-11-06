@@ -43,6 +43,7 @@ services:
     volumes:
       - ../../app:/app
       - ../../typing:/typing
+      - ../../pyproject.toml:/pyproject.toml
       - ./coverage:/coverage
     env_file:
       - config.env

@@ -9,7 +9,7 @@ from core.management.commands.setup import Command as SetupCommand
 from core.management.commands.startapp import Command as StartAppCommand
 from core.management.commands.startapp import StartAppCommand as OriginalStartAppCommand
 from core.management.commands.wait_for_db import Command as WaitForDBCommand
-from core.utilities.test import clear_colors
+from extensions.utilities.test import clear_colors
 
 
 class TestWaitForDBCommand(TestCase):

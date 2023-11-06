@@ -1,8 +1,8 @@
 import logging
 from datetime import datetime, timedelta
 from pathlib import Path
-from core.utilities import env
-from core.utilities.logging import LoggingConfigurationBuilder
+from extensions.utilities import env
+from extensions.utilities.logging import LoggingConfigurationBuilder
 
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.

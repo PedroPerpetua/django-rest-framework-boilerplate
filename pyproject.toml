@@ -10,6 +10,7 @@ known_addons = [
     "drf_standardized_errors",
 ]
 known_first_party = [
+    "extensions",
     "core",
     "users",
     # ADD OTHERS HERE

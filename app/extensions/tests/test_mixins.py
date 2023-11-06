@@ -2,12 +2,12 @@ from datetime import datetime
 from typing import Self
 from unittest.mock import MagicMock, patch
 from uuid import UUID
-from extensions.models import mixins
-from extensions.models.managers import SoftDeleteManager
 from django.db import models
 from django.utils.timezone import make_aware
-from core.utilities import uuid
-from core.utilities.test import AbstractModelTestCase
+from extensions.models import mixins
+from extensions.models.managers import SoftDeleteManager
+from extensions.utilities import uuid
+from extensions.utilities.test import AbstractModelTestCase
 
 
 class TestUUIDPrimaryKeyMixin(AbstractModelTestCase):

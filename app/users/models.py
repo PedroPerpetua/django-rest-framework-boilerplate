@@ -1,7 +1,7 @@
-from extensions.models import AbstractBaseModel
-from extensions.models.mixins import SoftDeleteMixin
 from django.contrib.auth.models import AbstractBaseUser, PermissionsMixin
 from django.db import models
+from extensions.models import AbstractBaseModel
+from extensions.models.mixins import SoftDeleteMixin
 from users.managers import UserManager
 
 

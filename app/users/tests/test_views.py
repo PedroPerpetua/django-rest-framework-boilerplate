@@ -2,7 +2,7 @@ from django.test import override_settings
 from django.urls import reverse
 from rest_framework import status
 from rest_framework.test import APIClient, APITestCase
-from core.utilities import uuid
+from extensions.utilities import uuid
 from users import serializers
 from users.models import User
 from users.tests import VALID_PASSWORD, sample_user

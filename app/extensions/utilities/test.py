@@ -8,8 +8,8 @@ from django.core.files.uploadedfile import SimpleUploadedFile
 from django.db import connection
 from django.db.models import Model
 from django.test import TestCase
-from core.utilities import uuid
-from core.utilities.types import JSON_BASE
+from extensions.utilities import uuid
+from extensions.utilities.types import JSON_BASE
 
 
 class AbstractModelTestCase(TestCase):

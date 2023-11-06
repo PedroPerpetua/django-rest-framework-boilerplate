@@ -1,5 +1,5 @@
-from extensions.models import mixins
 from django.db.models import Model
+from extensions.models import mixins
 
 
 class AbstractBaseModel(

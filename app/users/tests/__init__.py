@@ -1,5 +1,5 @@
 from typing import Optional
-from core.utilities import clear_Nones, uuid
+from extensions.utilities import clear_Nones, uuid
 from users.models import User
 
 

@@ -10,7 +10,7 @@ if TYPE_CHECKING:
     imports from this module to setup. If we import this regularly, we're met with an issue where DRF is loaded BEFORE
     `REST_FRAMEWORK` settings are set, causing them to never be loaded at all.
     """
-    from core.utilities.types import JSON_BASE
+    from extensions.utilities.types import JSON_BASE
 
 ENV = os.environ
 

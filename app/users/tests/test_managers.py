@@ -1,6 +1,6 @@
 from unittest import skipIf
 from django.test import TestCase
-from core.utilities import uuid
+from extensions.utilities import uuid
 from users.managers import UserManager
 from users.models import User
 from users.tests import VALID_PASSWORD

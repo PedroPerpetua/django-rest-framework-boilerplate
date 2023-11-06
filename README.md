@@ -49,7 +49,7 @@ Currently set up for `python 3.11` with `Django 4.2.7` and `Django Rest Framewor
 ## Configuration
 
 ### Config files
-`config.env` is the main configuration file. It's recommended to use `core.utilities.env` functions to extract variables in multiple formats from here. See `config.env.example` for available configurations and more details. This file should be placed in the respective docker folders: `./docker/dev/config.env` and / or `./docker/prod/config.env`.
+`config.env` is the main configuration file. It's recommended to use `extensions.utilities.env` functions to extract variables in multiple formats from here. See `config.env.example` for available configurations and more details. This file should be placed in the respective docker folders: `./docker/dev/config.env` and / or `./docker/prod/config.env`.
 
 Other project specific settings can be changed in Django's `settings.py` file like a regular Django project, to better suit your needs.
 

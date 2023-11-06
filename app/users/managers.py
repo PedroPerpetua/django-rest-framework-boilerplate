@@ -1,6 +1,6 @@
 from typing import TYPE_CHECKING, Any
-from extensions.models.managers import SoftDeleteManager
 from django.contrib.auth.models import BaseUserManager
+from extensions.models.managers import SoftDeleteManager
 
 
 if TYPE_CHECKING:

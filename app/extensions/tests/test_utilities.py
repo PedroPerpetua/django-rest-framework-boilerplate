@@ -1,10 +1,10 @@
 import json
 from unittest import TestCase
 from unittest.mock import MagicMock, patch
-import core.utilities as utils
-from core.utilities import env
-from core.utilities.logging import LoggingConfigurationBuilder
-from core.utilities.test import MockResponse
+import extensions.utilities as utils
+from extensions.utilities import env
+from extensions.utilities.logging import LoggingConfigurationBuilder
+from extensions.utilities.test import MockResponse
 
 
 class TestUtilities(TestCase):
@@ -92,14 +92,14 @@ class TestEnvUtilities(TestCase):
         """Test the `_get_value` function."""
         key = "_key"
         value = "_value"
-        with patch("core.utilities.env.ENV", {key: value}):
+        with patch("extensions.utilities.env.ENV", {key: value}):
             retval = env._get_value(key)
             self.assertEqual(value, retval)
 
     def test__get_value_missing_key(self) -> None:
         """Test the `_get_value` function with a missing key."""
         key = "_key"
-        with patch("core.utilities.env.ENV", {}):
+        with patch("extensions.utilities.env.ENV", {}):
             with self.assertRaises(KeyError):
                 env._get_value(key)
 
@@ -107,7 +107,7 @@ class TestEnvUtilities(TestCase):
         """Test the `_get_value` function with a missing key, when a default is provided."""
         key = "_key"
         default = "_value"
-        with patch("core.utilities.env.ENV", {}):
+        with patch("extensions.utilities.env.ENV", {}):
             retval = env._get_value(key, default)
             self.assertEqual(default, retval)
 
@@ -115,7 +115,7 @@ class TestEnvUtilities(TestCase):
         """Test the `_get_value` function with a key with an empty value, when a default is provided."""
         key = "_key"
         default = "_value"
-        with patch("core.utilities.env.ENV", {key: ""}):
+        with patch("extensions.utilities.env.ENV", {key: ""}):
             retval = env._get_value(key, default)
             self.assertEqual(default, retval)
 
@@ -123,7 +123,7 @@ class TestEnvUtilities(TestCase):
         """Test the `as_string` function."""
         key = "_key"
         value = "_value"
-        with patch("core.utilities.env.ENV", {key: value}):
+        with patch("extensions.utilities.env.ENV", {key: value}):
             retval = env.as_string(key)
             self.assertIsInstance(retval, str)
             self.assertEqual(value, retval)
@@ -132,7 +132,7 @@ class TestEnvUtilities(TestCase):
         """Test the `as_int` function."""
         key = "_key"
         value = 1
-        with patch("core.utilities.env.ENV", {key: str(value)}):
+        with patch("extensions.utilities.env.ENV", {key: str(value)}):
             retval = env.as_int(key)
             self.assertIsInstance(retval, int)
             self.assertEqual(value, retval)
@@ -141,7 +141,7 @@ class TestEnvUtilities(TestCase):
         """Test the `as_list` function."""
         key = "_key"
         value = ["_first", "_second", "_third"]
-        with patch("core.utilities.env.ENV", {key: ",".join(value)}):
+        with patch("extensions.utilities.env.ENV", {key: ",".join(value)}):
             retval = env.as_list(key)
             self.assertIsInstance(retval, list)
             self.assertEqual(value, retval)
@@ -150,7 +150,7 @@ class TestEnvUtilities(TestCase):
         """Test the `as_list` function with a missing key, when a default is provided."""
         key = "_key"
         default = ["_first", "_second", "_third"]
-        with patch("core.utilities.env.ENV", {}):
+        with patch("extensions.utilities.env.ENV", {}):
             retval = env.as_list(key, default)
             self.assertEqual(default, retval)
 
@@ -161,12 +161,16 @@ class TestEnvUtilities(TestCase):
         false_values = ["FALSE", "false", "fAlSe", "f", "F", "0"]
         # Test for true values
         for value in true_values:
-            with self.subTest(msg="True Values", value=value), patch("core.utilities.env.ENV", {key: str(value)}):
+            with self.subTest(msg="True Values", value=value), patch(
+                "extensions.utilities.env.ENV", {key: str(value)}
+            ):
                 retval = env.as_bool(key)
                 self.assertIsInstance(retval, bool)
                 self.assertEqual(True, retval)
         for value in false_values:
-            with self.subTest(msg="False Values", value=value), patch("core.utilities.env.ENV", {key: str(value)}):
+            with self.subTest(msg="False Values", value=value), patch(
+                "extensions.utilities.env.ENV", {key: str(value)}
+            ):
                 retval = env.as_bool(key)
                 self.assertIsInstance(retval, bool)
                 self.assertEqual(False, retval)
@@ -175,7 +179,7 @@ class TestEnvUtilities(TestCase):
         """Test the `as_bool` function with a missing key, when a default is provided."""
         key = "_key"
         default = True
-        with patch("core.utilities.env.ENV", {}):
+        with patch("extensions.utilities.env.ENV", {}):
             retval = env.as_bool(key, default)
             self.assertEqual(default, retval)
 
@@ -183,7 +187,7 @@ class TestEnvUtilities(TestCase):
         """Test the `as_json` function."""
         key = "_key"
         value = {"_key": "_value"}
-        with patch("core.utilities.env.ENV", {key: json.dumps(value)}):
+        with patch("extensions.utilities.env.ENV", {key: json.dumps(value)}):
             retval = env.as_json(key)
             self.assertIsInstance(retval, dict)
             self.assertEqual(value, retval)
@@ -192,7 +196,7 @@ class TestEnvUtilities(TestCase):
         """Test the `as_json` function with a missing key, when a default is provided."""
         key = "_key"
         default = {"_key": "_value"}
-        with patch("core.utilities.env.ENV", {}):
+        with patch("extensions.utilities.env.ENV", {}):
             retval = env.as_json(key, default)
             self.assertIsInstance(retval, dict)
             self.assertEqual(default, retval)
