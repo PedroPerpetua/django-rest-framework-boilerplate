@@ -14,10 +14,6 @@ ENV PATH=/venv/bin:$PATH
 COPY ./requirements /requirements
 RUN pip install -r /requirements/dev.requirements.txt
 
-# THIS IS A TEMPORARY FIX - rest_framework_simplejwt is missing the py.typed file
-# REMOVE WHEN UPDATED. Relevant issue: https://github.com/jazzband/djangorestframework-simplejwt/issues/664
-RUN touch /venv/lib/python3.11/site-packages/rest_framework_simplejwt/py.typed
-
 # Final stage ++++++++++++++++++++++++++++++++++++++++++++
 FROM ${PYTHON}
 

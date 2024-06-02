@@ -16,8 +16,7 @@ class TestWaitForDBCommand(TestCase):
     """Test the wait_for_db command."""
 
     class MockCursor:
-        def close(self) -> None:
-            ...
+        def close(self) -> None: ...
 
     # Get the command's parameters
     RETRY_SECONDS = WaitForDBCommand.RETRY_SECONDS

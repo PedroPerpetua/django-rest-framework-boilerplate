@@ -170,7 +170,7 @@ SPECTACULAR_SETTINGS = {
     "SERVE_PERMISSIONS": (
         "rest_framework.permissions.IsAdminUser"
         if env.as_bool("SWAGGER_ADMIN_ONLY", True)
-        else "rest_framework.permissions.AllowAny",
+        else "rest_framework.permissions.AllowAny"
     ),
     "SERVE_AUTHENTICATION": (
         "rest_framework.authentication.SessionAuthentication",  # Same auth for admin page

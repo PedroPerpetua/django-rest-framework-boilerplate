@@ -25,8 +25,7 @@ class User(AbstractBaseUser, PermissionsMixin, SoftDeleteMixin, AbstractBaseMode
     USERNAME_FIELD = "username"
     objects = UserManager()
 
-    class Meta(AbstractBaseModel.Meta):
-        ...
+    class Meta(AbstractBaseModel.Meta): ...
 
     def __str__(self) -> str:
         return f"User ({self.id}) {self.get_username()}"

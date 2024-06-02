@@ -31,13 +31,11 @@ def empty(string: Optional[str]) -> bool:
 
 
 @overload
-def clear_Nones(**kwargs: Any) -> dict[str, Any]:
-    ...
+def clear_Nones(**kwargs: Any) -> dict[str, Any]: ...
 
 
 @overload
-def clear_Nones(json_obj: JSON_BASE, **kwargs: Any) -> JSON_BASE:
-    ...
+def clear_Nones(json_obj: JSON_BASE, **kwargs: Any) -> JSON_BASE: ...
 
 
 def clear_Nones(json_obj: Optional[JSON_BASE] = None, **kwargs: Any) -> JSON_BASE:
