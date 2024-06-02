@@ -1,4 +1,4 @@
-from __future__ import annotations  # Required by the `if TYPE_CHECKING` block
+from __future__ import annotations  # Required by the TYPE_CHECKING block
 import json
 import os
 from typing import TYPE_CHECKING, Optional, TypeVar
@@ -10,7 +10,7 @@ if TYPE_CHECKING:
     imports from this module to setup. If we import this regularly, we're met with an issue where DRF is loaded BEFORE
     `REST_FRAMEWORK` settings are set, causing them to never be loaded at all.
     """
-    from extensions.utilities.types import JSON_BASE
+    from extensions.utilities.types import JSON
 
 ENV = os.environ
 
@@ -76,12 +76,13 @@ def as_list(var: str, default: Optional[list[str]] = None) -> list[str]:
     return value
 
 
-def as_json(var: str, default: Optional[JSON_BASE] = None) -> JSON_BASE:
+def as_json(var: str, default: Optional[JSON] = None) -> JSON:
     """
     Return the environment variable loaded as a JSON object. If no default value is given and the variable is not set,
     raises KeyError.
     """
-    value = _get_value(var, default)
+    value: JSON = _get_value(var, default)
     if isinstance(value, str):
-        return json.loads(value)
+        loaded: JSON = json.loads(value)
+        return loaded
     return value

@@ -9,7 +9,7 @@ from django.db import connection
 from django.db.models import Model
 from django.test import TestCase
 from extensions.utilities import uuid
-from extensions.utilities.types import JSON_BASE
+from extensions.utilities.types import JSON
 
 
 class AbstractModelTestCase(TestCase):  # pragma: no cover
@@ -63,11 +63,11 @@ class AbstractModelTestCase(TestCase):  # pragma: no cover
 class MockResponse(requests.Response):
     """Auxiliary class to mock a `requests.Response`."""
 
-    def __init__(self, code: int, json_response: JSON_BASE = {}) -> None:
+    def __init__(self, code: int, json_response: JSON = {}) -> None:
         self.status_code = code
         self.json_data = json_response
 
-    def json(self, *args: Any, **kwargs: Any) -> JSON_BASE:
+    def json(self, *args: Any, **kwargs: Any) -> JSON:
         return self.json_data
 
     @property
