@@ -10,7 +10,17 @@ Provided by [PedroPerpetua](https://github.com/PedroPerpetua).
 
 
 ## Version
-Currently set up for `python 3.11` with `Django 4.2.7` and `Django Rest Framework 3.14.0`.
+Currently set up for `python 3.12` with `Django 5.0.2` and `Django Rest Framework 3.15.0`.
+
+
+## Getting started
+After copying this boilerplate, make sure to provide it with it's own `README`, and editing the `pyproject.toml` project name.
+
+Install the requirements with `pip install -r requirements/dev.requirements.txt`.
+
+Run `./make.sh test` to ensure everything is working as intended.
+
+Run `./make.sh run` to run the dev server.
 
 
 ## Features
@@ -43,7 +53,7 @@ Currently set up for `python 3.11` with `Django 4.2.7` and `Django Rest Framewor
 - Out of the box OpenAPI schema with Swagger support using [DRF Spectacular](https://github.com/tfranzel/drf-spectacular)
   - The schema is made available in the `/schema` endpoint.
   - The Swagger view is made available in the `/schema/swagger` endpoint.
-  - **NOTE**: By default, only Superusers can access these endpoints. This can be changed in the `config.env` file, or directly in the settings(setting `SPECTACULAR_SETTINGS["SERVE_PERMISSIONS"]`).
+  - **NOTE**: By default, only admin users can access these endpoints. This can be changed in the `config.env` file, or directly in the settings(setting `SPECTACULAR_SETTINGS["SERVE_PERMISSIONS"]`).
 
 
 ## Configuration

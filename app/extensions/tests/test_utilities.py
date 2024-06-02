@@ -156,15 +156,17 @@ class TestEnvUtilities(TestCase):
         false_values = ["FALSE", "false", "fAlSe", "f", "F", "0"]
         # Test for true values
         for value in true_values:
-            with self.subTest(msg="True Values", value=value), patch(
-                "extensions.utilities.env.ENV", {key: str(value)}
+            with (
+                self.subTest(msg="True Values", value=value),
+                patch("extensions.utilities.env.ENV", {key: str(value)}),
             ):
                 retval = env.as_bool(key)
                 self.assertIsInstance(retval, bool)
                 self.assertEqual(True, retval)
         for value in false_values:
-            with self.subTest(msg="False Values", value=value), patch(
-                "extensions.utilities.env.ENV", {key: str(value)}
+            with (
+                self.subTest(msg="False Values", value=value),
+                patch("extensions.utilities.env.ENV", {key: str(value)}),
             ):
                 retval = env.as_bool(key)
                 self.assertIsInstance(retval, bool)
