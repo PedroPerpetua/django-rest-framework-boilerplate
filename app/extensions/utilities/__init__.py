@@ -1,10 +1,7 @@
-from __future__ import annotations  # Required by the `if TYPE_CHECKING` block
-import xml.etree.cElementTree as et
-from io import TextIOWrapper
+from __future__ import annotations  # Required by the TYPE_CHECKING block
 from pathlib import Path
 from typing import TYPE_CHECKING, Any, Optional, overload
 from uuid import uuid4
-from django.core.files import File
 
 
 if TYPE_CHECKING:
@@ -13,7 +10,7 @@ if TYPE_CHECKING:
     imports from this module to setup. If we import this regularly, we're met with an issue where DRF is loaded BEFORE
     `REST_FRAMEWORK` settings are set, causing them to never be loaded at all.
     """
-    from extensions.utilities.types import JSON_BASE
+    from extensions.utilities.types import JSON
 
 
 def uuid() -> str:
@@ -31,16 +28,14 @@ def empty(string: Optional[str]) -> bool:
 
 
 @overload
-def clear_Nones(**kwargs: Any) -> dict[str, Any]:
-    ...
+def clear_Nones(**kwargs: Any) -> dict[str, Any]: ...
 
 
 @overload
-def clear_Nones(json_obj: JSON_BASE, **kwargs: Any) -> JSON_BASE:
-    ...
+def clear_Nones(json_obj: Optional[JSON] = ..., **kwargs: Any) -> JSON: ...
 
 
-def clear_Nones(json_obj: Optional[JSON_BASE] = None, **kwargs: Any) -> JSON_BASE:
+def clear_Nones(json_obj: Optional[JSON] = None, **kwargs: Any) -> JSON:
     """Clear an object intended to be serialized as JSON by removing all `None` values, recursively."""
     if json_obj is None:
         return clear_Nones(kwargs)

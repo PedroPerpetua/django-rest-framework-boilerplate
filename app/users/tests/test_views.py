@@ -224,7 +224,11 @@ class TestUserProfileView(APITestCase):
         # Verify the response
         self.assertEqual(status.HTTP_400_BAD_REQUEST, res.status_code)
         self.assertEqual(
-            {"errors": [{"code": "blank", "detail": "This field may not be blank.", "attr": "username"}]}, res.json()
+            {
+                "type": "validation_error",
+                "errors": [{"code": "blank", "detail": "This field may not be blank.", "attr": "username"}],
+            },
+            res.json(),
         )
         # Make sure it didn't change
         self.user.refresh_from_db()
@@ -275,7 +279,11 @@ class TestUserChangePasswordView(APITestCase):
         # Verify the response
         self.assertEqual(status.HTTP_403_FORBIDDEN, res.status_code)
         self.assertEqual(
-            {"errors": [{"code": "permission_denied", "detail": "Wrong Password", "attr": None}]}, res.json()
+            {
+                "type": "client_error",
+                "errors": [{"code": "permission_denied", "detail": "Wrong password.", "attr": None}],
+            },
+            res.json(),
         )
         # Make sure the password didn't change
         self.user.refresh_from_db()

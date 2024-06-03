@@ -1,4 +1,4 @@
-from __future__ import annotations  # type checking
+from __future__ import annotations
 from typing import Any
 from django.core.management.base import BaseCommand as DjangoCommand
 from django.core.management.base import OutputWrapper
@@ -14,18 +14,21 @@ class BaseCommand(DjangoCommand):
     class IndentedOutputWrapper(OutputWrapper):
         """Wrapper around Django's commands OutputWrappers to support incremental indentation levels."""
 
+        _level: int
         INDENTATION = " " * 2  # 2 spaces
 
         def __init__(self, source: OutputWrapper | BaseCommand.IndentedOutputWrapper):
             out_source = source if not isinstance(source, OutputWrapper) else source._out
-            super().__init__(out=out_source, ending="")  # type: ignore # Supertype "incompatibility"
-            # Mypy seems to think 'level' is a callable?
-            self.level = 1 if not hasattr(source, "level") else source.level + 1  # type: ignore
-            # Setting 'None' sets it to the default style_func
-            self.style_func = None if not hasattr(source, "style_func") else source.style_func  # type: ignore
+            super().__init__(out=out_source, ending="")  # type: ignore[arg-type] # Supertype "incompatibility"
+            self._level = 1
+            if hasattr(source, "_level") and isinstance(source._level, int):
+                self._level = source._level + 1
+            self.style_func = None  # type: ignore[assignment] # Setting 'None' sets it to the default style_func
+            if hasattr(source, "style_func"):
+                self.style_func = source.style_func
 
-        def write(self, msg: str, *args: Any, **kwargs: Any) -> None:  # type: ignore # Supertype "incompatibility"
-            msg = self.INDENTATION * self.level + msg
+        def write(self, msg: str = "", *args: Any, **kwargs: Any) -> None:  # type: ignore[override]
+            msg = self.INDENTATION * self._level + msg
             return super().write(msg, *args, **kwargs)
 
     def get_indented_streams(self, kwargs: dict[Any, Any]) -> tuple[IndentedOutputWrapper, IndentedOutputWrapper]:

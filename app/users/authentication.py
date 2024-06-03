@@ -9,7 +9,7 @@ from users.models import User
 class AuthenticationBackend(ModelBackend):
     """Custom authentication backend that also checks for the `is_deleted` status."""
 
-    def user_can_authenticate(self, user: Optional[User]) -> bool:  # type: ignore # Use our User
+    def user_can_authenticate(self, user: Optional[User]) -> bool:  # type: ignore[override] # Use our user model
         if user and user.is_deleted:
             return False
         return super().user_can_authenticate(user)
@@ -24,12 +24,12 @@ class AuthenticatedRequest(Request):
 class IsAuthenticated(BaseIsAuthenticated):
     """Modify the IsAuthenticated permission to block inactive and deleted users."""
 
-    def has_permission(self, request: AuthenticatedRequest, view: APIView) -> bool:  # type: ignore # Use our User
+    def has_permission(self, request: AuthenticatedRequest, view: APIView) -> bool:  # type: ignore[override]
         return super().has_permission(request, view) and request.user.is_active and not request.user.is_deleted
 
 
 class IsStaff(IsAuthenticated):
     """Extend the `IsAuthenticated` permission to only allow users with `is_staff == True`."""
 
-    def has_permission(self, request: AuthenticatedRequest, view: APIView) -> bool:  # type: ignore # Use our User
+    def has_permission(self, request: AuthenticatedRequest, view: APIView) -> bool:  # type: ignore[override]
         return super().has_permission(request, view) and request.user.is_staff
