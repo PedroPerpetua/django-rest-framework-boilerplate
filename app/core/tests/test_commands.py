@@ -135,7 +135,7 @@ class TestStartAppCommand(UnitTest):
         handle_mock.assert_called_once()
         kwargs: dict[str, Any] = handle_mock.call_args.kwargs
         self.assertIn("template", kwargs)
-        self.assertEquals(self.TEMPLATE_PATH, kwargs["template"])
+        self.assertEqual(self.TEMPLATE_PATH, kwargs["template"])
         self.assertIn("name", kwargs)
         self.assertEqual(app_name, kwargs["name"])
 
@@ -154,6 +154,6 @@ class TestStartAppCommand(UnitTest):
         handle_mock.assert_called_once()
         kwargs: dict[str, Any] = handle_mock.call_args.kwargs
         self.assertIn("template", kwargs)
-        self.assertEquals(template, kwargs["template"])
+        self.assertEqual(template, kwargs["template"])
         self.assertIn("name", kwargs)
         self.assertEqual(app_name, kwargs["name"])
