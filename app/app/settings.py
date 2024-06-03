@@ -43,6 +43,7 @@ INSTALLED_APPS = [
     "rest_framework_simplejwt",
     "rest_framework_simplejwt.token_blacklist",
     "drf_spectacular",
+    "drf_spectacular_sidecar",
     "drf_standardized_errors",
     "corsheaders",
     # Our apps here
@@ -138,7 +139,7 @@ MEDIA_ROOT = Path("/media")
 REST_FRAMEWORK = {
     "EXCEPTION_HANDLER": "drf_standardized_errors.handler.exception_handler",
     "DEFAULT_AUTHENTICATION_CLASSES": ("rest_framework_simplejwt.authentication.JWTAuthentication",),
-    "DEFAULT_SCHEMA_CLASS": "drf_spectacular.openapi.AutoSchema",
+    "DEFAULT_SCHEMA_CLASS": "drf_standardized_errors.openapi.AutoSchema",
     "TEST_REQUEST_DEFAULT_FORMAT": "json",
 }
 
@@ -157,7 +158,7 @@ SIMPLE_JWT = {
 
 # DRF Standardized Errors settings
 
-DRF_STANDARDIZED_ERRORS = {"EXCEPTION_FORMATTER_CLASS": "core.exceptions.formatter.ExceptionFormatter"}
+DRF_STANDARDIZED_ERRORS = {"ALLOWED_ERROR_STATUS_CODES": ["400"]}
 
 
 # DRF Spectacular settings
@@ -178,6 +179,23 @@ SPECTACULAR_SETTINGS = {
         "rest_framework.authentication.SessionAuthentication",  # Same auth for admin page
         "rest_framework_simplejwt.authentication.JWTAuthentication",
     ),
+    "SWAGGER_UI_DIST": "SIDECAR",
+    "SWAGGER_UI_FAVICON_HREF": "SIDECAR",
+    # https://drf-standardized-errors.readthedocs.io/en/latest/openapi.html
+    "ENUM_NAME_OVERRIDES": {
+        "ValidationErrorEnum": "drf_standardized_errors.openapi_serializers.ValidationErrorEnum.choices",
+        "ClientErrorEnum": "drf_standardized_errors.openapi_serializers.ClientErrorEnum.choices",
+        "ServerErrorEnum": "drf_standardized_errors.openapi_serializers.ServerErrorEnum.choices",
+        "ErrorCode401Enum": "drf_standardized_errors.openapi_serializers.ErrorCode401Enum.choices",
+        "ErrorCode403Enum": "drf_standardized_errors.openapi_serializers.ErrorCode403Enum.choices",
+        "ErrorCode404Enum": "drf_standardized_errors.openapi_serializers.ErrorCode404Enum.choices",
+        "ErrorCode405Enum": "drf_standardized_errors.openapi_serializers.ErrorCode405Enum.choices",
+        "ErrorCode406Enum": "drf_standardized_errors.openapi_serializers.ErrorCode406Enum.choices",
+        "ErrorCode415Enum": "drf_standardized_errors.openapi_serializers.ErrorCode415Enum.choices",
+        "ErrorCode429Enum": "drf_standardized_errors.openapi_serializers.ErrorCode429Enum.choices",
+        "ErrorCode500Enum": "drf_standardized_errors.openapi_serializers.ErrorCode500Enum.choices",
+    },
+    "POSTPROCESSING_HOOKS": ["drf_standardized_errors.openapi_hooks.postprocess_schema_enums"],
 }
 
 
