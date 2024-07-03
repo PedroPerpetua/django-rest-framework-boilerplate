@@ -1,15 +1,39 @@
 from __future__ import annotations
 import re
 from pathlib import Path
-from typing import Any, Optional, Type, cast
+from typing import TYPE_CHECKING, Any, Optional, Type, cast
 from unittest import SkipTest
 import requests
 from django.core.files.uploadedfile import SimpleUploadedFile
 from django.db import connection
 from django.db.models import Model
 from django.test import TestCase
+from rest_framework.test import APITestCase as DRFAPITestCase
 from extensions.utilities import uuid
 from extensions.utilities.types import JSON
+
+
+if TYPE_CHECKING:
+    from rest_framework.response import _MonkeyPatchedResponse as Response
+else:
+    from rest_framework.response import Response
+
+
+class APITestCase(DRFAPITestCase):  # pragma: no cover
+
+    def assertResponseStatusCode(self, expected_status_code: int, response: Response) -> None:
+        """
+        Assert that the response's status code matches the expected one.
+
+        This will raise an exception with the response's content in case of failure.
+
+        This is equivalent to `self.assertEqual(expected_status_code, response.status_code, content)`.
+        """
+        try:
+            content = response.json()
+        except:
+            content = str(response.content)
+        self.assertEqual(expected_status_code, response.status_code, content)
 
 
 class AbstractModelTestCase(TestCase):  # pragma: no cover
