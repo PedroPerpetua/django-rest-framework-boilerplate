@@ -1,10 +1,11 @@
 import json
+from pathlib import Path
 from unittest import TestCase
 from unittest.mock import MagicMock, patch
 import extensions.utilities as utils
 from extensions.utilities import env
 from extensions.utilities.logging import LoggingConfigurationBuilder
-from extensions.utilities.test import MockResponse
+from extensions.utilities.test import MockResponse, SampleFile
 from extensions.utilities.types import JSON
 
 
@@ -78,6 +79,37 @@ class TestTestUtilities(TestCase):
             self.assertFalse(MockResponse(100).ok)
             self.assertTrue(MockResponse(200).ok)
             self.assertFalse(MockResponse(400).ok)
+
+    def test_SampleFile(self) -> None:
+        """Test the SampleFile class."""
+        name = "_name"
+        content = "_content"
+        file = SampleFile(name=name, content=content)
+        self.assertEqual(content.encode(), file.bytes)
+        self.assertEqual(content, file.content)
+
+    @patch("extensions.utilities.test.uuid")
+    def test_SampleFile_default(self, uuid_mock: MagicMock) -> None:
+        """Test creating a "default" SampleFile."""
+        mock_uuid = "_uuid"
+        uuid_mock.return_value = mock_uuid
+        file = SampleFile()
+        self.assertEqual(mock_uuid, file.name)
+        self.assertEqual(b"", file.bytes)
+        self.assertEqual("", file.content)
+
+    def test_SampleFile_from_file_path(self) -> None:
+        """Test the SampleFile `from_file_path` method."""
+        # Read the text file
+        example_file_path = Path(__file__).parent / "example.txt"
+        expected_name = example_file_path.name
+        with open(example_file_path, "r") as example_file:
+            expected_content = example_file.read()
+        # Create and verify the sample file
+        file = SampleFile.from_file_path(str(example_file_path))
+        self.assertEqual(expected_name, file.name)
+        self.assertEqual(expected_content.encode(), file.bytes)
+        self.assertEqual(expected_content, file.content)
 
 
 class TestEnvUtilities(TestCase):
