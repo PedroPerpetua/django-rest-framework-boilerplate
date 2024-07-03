@@ -277,11 +277,11 @@ class TestUserChangePasswordView(APITestCase):
         # Make the call
         res = self.client.post(self.URL, data={"password": wrong_password, "new_password": new_password})
         # Verify the response
-        self.assertEqual(status.HTTP_403_FORBIDDEN, res.status_code)
+        self.assertEqual(status.HTTP_401_UNAUTHORIZED, res.status_code)
         self.assertEqual(
             {
                 "type": "client_error",
-                "errors": [{"code": "permission_denied", "detail": "Wrong password.", "attr": None}],
+                "errors": [{"code": "authentication_failed", "detail": "Wrong password.", "attr": None}],
             },
             res.json(),
         )
