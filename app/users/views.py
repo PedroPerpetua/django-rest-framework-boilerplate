@@ -3,7 +3,7 @@ from django.conf import settings
 from django.contrib.auth.password_validation import validate_password
 from django.core.exceptions import ValidationError
 from rest_framework import generics, status
-from rest_framework.exceptions import PermissionDenied
+from rest_framework.exceptions import AuthenticationFailed, PermissionDenied
 from rest_framework.exceptions import ValidationError as DRFValidationError
 from rest_framework.request import Request
 from rest_framework.response import Response
@@ -15,7 +15,6 @@ from users.view_mixins import TargetAuthenticatedUserMixin
 
 @extend_schema(tags=["User Authentication"])
 @extend_schema(description="Endpoint to register users.")
-# This extend currently does not work properly. See https://github.com/ghazi-git/drf-standardized-errors/issues/73
 @extend_schema(
     responses={
         # Registration disabled
@@ -23,24 +22,15 @@ from users.view_mixins import TargetAuthenticatedUserMixin
             response={
                 "type": "object",
                 "properties": {
-                    "type": {
-                        "type": "string",
-                        "const": "client_error",
-                    },
+                    "type": {"enum": ["client_error"]},
                     "errors": {
                         "type": "array",
                         "items": {
                             "type": "object",
                             "properties": {
-                                "code": {
-                                    "type": "string",
-                                    "const": "permission_denied",
-                                },
-                                "detail": {
-                                    "type": "string",
-                                    "const": "Registration is disabled.",
-                                },
-                                "attr": {"type": "null", "const": None},
+                                "code": {"enum": [PermissionDenied.default_code]},
+                                "detail": {"enum": ["Registration is disabled."]},
+                                "attr": {"enum": [None]},
                             },
                             "required": ["code", "detail", "attr"],
                         },
@@ -108,31 +98,22 @@ class UserProfileView(TargetAuthenticatedUserMixin, generics.RetrieveUpdateAPIVi
 
 @extend_schema(tags=["Users"])
 @extend_schema(description="Endpoint to change a user's password.")
-# This extend currently does not work properly. See https://github.com/ghazi-git/drf-standardized-errors/issues/73
 @extend_schema(
     responses={
-        403: OpenApiResponse(
+        # Registration disabled
+        401: OpenApiResponse(
             response={
                 "type": "object",
                 "properties": {
-                    "type": {
-                        "type": "string",
-                        "const": "client_error",
-                    },
+                    "type": {"enum": ["client_error"]},
                     "errors": {
                         "type": "array",
                         "items": {
                             "type": "object",
                             "properties": {
-                                "code": {
-                                    "type": "string",
-                                    "const": "permission_denied",
-                                },
-                                "detail": {
-                                    "type": "string",
-                                    "const": "Wrong password.",
-                                },
-                                "attr": {"type": "null", "const": None},
+                                "code": {"enum": [AuthenticationFailed.default_code]},
+                                "detail": {"enum": ["Wrong password."]},
+                                "attr": {"enum": [None]},
                             },
                             "required": ["code", "detail", "attr"],
                         },
@@ -163,7 +144,7 @@ class UserChangePasswordView(TargetAuthenticatedUserMixin, generics.UpdateAPIVie
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         if not user.check_password(serializer.data.get("password")):
-            raise PermissionDenied("Wrong password.")
+            raise AuthenticationFailed("Wrong password.")
         new_password = serializer.data.get("new_password")
         try:
             validate_password(new_password)

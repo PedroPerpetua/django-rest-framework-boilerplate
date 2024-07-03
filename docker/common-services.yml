@@ -1,14 +1,8 @@
-version: "3.8"
-
 services:
   db:
     image: postgres:16-alpine
-    volumes:
-      - ./db:/var/lib/postgresql/data
     healthcheck :
       test: [ "CMD", "pg_isready", "-q", "-d", "postgres", "-U", "postgres" ]
       interval : 5s
       timeout : 2s
       retries : 10
-    env-file:
-      - config.env

@@ -1,2 +1,2 @@
 from django.db import models
-from core.extensions.models.base_abstract_model import BaseAbstractModel
+from extensions.models import AbstractBaseModel
