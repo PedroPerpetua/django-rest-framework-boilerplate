@@ -1,7 +1,9 @@
 from __future__ import annotations  # Required by the TYPE_CHECKING block
+import json
 from pathlib import Path
-from typing import TYPE_CHECKING, Any, Optional, overload
+from typing import TYPE_CHECKING, Any, Optional, cast, overload
 from uuid import uuid4
+from django.core.serializers.json import DjangoJSONEncoder
 
 
 if TYPE_CHECKING:
@@ -11,6 +13,8 @@ if TYPE_CHECKING:
     `REST_FRAMEWORK` settings are set, causing them to never be loaded at all.
     """
     from extensions.utilities.types import JSON
+else:
+    JSON = Any
 
 
 def uuid() -> str:
@@ -25,6 +29,18 @@ def empty(string: Optional[str]) -> bool:
     if string.strip() == "":
         return True
     return False
+
+
+def jsonify(data: Any) -> JSON:
+    """
+    This function will encode and decode the data passed to it with DjangoJSONEncoder.
+
+    This is useful, for example, to compare Python data and loaded JSON responses. A common use case is to compare
+    serializer data with a response's JSON in a test case; comparing the serializer data directly may yield unexpected
+    results, like UUID fields being considered different between the data and the response, even though they
+    effectively represent the same UUID.
+    """
+    return cast(JSON, json.loads(json.dumps(data, cls=DjangoJSONEncoder)))
 
 
 @overload
