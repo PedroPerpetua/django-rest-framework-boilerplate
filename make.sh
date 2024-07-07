@@ -9,7 +9,6 @@ log() {
     echo -e "${BOLD_COLOR}$1${NORMAL}"
 }
 
-
 # Define some functions for different commands
 
 build() {
@@ -38,8 +37,13 @@ run() {
 }
 
 test() {
-    log "[$RUNNING_MODE] testing..."
-    $DOCKER_COMMAND run --rm test
+    if [ -z "$1" ]; then
+        log "[$RUNNING_MODE] testing..."
+        $DOCKER_COMMAND run --rm test
+    else
+        log "[$RUNNING_MODE] testing '$1'..."
+        $DOCKER_COMMAND run --rm -e TEST_TARGET=$1 test
+    fi
     $DOCKER_COMMAND stop
 }
 
@@ -86,6 +90,18 @@ clean() {
     fi
 }
 
+usage() {
+    echo "Usage: $0 [-p|--production] {build|run|test|command|admin|clean}"
+    echo "Commands:"
+    echo "  build              Build and pull all images"
+    echo "  run                Run the project"
+    echo "  test [module]      Run tests (optionally specify module)"
+    echo "  command <args>     Shortcut for running any Django manage.py command"
+    echo "  admin              Shortcut for Django createsuperuser"
+    echo "  clean [-a|--all]   Clean project files (use -a to clean all)"
+    exit 1
+}
+
 # Main script
 
 while [[ "$1" =~ ^- ]]; do
@@ -102,7 +118,10 @@ while [[ "$1" =~ ^- ]]; do
     esac
 done
 
-case "$1" in
+COMMAND=$1
+shift
+
+case "$COMMAND" in
     build)
         build
         ;;
@@ -110,22 +129,19 @@ case "$1" in
         run
         ;;
     test)
-        test
+        test "$@"
         ;;
     command)
-        shift
         command "$@"
         ;;
     admin)
         admin
         ;;
     clean)
-        shift
         clean "$@"
         ;;
     *)
-        echo "Usage: $0 [-p|--production] {build|run|test|command|clean}"
-        exit 1
+        usage
         ;;
 esac
 
