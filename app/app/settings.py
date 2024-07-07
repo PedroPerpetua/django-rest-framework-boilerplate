@@ -158,7 +158,10 @@ SIMPLE_JWT = {
 
 # DRF Standardized Errors settings
 
-DRF_STANDARDIZED_ERRORS = {"ALLOWED_ERROR_STATUS_CODES": ["400"]}
+DRF_STANDARDIZED_ERRORS = {
+    "ALLOWED_ERROR_STATUS_CODES": ["400"],
+    "EXCEPTION_HANDLER_CLASS": "core.exceptions.ExceptionHandler",
+}
 
 
 # DRF Spectacular settings

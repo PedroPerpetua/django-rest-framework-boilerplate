@@ -10,7 +10,7 @@ Provided by [PedroPerpetua](https://github.com/PedroPerpetua).
 
 
 ## Version
-Currently set up for `python 3.12` with `Django 5.0.2` and `Django Rest Framework 3.15.0`.
+Currently set up for `python 3.12` with `Django 5.0.6` and `Django Rest Framework 3.15.2`.
 
 
 ## Getting started
@@ -49,7 +49,8 @@ Run `./make.sh run` to run the dev server.
 
 ### REST
 - A `/ping` endpoint to check server availability.
-- Custom error messages using [DRF Standardized Errors](https://github.com/ghazi-git/drf-standardized-errors)
+- Custom error messages using [DRF Standardized Errors](https://github.com/ghazi-git/drf-standardized-errors).
+  - A custom `ExceptionHandler` that will automatically convert Django's `ValidationError`s to DRF's `ValidationError`s.
 - Out of the box OpenAPI schema with Swagger support using [DRF Spectacular](https://github.com/tfranzel/drf-spectacular)
   - The schema is made available in the `/schema` endpoint.
   - The Swagger view is made available in the `/schema/swagger` endpoint.
@@ -69,13 +70,4 @@ Python requirements can be added on the `requirements` folder. Production requir
 
 
 ## Make
-A convenience `make.sh` script is available for use. It has the following commands:
-- `build`: builds all services and pulls the required ones.
-- `run`: runs the `app` service, starting the Django server.
-- `test`: Runs the linting tools (fixing issues), `mypy` and the test cases, while also generating a coverage report.
-  - Note: if `mypy` fails, the tests won't run.
-- `command <command>`: runs the passed command with Django in the `app` service. Equivalent to running `python manage.py <command>` inside the container.
-- `admin`: shortcut for Django's `createsuperuser` command.
-- `clean` This command will clear all the `__pycache__` in the project. If the `-a|--all` flag is passed, it will also clear the `db`, `logs`, `media` and `coverage` folders.
-
-The flag `-p|--production` can be passed to any of these commands to instead used the production docker compose.
+A convenience `make.sh` script is available for use. Run `make.sh` with no arguments to see all usage options.

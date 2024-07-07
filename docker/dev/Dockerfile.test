@@ -26,16 +26,16 @@ ENV PATH=/venv/bin:$PATH
 
 # Copy the app ------------------------------------------
 COPY ./app /app
-# Copy aditional files required for linting
+# Copy additional files required for linting
 COPY ./typing /typing
 COPY ./pyproject.toml /pyproject.toml
 
 # Command steps:
-# - Run isort, autoflake, black and mypy
+# - Run isort, autoflake, black, and mypy
 # - Run tests under the Coverage module
 CMD sh -c "isort ./app ./typing; \
            autoflake ./app ./typing; \
            black ./app ./typing; \
            mypy && \
-           coverage run ./app/manage.py test ./app && \
+           coverage run ./app/manage.py test ${TEST_TARGET} && \
            coverage html;"
