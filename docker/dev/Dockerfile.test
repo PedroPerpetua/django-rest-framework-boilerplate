@@ -37,5 +37,5 @@ CMD sh -c "isort ./app ./typing; \
            autoflake ./app ./typing; \
            black ./app ./typing; \
            mypy && \
-           coverage run ./app/manage.py test ${TEST_TARGET} && \
+           coverage run ./app/manage.py test ${TEST_TARGET:-app} && \
            coverage html;"
