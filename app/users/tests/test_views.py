@@ -105,15 +105,6 @@ class TestAuthentication(APITestCase):
         # Verify the response
         self.assertResponseStatusCode(status.HTTP_401_UNAUTHORIZED, res)
 
-    def test_login_inactive_user(self) -> None:
-        """Test logging in as an inactive user fails."""
-        password = VALID_PASSWORD
-        user = sample_user(password=password, is_active=False)
-        # Make the call
-        res = self.client.post(self.LOGIN_URL, data={"username": user.get_username(), "password": password})
-        # Verify the response
-        self.assertResponseStatusCode(status.HTTP_401_UNAUTHORIZED, res)
-
     def test_login_inactive_user_fails(self) -> None:
         """Test logging in as an inactive user fails."""
         password = VALID_PASSWORD

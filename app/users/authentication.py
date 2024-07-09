@@ -1,5 +1,6 @@
 from typing import Optional
 from django.contrib.auth.backends import ModelBackend
+from django.contrib.auth.models import AbstractBaseUser, AnonymousUser
 from rest_framework.permissions import IsAuthenticated as BaseIsAuthenticated
 from rest_framework.request import Request
 from rest_framework.views import APIView
@@ -9,8 +10,11 @@ from users.models import User
 class AuthenticationBackend(ModelBackend):
     """Custom authentication backend that also checks for the `is_deleted` status."""
 
-    def user_can_authenticate(self, user: Optional[User]) -> bool:  # type: ignore[override] # Use our user model
-        if user and user.is_deleted:
+    def user_can_authenticate(self, user: Optional[AbstractBaseUser | AnonymousUser]) -> bool:
+        if not user:  # pragma: no cover
+            return False
+        is_deleted = getattr(user, "is_deleted", False)
+        if is_deleted:
             return False
         return super().user_can_authenticate(user)
 
