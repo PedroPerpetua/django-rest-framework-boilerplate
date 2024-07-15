@@ -1,7 +1,7 @@
 from __future__ import annotations  # Required by the TYPE_CHECKING block
 import json
 from pathlib import Path
-from typing import TYPE_CHECKING, Any, Optional, cast, overload
+from typing import TYPE_CHECKING, Any, Callable, Optional, TypeVar, cast, overload
 from uuid import uuid4
 from django.core.serializers.json import DjangoJSONEncoder
 
@@ -73,3 +73,28 @@ def ext(filename: str, leading_dot: bool = False) -> str:
     if leading_dot or len(extensions) == 0:
         return extensions
     return extensions[1:]
+
+
+T = TypeVar("T")
+
+
+def order_list(original: list[T], ordering: list[str], func: Callable[[T], str] = lambda x: str(x)) -> list[T]:
+    """
+    This function will order a list (original) according to another list (ordering).
+
+    The ordering list is a list of strings; if the original list is not a list of strings, their values will be
+    converted to a string. If you need a custom conversion function, you can pass a third parameter (func) with a
+    function that will map an element from the original list to a string.
+
+    Items that are in the original but not in the ordering list will be appended at the end.
+    """
+    retval: list[T | None] = [None for _ in ordering]
+    unordered: list[T] = []  # Store the values not in ordering to append at the end
+    for value in original:
+        # Check if it's in the list
+        try:
+            index = ordering.index(func(value))
+            retval[index] = value
+        except ValueError:
+            unordered.append(value)
+    return [v for v in retval if v is not None] + unordered
