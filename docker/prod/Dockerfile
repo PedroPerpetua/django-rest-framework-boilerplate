@@ -7,12 +7,11 @@ FROM ${PYTHON} AS builder
 RUN apk update
 
 # Create venv --------------------------------------------
-RUN python3 -m venv /venv
+RUN python3 -m venv --upgrade-deps /venv
 ENV PATH=/venv/bin:$PATH
 
 # Install Python requirements ----------------------------
 COPY ./requirements /requirements
-RUN pip install --no-compile --no-cache-dir --upgrade pip
 RUN pip install --no-compile --no-cache-dir -r /requirements/requirements.txt
 # For production
 RUN pip install --no-compile --no-cache-dir gunicorn supervisor
