@@ -1,5 +1,6 @@
 import json
 from pathlib import Path
+from random import shuffle
 from unittest import TestCase
 from unittest.mock import MagicMock, patch
 from uuid import UUID
@@ -71,6 +72,28 @@ class TestUtilities(TestCase):
                 self.assertEqual(f".{expected}", utils.ext(case, leading_dot=True))
         # Edge case
         self.assertEqual("", utils.ext("filename_with_no_ext", leading_dot=True))
+
+    def test_order_list(self) -> None:
+        """Test the `order_list` function."""
+        with self.subTest("Test regular sorting"):
+            original_list = [5, 3, 1, 4]
+            ordering_list = [str(n) for n in original_list]
+            shuffle(ordering_list)
+            result = utils.order_list(original_list, ordering_list)
+            self.assertEqual([int(n) for n in ordering_list], result)
+        with self.subTest("Missing value is appended"):
+            original_list = [5, 3, 1, 4]
+            ordering_list = [str(n) for n in original_list[:-2]]
+            shuffle(ordering_list)
+            result = utils.order_list(original_list, ordering_list)
+            self.assertEqual([int(n) for n in ordering_list] + original_list[2:], result)
+        with self.subTest("Test with mapping"):
+            mapped_original_list_values = [5, 3, 1, 4]
+            mapped_original_list = [{"item": n} for n in mapped_original_list_values]
+            mapped_ordering_list = [str(n) for n in mapped_original_list_values]
+            shuffle(mapped_ordering_list)
+            mapped_result = utils.order_list(mapped_original_list, mapped_ordering_list, lambda x: str(x["item"]))
+            self.assertEqual([{"item": int(n)} for n in mapped_ordering_list], mapped_result)
 
 
 class TestTestUtilities(TestCase):
