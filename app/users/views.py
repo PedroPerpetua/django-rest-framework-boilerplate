@@ -7,46 +7,48 @@ from rest_framework.exceptions import AuthenticationFailed, PermissionDenied
 from rest_framework.exceptions import ValidationError as DRFValidationError
 from rest_framework.request import Request
 from rest_framework.response import Response
-from drf_spectacular.utils import OpenApiResponse, extend_schema
+from drf_spectacular.utils import OpenApiResponse, extend_schema, extend_schema_view
 from rest_framework_simplejwt import views as jwt_views
 from users import serializers
 from users.view_mixins import TargetAuthenticatedUserMixin
 
 
 @extend_schema(tags=["User Authentication"])
-@extend_schema(description="Endpoint to register users.")
-@extend_schema(
-    responses={
-        # Registration disabled
-        403: OpenApiResponse(
-            response={
-                "type": "object",
-                "properties": {
-                    "type": {"enum": ["client_error"]},
-                    "errors": {
-                        "type": "array",
-                        "items": {
-                            "type": "object",
-                            "properties": {
-                                "code": {"enum": [PermissionDenied.default_code]},
-                                "detail": {"enum": ["Registration is disabled."]},
-                                "attr": {"enum": [None]},
-                            },
-                            "required": ["code", "detail", "attr"],
-                        },
-                    },
-                },
-                "required": ["type", "errors"],
-            },
-            description="Registration is disabled",
-        )
-    }
-)
 class UserRegisterView(generics.CreateAPIView):
     """Endpoint to register users."""
 
     serializer_class = serializers.UserRegisterSerializer
 
+    @extend_schema(operation_id="users_register")
+    @extend_schema(summary="Register user")
+    @extend_schema(description="Endpoint to register users.")
+    @extend_schema(
+        responses={
+            # Registration disabled
+            403: OpenApiResponse(
+                response={
+                    "type": "object",
+                    "properties": {
+                        "type": {"enum": ["client_error"]},
+                        "errors": {
+                            "type": "array",
+                            "items": {
+                                "type": "object",
+                                "properties": {
+                                    "code": {"enum": [PermissionDenied.default_code]},
+                                    "detail": {"enum": ["Registration is disabled."]},
+                                    "attr": {"enum": [None]},
+                                },
+                                "required": ["code", "detail", "attr"],
+                            },
+                        },
+                    },
+                    "required": ["type", "errors"],
+                },
+                description="Registration is disabled",
+            )
+        }
+    )
     def post(self, request: Request, *args: Any, **kwargs: Any) -> Response:
         """Override the POST method to block registration if disabled."""
         registration_enabled: bool = settings.AUTH_USER_REGISTRATION_ENABLED
@@ -56,30 +58,46 @@ class UserRegisterView(generics.CreateAPIView):
 
 
 @extend_schema(tags=["User Authentication"])
-class UserLoginView(jwt_views.TokenObtainPairView):
-    """Endpoint to login a user and obtain a pair of `(access_token, refresh_token)`."""
-
-    ...
-
-
-@extend_schema(tags=["User Authentication"])
-class UserLoginRefreshView(jwt_views.TokenRefreshView):
-    """Endpoint to refresh the user's `access_token` and `refresh_token`, from a valid `refresh_token`."""
-
-    ...
+@extend_schema_view(
+    post=extend_schema(
+        operation_id="users_login",
+        summary="Login user",
+        description="Endpoint to login a user and obtain a pair of `(access_token, refresh_token)`.",
+    )
+)
+class UserLoginView(jwt_views.TokenObtainPairView): ...
 
 
 @extend_schema(tags=["User Authentication"])
-class UserLogoutView(jwt_views.TokenBlacklistView):
-    """
-    Endpoint to logout the user, by blacklisting it's `access_token` and `refresh_token`, from a valid
-    `refresh_token`.
-    """
+@extend_schema_view(
+    post=extend_schema(
+        operation_id="users_login_refresh",
+        summary="Refresh access token",
+        description="Endpoint to refresh the user's `access_token` and `refresh_token`, from a valid `refresh_token`.\n\nThis will also return a new refresh token and invalidate the old one.",
+    )
+)
+class UserLoginRefreshView(jwt_views.TokenRefreshView): ...
 
-    ...
+
+@extend_schema(tags=["User Authentication"])
+@extend_schema_view(
+    post=extend_schema(
+        operation_id="users_logout",
+        summary="Logout user",
+        description="Endpoint to logout the user, by blacklisting it's `access_token` and `refresh_token`, from a valid `refresh_token`.",
+    )
+)
+class UserLogoutView(jwt_views.TokenBlacklistView): ...
 
 
 @extend_schema(tags=["Users"])
+@extend_schema_view(
+    get=extend_schema(
+        operation_id="users_whoami",
+        summary="Get current user",
+        description="Endpoint to retrieve the current logged in user.",
+    )
+)
 class UserWhoamiView(TargetAuthenticatedUserMixin, generics.RetrieveAPIView):
     """Endpoint to retrieve the `USERNAME_FIELD` (usually `username` or `email`) of the currently logged in user."""
 
@@ -87,9 +105,15 @@ class UserWhoamiView(TargetAuthenticatedUserMixin, generics.RetrieveAPIView):
 
 
 @extend_schema(tags=["Users"])
-@extend_schema(methods=["get"], description="Endpoint to retrieve a user's details.")
-@extend_schema(methods=["patch"], description="Endpoint to partially update a user's details.")
-@extend_schema(methods=["put"], description="Endpoint to fully override a user's details.")
+@extend_schema_view(
+    get=extend_schema(summary="Get user details", description="Endpoint to retrieve the current user's details."),
+    put=extend_schema(
+        summary="Update user details", description="Endpoint to partially update the current user's details."
+    ),
+    patch=extend_schema(
+        summary="Patch user details", description="Endpoint to fully override the current user's details."
+    ),
+)
 class UserProfileView(TargetAuthenticatedUserMixin, generics.RetrieveUpdateAPIView):
     """Endpoint to retrieve and update a user's details."""
 
@@ -97,34 +121,6 @@ class UserProfileView(TargetAuthenticatedUserMixin, generics.RetrieveUpdateAPIVi
 
 
 @extend_schema(tags=["Users"])
-@extend_schema(description="Endpoint to change a user's password.")
-@extend_schema(
-    responses={
-        # Registration disabled
-        401: OpenApiResponse(
-            response={
-                "type": "object",
-                "properties": {
-                    "type": {"enum": ["client_error"]},
-                    "errors": {
-                        "type": "array",
-                        "items": {
-                            "type": "object",
-                            "properties": {
-                                "code": {"enum": [AuthenticationFailed.default_code]},
-                                "detail": {"enum": ["Wrong password."]},
-                                "attr": {"enum": [None]},
-                            },
-                            "required": ["code", "detail", "attr"],
-                        },
-                    },
-                },
-                "required": ["type", "errors"],
-            },
-            description="Wrong password",
-        )
-    }
-)
 class UserChangePasswordView(TargetAuthenticatedUserMixin, generics.UpdateAPIView):
     """
     Endpoint to change a user's password.
@@ -136,6 +132,36 @@ class UserChangePasswordView(TargetAuthenticatedUserMixin, generics.UpdateAPIVie
     http_method_names = ["post"]
     serializer_class = serializers.UserChangePasswordSerializer
 
+    @extend_schema(operation_id="users_change_password")
+    @extend_schema(summary="Change user's password")
+    @extend_schema(description="Endpoint to change a user's password.")
+    @extend_schema(
+        responses={
+            # Wrong "old" password
+            401: OpenApiResponse(
+                response={
+                    "type": "object",
+                    "properties": {
+                        "type": {"enum": ["client_error"]},
+                        "errors": {
+                            "type": "array",
+                            "items": {
+                                "type": "object",
+                                "properties": {
+                                    "code": {"enum": [AuthenticationFailed.default_code]},
+                                    "detail": {"enum": ["Wrong password."]},
+                                    "attr": {"enum": [None]},
+                                },
+                                "required": ["code", "detail", "attr"],
+                            },
+                        },
+                    },
+                    "required": ["type", "errors"],
+                },
+                description="Wrong password",
+            )
+        }
+    )
     def post(self, request: Request, *args: Any, **kwargs: Any) -> Response:
         return self.update(request, *args, **kwargs)
 

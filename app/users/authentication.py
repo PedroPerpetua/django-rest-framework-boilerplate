@@ -11,6 +11,7 @@ class AuthenticationBackend(ModelBackend):
     """Custom authentication backend that also checks for the `is_deleted` status."""
 
     def user_can_authenticate(self, user: Optional[AbstractBaseUser | AnonymousUser]) -> bool:
+        """Override this method so that we can check for the `is_deleted` status."""
         if not user:  # pragma: no cover
             return False
         is_deleted = getattr(user, "is_deleted", False)

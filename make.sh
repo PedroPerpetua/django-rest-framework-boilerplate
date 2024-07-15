@@ -59,6 +59,13 @@ admin() {
     $DOCKER_COMMAND stop
 }
 
+schema() {
+    log "[$RUNNING_MODE] Generating schmea..."
+    $DOCKER_COMMAND run --rm app sh -c "python manage.py spectacular --color --file schema.yml"
+    $DOCKER_COMMAND stop
+    mv ./app/schema.yml schema.yml
+}
+
 clean() {
     local ALL_FLAG=0
 
@@ -98,6 +105,7 @@ usage() {
     echo "  test [module]      Run tests (optionally specify module)"
     echo "  command <args>     Shortcut for running any Django manage.py command"
     echo "  admin              Shortcut for Django createsuperuser"
+    echo "  schema             Generate the OpenAPI schema using DRF Spectacular"
     echo "  clean [-a|--all]   Clean project files (use -a to clean all)"
     exit 1
 }
@@ -136,6 +144,9 @@ case "$COMMAND" in
         ;;
     admin)
         admin
+        ;;
+    schema)
+        schema
         ;;
     clean)
         clean "$@"
