@@ -24,7 +24,7 @@ class UserManager(SoftDeleteManager[User], BaseUserManager[User]):
         user.save()
         return user
 
-    def create_superuser(self, password: Optional[str], **fields: Any) -> User:
+    def create_superuser(self, password: Optional[str] = None, **fields: Any) -> User:
         """Shortcut method to create a User with `is_staff` and `is_superuser` as `True`."""
         fields.update({"is_staff": True, "is_superuser": True})
         return self.create_user(password, **fields)
