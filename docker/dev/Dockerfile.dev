@@ -7,7 +7,7 @@ FROM ${PYTHON} AS builder
 RUN apk update
 
 # Create venv --------------------------------------------
-RUN python3 -m venv /venv
+RUN python3 -m venv --upgrade-deps /venv
 ENV PATH=/venv/bin:$PATH
 
 # Install Python requirements ----------------------------
