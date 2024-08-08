@@ -124,7 +124,7 @@ class TestSoftDeleteMixin(AbstractModelTestCase):
     def test_manager_exclude_deleted(self) -> None:
         """Test that this method excludes soft-deleted instanced."""
         obj = self.ConcreteModel._default_manager.create(is_deleted=True)
-        self.assertNotIn(obj, self.ConcreteModel.objects.exclude_deleted())
+        self.assertNotIn(obj, self.ConcreteModel._default_manager.exclude_deleted())  # type: ignore[attr-defined]
 
 
 class TestExtendedReprMixin(AbstractModelTestCase):

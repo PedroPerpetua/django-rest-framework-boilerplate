@@ -24,6 +24,7 @@ class UserRegisterView(generics.CreateAPIView):
     @extend_schema(description="Endpoint to register users.")
     @extend_schema(
         responses={
+            200: serializers.UserRegisterSerializer,
             # Registration disabled
             403: OpenApiResponse(
                 response={
@@ -46,7 +47,7 @@ class UserRegisterView(generics.CreateAPIView):
                     "required": ["type", "errors"],
                 },
                 description="Registration is disabled",
-            )
+            ),
         }
     )
     def post(self, request: Request, *args: Any, **kwargs: Any) -> Response:
@@ -137,6 +138,7 @@ class UserChangePasswordView(TargetAuthenticatedUserMixin, generics.UpdateAPIVie
     @extend_schema(description="Endpoint to change a user's password.")
     @extend_schema(
         responses={
+            204: OpenApiResponse(description="Password changed successfully"),
             # Wrong "old" password
             401: OpenApiResponse(
                 response={
@@ -159,7 +161,7 @@ class UserChangePasswordView(TargetAuthenticatedUserMixin, generics.UpdateAPIVie
                     "required": ["type", "errors"],
                 },
                 description="Wrong password",
-            )
+            ),
         }
     )
     def post(self, request: Request, *args: Any, **kwargs: Any) -> Response:
