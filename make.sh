@@ -37,12 +37,30 @@ run() {
 }
 
 test() {
+    # Check if we're skipping linting
+    SKIP_LINT_COMMAND=""
+    # This is a little convoluted, but essentially I'm checking if there is a
+    # skip flag or not first, over all the arguments;
+    # Then I shift all the "-" arguments ahead;
+    # And then check the input for the test argument.
+    # This is so the user can put the skip flag before or after the argument.
+    # There may be a better way to do this, but I'm not a bash scripter
+    ARGS=("$@")
+    for arg in "${ARGS[@]}"; do
+        if [[ "$arg" == "-s" ]] || [[ "$arg" == "--skip-lint" ]]; then
+            SKIP_LINT_COMMAND="-e SKIP_LINT=true"
+        fi
+    done
+    while [[ $1 == -* ]]; do
+        shift
+    done
+
     if [ -z "$1" ]; then
-        log "[$RUNNING_MODE] testing..."
-        $DOCKER_COMMAND run --rm test
+        log "[$RUNNING_MODE] Testing..."
+        $DOCKER_COMMAND run --rm $SKIP_LINT_COMMAND test
     else
-        log "[$RUNNING_MODE] testing '$1'..."
-        $DOCKER_COMMAND run --rm -e TEST_TARGET=$1 test
+        log "[$RUNNING_MODE] Testing '$1'..."
+        $DOCKER_COMMAND run --rm $SKIP_LINT_COMMAND -e TEST_TARGET=$1 test
     fi
     $DOCKER_COMMAND stop
 }
@@ -104,13 +122,13 @@ clean() {
 usage() {
     echo "Usage: $0 [-p|--production] {build|run|test|command|admin|clean}"
     echo "Commands:"
-    echo "  build              Build and pull all images"
-    echo "  run                Run the project"
-    echo "  test [module]      Run tests (optionally specify module)"
-    echo "  command <args>     Shortcut for running any Django manage.py command"
-    echo "  admin              Shortcut for Django createsuperuser"
-    echo "  schema             Generate the OpenAPI schema using DRF Spectacular"
-    echo "  clean [-a|--all]   Clean project files (use -a to clean all)"
+    echo "  build                              Build and pull all images"
+    echo "  run                                Run the project"
+    echo "  test [module] [-s|--skip-lint]     Run tests (optionally specify module and / or skip linting tools)"
+    echo "  command <args>                     Shortcut for running any Django manage.py command"
+    echo "  admin                              Shortcut for Django createsuperuser"
+    echo "  schema                             Generate the OpenAPI schema using DRF Spectacular"
+    echo "  clean [-a|--all]                   Clean project files (use -a to clean all)"
     exit 1
 }
 
