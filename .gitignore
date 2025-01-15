@@ -9,11 +9,11 @@ __pycache__
 config.env
 
 # App "temp" files
-db
-logs
-media
-static
-coverage
+docker/**/db
+docker/**/logs
+docker/**/media
+docker/**/static
+docker/**/coverage
 
 # Generated schema
 schema.yml
