@@ -82,7 +82,11 @@ clean() {
         esac
     done
 
-    log "Cleaning..."
+    if [ "$ALL_FLAG" -eq 1 ]; then
+        log "Cleaning... (ALL)"
+    else
+        log "Cleaning..."
+    fi
     # Clear pycache https://stackoverflow.com/questions/28991015/
     python -Bc "import pathlib; \
                 [p.unlink() for p in pathlib.Path('.').rglob('*.py[co]')]; \

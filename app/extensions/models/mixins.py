@@ -1,5 +1,6 @@
 from uuid import uuid4
 from django.db import models
+from django.utils.translation import gettext_lazy as _
 
 
 class UUIDPrimaryKeyMixin(models.Model):
@@ -14,7 +15,12 @@ class UUIDPrimaryKeyMixin(models.Model):
 class CreatedAtMixin(models.Model):
     """Mixin to add a `created_at` DateTimeField that sets the creation time."""
 
-    created_at = models.DateTimeField(auto_now_add=True, editable=False, help_text="Object creation datetime.")
+    created_at = models.DateTimeField(
+        auto_now_add=True,
+        editable=False,
+        verbose_name=_("created at"),
+        help_text=_("Object creation datetime."),
+    )
 
     class Meta:
         abstract = True
@@ -23,7 +29,12 @@ class CreatedAtMixin(models.Model):
 class UpdatedAtMixin(models.Model):
     """Mixin to add an `updated_at` DateTimeField that sets the creation time."""
 
-    updated_at = models.DateTimeField(auto_now=True, editable=False, help_text="Last updated datetime.")
+    updated_at = models.DateTimeField(
+        auto_now=True,
+        editable=False,
+        verbose_name=_("updated at"),
+        help_text=_("Last updated datetime."),
+    )
 
     class Meta:
         abstract = True
@@ -39,7 +50,9 @@ class SoftDeleteMixin(models.Model):
     """
 
     is_deleted = models.BooleanField(
-        default=False, help_text="Designates this object as soft deleted.", verbose_name="deleted status"
+        default=False,
+        verbose_name=_("deleted status"),
+        help_text=_("Designates this object as soft deleted."),
     )
 
     class Meta:

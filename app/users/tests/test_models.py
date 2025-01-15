@@ -11,7 +11,7 @@ class TestUser(TestCase):
         password = "_password"
         user = User.objects.create_user(username=username, password=password)
         self.assertTrue(user.check_password(password))
-        self.assertEqual(f"User ({user.id}) {user.get_username()}", str(user))
+        self.assertEqual(user.get_username(), str(user))
 
     def test_creation_no_password(self) -> None:
         """Test creating a User with no password."""
