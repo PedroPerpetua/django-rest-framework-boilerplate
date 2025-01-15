@@ -224,10 +224,15 @@ AUTHENTICATION_BACKENDS = ["users.authentication.AuthenticationBackend"]
 AUTH_USER_REGISTRATION_ENABLED = env.as_bool("AUTH_USER_REGISTRATION_ENABLED", False)
 
 
+# Localization settings
+
+USE_I18N = True
+LANGUAGE_CODE = "en-us"
+LOCALE_PATHS = [str(Path(__file__).parent.parent / "locale")]
+
+
 # Miscellaneous Settings
 
-LANGUAGE_CODE = "en-us"
 TIME_ZONE = "UTC"
-USE_I18N = True
 USE_TZ = True
 COMMAND_WAIT_FOR_DB_MAX_RETRIES = 10

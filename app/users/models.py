@@ -1,5 +1,6 @@
 from django.contrib.auth.models import AbstractBaseUser, PermissionsMixin
 from django.db import models
+from django.utils.translation import gettext_lazy as _
 from extensions.models import AbstractBaseModel
 from extensions.models.mixins import SoftDeleteMixin
 from users.managers import UserManager
@@ -13,19 +14,24 @@ class User(AbstractBaseUser, PermissionsMixin, SoftDeleteMixin, AbstractBaseMode
     the `BaseAbstractModel`.
     """
 
-    username = models.CharField(unique=True, max_length=255)
-
+    username = models.CharField(unique=True, max_length=255, verbose_name=_("username"))
     is_active = models.BooleanField(
-        default=True, help_text="Designates the user as active.", verbose_name="active status"
+        default=True,
+        verbose_name=_("active status"),
+        help_text=_("Designates the user as active."),
     )
     is_staff = models.BooleanField(
-        default=False, help_text="Designates this user as a staff member.", verbose_name="staff status"
+        default=False,
+        verbose_name=_("staff status"),
+        help_text=_("Designates this user as a staff member."),
     )
 
-    USERNAME_FIELD = "username"
     objects = UserManager()
+    USERNAME_FIELD = "username"
 
-    class Meta(AbstractBaseModel.Meta): ...
+    class Meta(AbstractBaseModel.Meta):
+        verbose_name = _("user")
+        verbose_name_plural = _("users")
 
     def __str__(self) -> str:
-        return f"User ({self.id}) {self.get_username()}"
+        return self.get_username()
