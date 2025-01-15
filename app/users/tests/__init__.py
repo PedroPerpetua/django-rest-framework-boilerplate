@@ -1,4 +1,5 @@
 from typing import Optional
+from uuid import UUID
 from extensions.utilities import clear_Nones, uuid
 from users.models import User
 
@@ -9,7 +10,7 @@ VALID_PASSWORD = "Password1."
 
 def sample_user(
     *,
-    id: Optional[str] = None,
+    id: Optional[UUID | str] = None,
     username: Optional[str] = None,
     password: Optional[str] = None,
     is_staff: Optional[bool] = None,
