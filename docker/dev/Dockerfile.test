@@ -33,9 +33,14 @@ COPY ./pyproject.toml /pyproject.toml
 # Command steps:
 # - Run isort, autoflake, black, and mypy
 # - Run tests under the Coverage module
-CMD sh -c "isort ./app ./typing; \
-           autoflake ./app ./typing; \
-           black ./app ./typing; \
-           mypy && \
-           coverage run ./app/manage.py test ${TEST_TARGET:-app} && \
-           coverage html;"
+# If the SKIP_LINT flag is true, then only run the tests
+CMD sh -c 'if [ "$SKIP_LINT" = "true" ]; then \
+               python ./app/manage.py test ${TEST_TARGET:-app}; \
+           else \
+               isort ./app ./typing; \
+               autoflake ./app ./typing; \
+               black ./app ./typing; \
+               mypy && \
+               coverage run ./app/manage.py test ${TEST_TARGET:-app} && \
+               coverage html; \
+           fi'
