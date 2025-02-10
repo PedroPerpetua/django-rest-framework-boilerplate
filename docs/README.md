@@ -10,7 +10,7 @@ Provided by [PedroPerpetua](https://github.com/PedroPerpetua).
 
 
 ## Version
-Currently set up for `python 3.12.7` with `Django 5.1.5` and `Django Rest Framework 3.15.2`.
+Currently set up for `python 3.12.7` with `Django 5.1.6` and `Django Rest Framework 3.15.2`.
 
 
 ## Getting started
