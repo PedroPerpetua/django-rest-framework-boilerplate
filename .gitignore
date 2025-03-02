@@ -6,7 +6,7 @@
 __pycache__
 
 # Config files
-config.env
+.env
 
 # App "temp" files
 docker/**/db

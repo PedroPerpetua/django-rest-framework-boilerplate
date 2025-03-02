@@ -18,7 +18,7 @@ jobs:
       uses: actions/checkout@v3.3.0
 
     - name: Copy the test config file
-      run: cp .github/workflows/code-check.env docker/dev/config.env
+      run: cp .github/workflows/code-check.env docker/dev/.env
 
     - name: Run the Test container
       run: docker compose -f docker/dev/compose.yml run test
