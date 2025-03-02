@@ -1,6 +1,7 @@
 import json
 from pathlib import Path
 from random import shuffle
+from typing import overload
 from unittest import TestCase
 from unittest.mock import MagicMock, patch
 from uuid import UUID
@@ -133,6 +134,17 @@ class TestTestUtilities(TestCase):
 
     def test_SampleFile_from_file_path(self) -> None:
         """Test the SampleFile `from_file_path` method."""
+
+        @overload
+        def normalize_line_endings(text: str) -> str: ...
+        @overload
+        def normalize_line_endings(text: bytes) -> bytes: ...
+        def normalize_line_endings(text: str | bytes) -> str | bytes:
+            """Make the line endings match regardless of OS."""
+            if isinstance(text, bytes):
+                return text.replace(b"\r", b"")
+            return text.replace("\r", "")
+
         # Read the text file
         example_file_path = Path(__file__).parent / "example.txt"
         expected_name = example_file_path.name
@@ -141,8 +153,8 @@ class TestTestUtilities(TestCase):
         # Create and verify the sample file
         file = SampleFile.from_file_path(str(example_file_path))
         self.assertEqual(expected_name, file.name)
-        self.assertEqual(expected_content.encode(), file.bytes)
-        self.assertEqual(expected_content, file.content)
+        self.assertEqual(normalize_line_endings(expected_content.encode()), normalize_line_endings(file.bytes))
+        self.assertEqual(normalize_line_endings(expected_content), normalize_line_endings(file.content))
 
 
 class TestEnvUtilities(TestCase):

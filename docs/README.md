@@ -10,7 +10,7 @@ Provided by [PedroPerpetua](https://github.com/PedroPerpetua).
 
 
 ## Version
-Currently set up for `python 3.12.7` with `Django 5.1.5` and `Django Rest Framework 3.15.2`.
+Currently set up for `python 3.13.2` with `Django 5.1.6` and `Django Rest Framework 3.15.2`.
 
 
 ## Getting started
@@ -45,7 +45,7 @@ Run `./make.sh run` to run the dev server.
   - Also includes classes and mixins for views to facilitate working with Users.
   - **NOTE**: The users, by default, have `active=True`. It may be desired to change this behavior.
   - **NOTE**: The simplejwt settings have `UPDATE_LAST_LOGIN: True`. This may hinder performance and may be desired to change this behavior.
-  - **NOTE**: By default, registration trough REST endpoints is disabled. This can be changed in the `config.env` file, or directly in the settings (setting `AUTH_USER_REGISTRATION_ENABLED`).
+  - **NOTE**: By default, registration trough REST endpoints is disabled. This can be changed in the `.env` file, or directly in the settings (setting `AUTH_USER_REGISTRATION_ENABLED`).
 
 ### REST
 - A `/ping` endpoint to check server availability.
@@ -54,13 +54,13 @@ Run `./make.sh run` to run the dev server.
 - Out of the box OpenAPI schema with Swagger support using [DRF Spectacular](https://github.com/tfranzel/drf-spectacular)
   - The schema is made available in the `/schema` endpoint.
   - The Swagger view is made available in the `/schema/swagger` endpoint.
-  - **NOTE**: By default, only admin users can access these endpoints. This can be changed in the `config.env` file, or directly in the settings(setting `SPECTACULAR_SETTINGS["SERVE_PERMISSIONS"]`).
+  - **NOTE**: By default, only admin users can access these endpoints. This can be changed in the `.env` file, or directly in the settings(setting `SPECTACULAR_SETTINGS["SERVE_PERMISSIONS"]`).
 
 
 ## Configuration
 
 ### Config files
-`config.env` is the main configuration file. It's recommended to use `extensions.utilities.env` functions to extract variables in multiple formats from here. See `config.env.example` for available configurations and more details. This file should be placed in the respective docker folders: `./docker/dev/config.env` and / or `./docker/prod/config.env`.
+`.env` is the main configuration file. It's recommended to use `extensions.utilities.env` functions to extract variables in multiple formats from here. See `.env.example` for available configurations and more details. This file should be placed in the respective docker folders: `./docker/dev/.env` and / or `./docker/prod/.env`.
 
 Other project specific settings can be changed in Django's `settings.py` file like a regular Django project, to better suit your needs.
 

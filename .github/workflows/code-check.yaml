@@ -15,16 +15,16 @@ jobs:
     steps:
 
     - name: Checkout the repository
-      uses: actions/checkout@v3.3.0
+      uses: actions/checkout@v4.2.2
 
     - name: Copy the test config file
-      run: cp .github/workflows/code-check.env docker/dev/config.env
+      run: cp .github/workflows/code-check.env docker/dev/.env
 
     - name: Run the Test container
       run: docker compose -f docker/dev/compose.yml run test
 
     - name: Commit the changes
-      uses: stefanzweifel/git-auto-commit-action@v4.16.0
+      uses: stefanzweifel/git-auto-commit-action@v5.1.0
       with:
         commit_message: Linting
         status_options: '--untracked-files=no' # Should not create new files

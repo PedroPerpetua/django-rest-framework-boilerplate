@@ -78,7 +78,7 @@ admin() {
 }
 
 schema() {
-    log "[$RUNNING_MODE] Generating schmea..."
+    log "[$RUNNING_MODE] Generating schema..."
     $DOCKER_COMMAND run --rm app sh -c "python manage.py spectacular --color --file schema.yml"
     $DOCKER_COMMAND stop
     mv ./app/schema.yml schema.yml
