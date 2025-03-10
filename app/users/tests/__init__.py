@@ -16,6 +16,7 @@ def sample_user(
     is_staff: Optional[bool] = None,
     is_superuser: Optional[bool] = None,
     is_active: Optional[bool] = None,
+    is_deleted: Optional[bool] = None,
     allow_empty_password: bool = False,
 ) -> User:
     """
@@ -25,6 +26,8 @@ def sample_user(
     - `password`: pre-defined valid password
     - `is_staff`: default value
     - `is_superuser`: default value
+    - `is_active`: default value
+    - `is_deleted`: default value
 
     To set an empty password, set `allow_empty_password` as True.
     """
@@ -39,5 +42,6 @@ def sample_user(
             is_staff=is_staff,
             is_superuser=is_superuser,
             is_active=is_active,
+            is_deleted=is_deleted,
         )
     )

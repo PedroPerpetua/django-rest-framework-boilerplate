@@ -1,10 +1,10 @@
 from typing import Any
 from django.conf import settings
 from django.contrib.auth.password_validation import validate_password
-from django.core.exceptions import ValidationError
+from django.utils.translation import gettext_lazy as _
 from rest_framework import generics, status
 from rest_framework.exceptions import AuthenticationFailed, PermissionDenied
-from rest_framework.exceptions import ValidationError as DRFValidationError
+from rest_framework.permissions import AllowAny
 from rest_framework.request import Request
 from rest_framework.response import Response
 from drf_spectacular.utils import OpenApiResponse, extend_schema, extend_schema_view
@@ -17,6 +17,7 @@ from users.view_mixins import TargetAuthenticatedUserMixin
 class UserRegisterView(generics.CreateAPIView):
     """Endpoint to register users."""
 
+    permission_classes = (AllowAny,)
     serializer_class = serializers.UserRegisterSerializer
 
     @extend_schema(operation_id="users_register")
@@ -52,9 +53,9 @@ class UserRegisterView(generics.CreateAPIView):
     )
     def post(self, request: Request, *args: Any, **kwargs: Any) -> Response:
         """Override the POST method to block registration if disabled."""
-        registration_enabled: bool = settings.AUTH_USER_REGISTRATION_ENABLED
+        registration_enabled = settings.AUTH_USER_REGISTRATION_ENABLED
         if not registration_enabled:
-            raise PermissionDenied("Registration is disabled.")
+            raise PermissionDenied(_("Registration is disabled."))
         return super().post(request, *args, **kwargs)
 
 
@@ -100,7 +101,7 @@ class UserLogoutView(jwt_views.TokenBlacklistView): ...
     )
 )
 class UserWhoamiView(TargetAuthenticatedUserMixin, generics.RetrieveAPIView):
-    """Endpoint to retrieve the `USERNAME_FIELD` (usually `username` or `email`) of the currently logged in user."""
+    """Endpoint to retrieve the identifying information of the currently logged in User."""
 
     serializer_class = serializers.UserWhoamiSerializer
 
@@ -116,7 +117,7 @@ class UserWhoamiView(TargetAuthenticatedUserMixin, generics.RetrieveAPIView):
     ),
 )
 class UserProfileView(TargetAuthenticatedUserMixin, generics.RetrieveUpdateAPIView):
-    """Endpoint to retrieve and update a user's details."""
+    """Endpoint to retrieve and update a User's details."""
 
     serializer_class = serializers.UserProfileSerializer
 
@@ -127,10 +128,10 @@ class UserChangePasswordView(TargetAuthenticatedUserMixin, generics.UpdateAPIVie
     Endpoint to change a user's password.
 
     Even though the generic UpdateAPIView uses PUT/PATCH, an update-password request is recommended to be made trough
-    POST, so we change the methods here and implement the `post` method.
+    POST, so we change the methods here and implement the POST method.
     """
 
-    http_method_names = ["post"]
+    http_method_names = ("post",)
     serializer_class = serializers.UserChangePasswordSerializer
 
     @extend_schema(operation_id="users_change_password")
@@ -172,12 +173,9 @@ class UserChangePasswordView(TargetAuthenticatedUserMixin, generics.UpdateAPIVie
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         if not user.check_password(serializer.data.get("password")):
-            raise AuthenticationFailed("Wrong password.")
+            raise AuthenticationFailed(_("Wrong password."))
         new_password = serializer.data.get("new_password")
-        try:
-            validate_password(new_password)
-        except ValidationError as ve:
-            raise DRFValidationError(ve.messages)
+        validate_password(new_password)
         user.set_password(new_password)
         user.save()
         return Response(status=status.HTTP_204_NO_CONTENT)
