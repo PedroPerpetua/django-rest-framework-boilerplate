@@ -1,8 +1,8 @@
 import re
+import requests
 from pathlib import Path
 from typing import TYPE_CHECKING, Any, Optional, Type, cast
 from unittest import SkipTest
-import requests
 from django.core.files.uploadedfile import SimpleUploadedFile
 from django.db import connection
 from django.db.models import Model
@@ -20,7 +20,6 @@ else:
 
 
 class APITestCase(DRFAPITestCase):  # pragma: no cover
-
     def assertResponseStatusCode(self, expected_status_code: int, response: Response) -> None:
         """
         Assert that the response's status code matches the expected one.
@@ -87,7 +86,9 @@ class AbstractModelTestCase(TestCase):  # pragma: no cover
 class MockResponse(requests.Response):
     """Auxiliary class to mock a `requests.Response`."""
 
-    def __init__(self, code: int, json_response: JSON = {}) -> None:
+    def __init__(self, code: int, json_response: JSON = None) -> None:
+        if json_response is None:
+            json_response = dict()
         self.status_code = code
         self.json_data = json_response
 
