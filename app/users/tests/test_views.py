@@ -226,7 +226,11 @@ class TestUserChangePasswordView(APITestCase):
         new_password = VALID_PASSWORD + "_updated"
         wrong_password = "_" + self.password  # so it's different
         # Make the call
-        res = self.client.post(self.URL, data={"password": wrong_password, "new_password": new_password})
+        res = self.client.post(
+            self.URL,
+            data={"password": wrong_password, "new_password": new_password},
+            HTTP_ACCEPT_LANGUAGE="en-gb",  # Set language to English to compare error message
+        )
         # Verify the response
         self.assertResponseStatusCode(status.HTTP_401_UNAUTHORIZED, res)
         self.assertEqual(
@@ -245,7 +249,11 @@ class TestUserChangePasswordView(APITestCase):
         """Test that using an invalid password for the new password fails."""
         new_password = "short"
         # Make the call
-        res = self.client.post(self.URL, data={"password": self.password, "new_password": new_password})
+        res = self.client.post(
+            self.URL,
+            data={"password": self.password, "new_password": new_password},
+            HTTP_ACCEPT_LANGUAGE="en-gb",  # Set language to English to compare error message
+        )
         # Verify the response
         self.assertResponseStatusCode(status.HTTP_400_BAD_REQUEST, res)
         self.assertEqual(

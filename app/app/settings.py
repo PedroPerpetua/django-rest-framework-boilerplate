@@ -229,7 +229,7 @@ AUTH_USER_REGISTRATION_ENABLED = env.as_bool("AUTH_USER_REGISTRATION_ENABLED", F
 # Localization settings
 
 USE_I18N = True
-LANGUAGE_CODE = "en-us"
+LANGUAGE_CODE = "en-gb"
 LOCALE_PATHS = [str(Path(__file__).parent.parent / "locale")]
 
 
