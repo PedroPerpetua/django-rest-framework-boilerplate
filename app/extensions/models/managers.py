@@ -3,10 +3,10 @@ from django.db import models
 
 
 if TYPE_CHECKING:
-    # Prevent circular import
     from extensions.models.mixins import SoftDeleteMixin
 
     SoftDeleteModel = TypeVar("SoftDeleteModel", bound=SoftDeleteMixin)
+
 else:
     SoftDeleteModel = models.Model
 

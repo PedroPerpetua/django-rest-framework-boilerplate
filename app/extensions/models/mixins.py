@@ -6,7 +6,7 @@ from django.utils.translation import gettext_lazy as _
 class UUIDPrimaryKeyMixin(models.Model):
     """Mixin to use a UUID field as the primary key field."""
 
-    id = models.UUIDField(primary_key=True, unique=True, default=uuid4, editable=False)
+    id = models.UUIDField(default=uuid4, primary_key=True, editable=False)
 
     class Meta:
         abstract = True
@@ -43,6 +43,7 @@ class UpdatedAtMixin(models.Model):
 class SoftDeleteMixin(models.Model):
     """
     Mixin to allow for soft deletion of the objects.
+
     This mixin sets a custom object manager to take into consideration soft-deleted instances, by filtering them out
     of the querysets.
 
