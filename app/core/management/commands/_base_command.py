@@ -1,4 +1,3 @@
-from __future__ import annotations
 from typing import Any
 from django.core.management.base import BaseCommand as DjangoCommand
 from django.core.management.base import OutputWrapper
@@ -17,7 +16,7 @@ class BaseCommand(DjangoCommand):
         _level: int
         INDENTATION = " " * 2  # 2 spaces
 
-        def __init__(self, source: OutputWrapper | BaseCommand.IndentedOutputWrapper):
+        def __init__(self, source: "OutputWrapper | BaseCommand.IndentedOutputWrapper"):
             out_source = source if not isinstance(source, OutputWrapper) else source._out
             super().__init__(out=out_source, ending="")  # type: ignore[arg-type] # Supertype "incompatibility"
             self._level = 1

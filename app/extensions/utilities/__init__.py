@@ -1,4 +1,3 @@
-from __future__ import annotations  # Required by the TYPE_CHECKING block
 import json
 from pathlib import Path
 from typing import TYPE_CHECKING, Any, Callable, Optional, TypeVar, cast, overload
@@ -13,6 +12,7 @@ if TYPE_CHECKING:
     `REST_FRAMEWORK` settings are set, causing them to never be loaded at all.
     """
     from extensions.utilities.types import JSON
+
 else:
     JSON = Any
 

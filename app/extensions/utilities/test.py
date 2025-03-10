@@ -1,4 +1,3 @@
-from __future__ import annotations
 import re
 from pathlib import Path
 from typing import TYPE_CHECKING, Any, Optional, Type, cast
@@ -15,6 +14,7 @@ from extensions.utilities.types import JSON
 
 if TYPE_CHECKING:
     from rest_framework.response import _MonkeyPatchedResponse as Response
+
 else:
     from rest_framework.response import Response
 
@@ -133,7 +133,7 @@ class SampleFile(SimpleUploadedFile):
         return self.bytes.decode()
 
     @staticmethod
-    def from_file_path(file_path: str | Path) -> SampleFile:
+    def from_file_path(file_path: str | Path) -> "SampleFile":
         """Generates a SampleFile from a real file, having the same contents."""
         if isinstance(file_path, str):
             file_path = Path(file_path)
