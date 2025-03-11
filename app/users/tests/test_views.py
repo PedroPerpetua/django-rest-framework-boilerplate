@@ -97,7 +97,7 @@ class TestAuthentication(APITestCase):
     def test_invalid_token(self) -> None:
         """Test making a request with an invalid token (as opposed to no token at all)."""
         # Make the call
-        res = self.client.post(reverse("users:whoami"), HTTP_AUTHORIZATION=f"Bearer INVALID_TOKEN")
+        res = self.client.post(reverse("users:whoami"), HTTP_AUTHORIZATION="Bearer INVALID_TOKEN")
         # Verify the response
         self.assertResponseStatusCode(status.HTTP_401_UNAUTHORIZED, res)
 
