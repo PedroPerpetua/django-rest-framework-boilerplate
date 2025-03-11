@@ -13,7 +13,7 @@ services:
   app:
     build:
       context: ../../
-      dockerfile: ./docker/dev/Dockerfile.dev
+      dockerfile: ./docker/dev/Dockerfile
     command: >
       sh -c "python manage.py wait_for_db
       && python manage.py runserver 0.0.0.0:8000"
@@ -21,28 +21,14 @@ services:
       - ../../app:/app
       - ./logs:/logs
       - ./media:/media
+      - ../../typing:/typing
+      - ../../pyproject.toml:/pyproject.toml
+      - ./coverage:/coverage
     ports:
       - "8000:8000"
     env_file: .env
     extra_hosts:
       - "host.docker.internal:host-gateway"
-    depends_on:
-      db:
-        condition: service_healthy
-    tty: true  # Provide color in the console
-
-  test:
-    profiles:
-      - test
-    build:
-      context: ../../
-      dockerfile: ./docker/dev/Dockerfile.test
-    volumes:
-      - ../../app:/app
-      - ../../typing:/typing
-      - ../../pyproject.toml:/pyproject.toml
-      - ./coverage:/coverage
-    env_file: .env
     depends_on:
       db:
         condition: service_healthy

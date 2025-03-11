@@ -1,5 +1,6 @@
 from typing import Any
 from rest_framework import status
+from rest_framework.permissions import AllowAny
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from drf_spectacular.utils import extend_schema
@@ -9,6 +10,7 @@ from drf_spectacular.utils import extend_schema
 class PingView(APIView):
     """View that simply replies with a 'pong'."""
 
+    permission_classes = (AllowAny,)
     http_method_names = ("get",)
 
     @extend_schema(operation_id="ping")

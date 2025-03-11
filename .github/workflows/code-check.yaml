@@ -21,7 +21,9 @@ jobs:
       run: cp .github/workflows/code-check.env docker/dev/.env
 
     - name: Run the Test container
-      run: docker compose -f docker/dev/compose.yml run test
+      run: >
+        docker compose -f docker/dev/compose.yml run --rm app sh -c
+        "ruff check . --fix --unsafe-fixes && ruff format && mypy && python manage.py test"
 
     - name: Commit the changes
       uses: stefanzweifel/git-auto-commit-action@v5.1.0

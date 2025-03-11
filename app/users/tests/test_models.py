@@ -10,6 +10,7 @@ class TestUser(TestCase):
         username = "_username"
         password = "_password"
         user = User.objects.create_user(username=username, password=password)
+        self.assertTrue(user.id)
         self.assertTrue(user.check_password(password))
         self.assertEqual(user.get_username(), str(user))
 

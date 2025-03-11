@@ -139,6 +139,7 @@ MEDIA_ROOT = Path("/media")
 
 REST_FRAMEWORK = {
     "EXCEPTION_HANDLER": "drf_standardized_errors.handler.exception_handler",
+    "DEFAULT_PERMISSION_CLASSES": ("rest_framework.permissions.IsAuthenticated",),
     "DEFAULT_AUTHENTICATION_CLASSES": ("rest_framework_simplejwt.authentication.JWTAuthentication",),
     "DEFAULT_SCHEMA_CLASS": "drf_standardized_errors.openapi.AutoSchema",
     "TEST_REQUEST_DEFAULT_FORMAT": "json",
@@ -221,14 +222,14 @@ AUTH_PASSWORD_VALIDATORS = [
         "NAME": "django.contrib.auth.password_validation.NumericPasswordValidator",
     },
 ]
-AUTHENTICATION_BACKENDS = ["users.authentication.AuthenticationBackend"]
+AUTHENTICATION_BACKENDS = ["users.backends.AuthenticationBackend"]
 AUTH_USER_REGISTRATION_ENABLED = env.as_bool("AUTH_USER_REGISTRATION_ENABLED", False)
 
 
 # Localization settings
 
 USE_I18N = True
-LANGUAGE_CODE = "en-us"
+LANGUAGE_CODE = "en-gb"
 LOCALE_PATHS = [str(Path(__file__).parent.parent / "locale")]
 
 

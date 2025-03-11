@@ -26,5 +26,5 @@ class Command(BaseCommand):
         task_count = len(self.TASKS)
         for i, (text, task) in enumerate(self.TASKS):
             self.info(f"{text} ({i}/{task_count})")
-            call_command(*task, stdout=i_stdout, stderr=i_stderr, *args, **kwargs)
+            call_command(*task, *args, stdout=i_stdout, stderr=i_stderr, **kwargs)
         self.success(f"Finished Setup! ({task_count}/{task_count})")

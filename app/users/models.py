@@ -14,7 +14,7 @@ class User(AbstractBaseUser, PermissionsMixin, SoftDeleteMixin, AbstractBaseMode
     the `BaseAbstractModel`.
     """
 
-    username = models.CharField(unique=True, max_length=255, verbose_name=_("username"))
+    username = models.CharField(max_length=255, unique=True, verbose_name=_("username"))
     is_active = models.BooleanField(
         default=True,
         verbose_name=_("active status"),

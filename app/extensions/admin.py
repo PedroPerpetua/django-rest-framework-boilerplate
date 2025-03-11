@@ -1,7 +1,13 @@
-from typing import Any, Optional
+from typing import TYPE_CHECKING, Any, Optional
 from django.contrib import admin
 from django.http import HttpRequest
+from django.utils.translation import gettext_lazy as _
 from extensions.utilities import order_list
+
+
+if TYPE_CHECKING:
+    from django.contrib.admin.options import _FieldOpts
+    from django.utils.functional import _StrOrPromise
 
 
 class BaseAdminSite(admin.AdminSite):
@@ -35,3 +41,14 @@ class BaseAdminSite(admin.AdminSite):
             if label in self.ORDERING and len(self.ORDERING[label]) > 0:
                 app["models"] = order_list(list(app["models"]), self.ORDERING[label], lambda x: str(x["name"]))
         return ordered_apps
+
+
+object_metadata_fieldset: "tuple[_StrOrPromise | None, _FieldOpts]" = (
+    _("Object metadata"),
+    {"fields": ("id", "is_deleted", "created_at", "updated_at")},
+)
+"""
+Standard Object Metadata fieldset that includes the fields `id`, `is_deleted`, `created_at` and `updated_at`.
+
+To use, just include it in the fieldsets' tuple of a Model Admin.
+"""

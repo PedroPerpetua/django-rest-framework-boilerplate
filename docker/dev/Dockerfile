@@ -26,21 +26,11 @@ ENV PATH=/venv/bin:$PATH
 
 # Copy the app ------------------------------------------
 COPY ./app /app
+WORKDIR /app
 # Copy additional files required for linting
 COPY ./typing /typing
 COPY ./pyproject.toml /pyproject.toml
 
-# Command steps:
-# - Run isort, autoflake, black, and mypy
-# - Run tests under the Coverage module
-# If the SKIP_LINT flag is true, then only run the tests
-CMD sh -c 'if [ "$SKIP_LINT" = "true" ]; then \
-               python ./app/manage.py test ${TEST_TARGET:-app}; \
-           else \
-               isort ./app ./typing; \
-               autoflake ./app ./typing; \
-               black ./app ./typing; \
-               mypy && \
-               coverage run ./app/manage.py test ${TEST_TARGET:-app} && \
-               coverage html; \
-           fi'
+
+CMD sh -c "python manage.py setup \
+           && python manage.py runserver 0.0.0.0"
