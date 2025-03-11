@@ -12,7 +12,7 @@ ENV PATH=/venv/bin:$PATH
 
 # Install Python requirements ----------------------------
 COPY ./requirements /requirements
-RUN pip install -r /requirements/requirements.txt
+RUN pip install -r /requirements/dev.requirements.txt
 
 # Final stage ++++++++++++++++++++++++++++++++++++++++++++
 FROM ${PYTHON}
@@ -27,6 +27,10 @@ ENV PATH=/venv/bin:$PATH
 # Copy the app ------------------------------------------
 COPY ./app /app
 WORKDIR /app
+# Copy additional files required for linting
+COPY ./typing /typing
+COPY ./pyproject.toml /pyproject.toml
+
 
 CMD sh -c "python manage.py setup \
            && python manage.py runserver 0.0.0.0"

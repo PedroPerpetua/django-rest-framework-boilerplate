@@ -1,5 +1,3 @@
-[![Imports: isort](https://img.shields.io/badge/%20imports-isort-%231674b1?style=flat&labelColor=ef8336)](https://pycqa.github.io/isort/)
-[![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
 [![Checked with mypy](https://www.mypy-lang.org/static/mypy_badge.svg)](https://mypy-lang.org/)
 
 django-rest-framework-boilerplate
@@ -18,9 +16,9 @@ After copying this boilerplate, make sure to provide it with it's own `README`, 
 
 Install the requirements with `pip install -r requirements/dev.requirements.txt`.
 
-Run `./make.sh test` to ensure everything is working as intended.
+Run `python make.py test` to ensure everything is working as intended.
 
-Run `./make.sh run` to run the dev server.
+Run `python make.py run` to run the dev server.
 
 
 ## Features
@@ -29,10 +27,10 @@ Run `./make.sh run` to run the dev server.
 - Configuration trough environment variables.
 - Separated requirement file structure for both production and development.
 - Dockerized application, both for development and production environments.
-- Separate dockerfile for linting, testing and coverage using `isort`, `black`, `autoflake`, `mypy` and `coverage`.
+- Linting preconfigured with `ruff`, static type checking with `mypy`, and test `coverage` included.
 - CI/CD for linting and testing trough Github Actions.
 - Tests for the implemented features.
-- A `make.sh` script to support basic operations.
+- A `make.py` CLI to support basic operations.
 
 ### Django Functionality
 - Multiple utility functions and extensions frequently used in Django projects.
@@ -70,4 +68,4 @@ Python requirements can be added on the `requirements` folder. Production requir
 
 
 ## Make
-A convenience `make.sh` script is available for use. Run `make.sh` with no arguments to see all usage options.
+A convenience `make.py` CLI is available for use. Run `python make.py --help` to see all options.
