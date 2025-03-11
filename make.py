@@ -32,26 +32,26 @@ def cli() -> None:
     pass
 
 
-@production_opt
 @cli.command
+@production_opt
 def run(production: bool) -> None:
     """Run docker compose up to start the server."""
     compose = get_compose_file(production)
     run_docker_command(compose, "up")
 
 
-@production_opt
 @cli.command
+@production_opt
 def build(production: bool) -> None:
     """Build the docker containers."""
     compose = get_compose_file(production)
     run_docker_command(compose, "build")
 
 
+@cli.command
 @click.option("--skip-lint", is_flag=True, help="Skip linting. Can't be used with lint-only.")
 @click.option("--lint-only", is_flag=True, help="Run lint tools only. Can't be used with skip-lint.")
 @click.argument("test-suite", required=False)
-@cli.command
 def test(skip_lint: bool, lint_only: bool, test_suite: str) -> None:
     """Runs the linting tools and test suite."""
     if skip_lint and lint_only:
@@ -76,9 +76,9 @@ def test(skip_lint: bool, lint_only: bool, test_suite: str) -> None:
     run_docker_command(DEV_COMPOSE, f'run --rm app sh -c "{" && ".join(commands)}"')
 
 
+@cli.command
 @production_opt
 @click.option("-a", "--all", is_flag=True, help="Clear ALL data")
-@cli.command
 def clean(production: bool, all: bool) -> None:
     """Clear pycache folders; optionally, clear all data (database, logs, media, coverage)."""
     get_compose_file(production)  # To echo the mode
@@ -93,9 +93,9 @@ def clean(production: bool, all: bool) -> None:
                 shutil.rmtree(path.resolve())
 
 
+@cli.command
 @production_opt
 @click.argument("commands", nargs=-1)
-@cli.command
 def command(production: bool, commands: tuple[str, ...]) -> None:
     """Pass a command to Django's `manage.py`."""
     compose = get_compose_file(production)
@@ -114,13 +114,15 @@ def schema(ctx: click.Context) -> None:
 
 
 @cli.command
+@click.option("-y", "--yes", is_flag=True, help="Answer yes to the prompt")
 @click.pass_context
-def regenerate_migrations(ctx: click.Context) -> None:
+def regenerate_migrations(ctx: click.Context, yes: bool) -> None:
     """Regenerate all migrations, by deleting them and running `makemigrations` again."""
-    click.confirm(
-        "THIS WILL DELETE ALL EXISTING MIGRATIONS before generating new ones. Are you sure you want to proceed?",
-        abort=True,
-    )
+    if not yes:
+        click.confirm(
+            "THIS WILL DELETE ALL EXISTING MIGRATIONS before generating new ones. Are you sure you want to proceed?",
+            abort=True,
+        )
     for migration_folder in (BASE_DIR / "app").rglob("migrations"):
         if not migration_folder.is_dir():
             continue
