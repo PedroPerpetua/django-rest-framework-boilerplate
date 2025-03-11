@@ -31,16 +31,16 @@ COPY ./typing /typing
 COPY ./pyproject.toml /pyproject.toml
 
 # Command steps:
-# - Run isort, autoflake, black, and mypy
+# - Run Ruff
 # - Run tests under the Coverage module
-# If the SKIP_LINT flag is true, then only run the tests
+# If the SKIP_LINT flag is true, then only run the tests (with Coverage)
 CMD sh -c 'if [ "$SKIP_LINT" = "true" ]; then \
-               python ./app/manage.py test ${TEST_TARGET:-app}; \
+                coverage run ./app/manage.py test ${TEST_TARGET:-app} && \
+                coverage html; \
            else \
-               isort ./app ./typing; \
-               autoflake ./app ./typing; \
-               black ./app ./typing; \
-               mypy && \
-               coverage run ./app/manage.py test ${TEST_TARGET:-app} && \
-               coverage html; \
+                ruff check ./app --fix --unsafe-fixes && \
+                ruff format ./app && \
+                mypy && \
+                coverage run ./app/manage.py test ${TEST_TARGET:-app} && \
+                coverage html; \
            fi'
