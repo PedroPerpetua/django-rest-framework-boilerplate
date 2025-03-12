@@ -17,6 +17,9 @@ RUN pip install -r /requirements/dev.requirements.txt
 # Final stage ++++++++++++++++++++++++++++++++++++++++++++
 FROM ${PYTHON}
 
+# Disable ruff cache
+ENV RUFF_NO_CACHE=true
+
 # Add runtime dependencies -------------------------------
 RUN apk update
 
@@ -29,7 +32,6 @@ COPY ./app /app
 WORKDIR /app
 # Copy additional files required for linting
 COPY ./typing /typing
-COPY ./pyproject.toml /pyproject.toml
 
 
 CMD sh -c "python manage.py setup \

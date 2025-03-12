@@ -21,9 +21,8 @@ services:
       - ../../app:/app
       - ./logs:/logs
       - ./media:/media
-      - ../../typing:/typing
-      - ../../pyproject.toml:/pyproject.toml
       - ./coverage:/coverage
+      - ../../typing:/typing
     ports:
       - "8000:8000"
     env_file: .env

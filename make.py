@@ -22,9 +22,13 @@ def get_compose_file(production: bool) -> str:
     return PROD_COMPOSE if production else DEV_COMPOSE
 
 
-def run_docker_command(compose_file: str, command: str) -> None:
-    subprocess.run(f"docker compose -f {compose_file} {command}", shell=True, check=True)
-    subprocess.run(f"docker compose -f {compose_file} stop", shell=True, check=True)
+def run_docker_command(compose_file: str, command: str, raise_exception: bool = True) -> None:
+    try:
+        subprocess.run(f"docker compose -f {compose_file} {command}", shell=True, check=True)
+        subprocess.run(f"docker compose -f {compose_file} stop", shell=True, check=True)
+    except:
+        if raise_exception:
+            raise
 
 
 @click.group
@@ -61,7 +65,7 @@ def test(skip_lint: bool, lint_only: bool, test_suite: str) -> None:
         )
         raise click.Abort()
 
-    test_commands = ["coverage run manage.py test", "coverage html", "rm -rf .coverage"]
+    test_commands = ["coverage run manage.py test", "coverage html"]
     if test_suite:
         test_commands[0] += " " + test_suite
 
@@ -73,7 +77,7 @@ def test(skip_lint: bool, lint_only: bool, test_suite: str) -> None:
         commands = test_commands
     else:
         commands = lint_commands + test_commands
-    run_docker_command(DEV_COMPOSE, f'run --rm app sh -c "{" && ".join(commands)}"')
+    run_docker_command(DEV_COMPOSE, f'run --rm app sh -c "{" && ".join(commands)}"', raise_exception=False)
 
 
 @cli.command
