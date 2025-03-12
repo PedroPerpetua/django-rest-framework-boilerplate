@@ -9,22 +9,20 @@ FuncT = TypeVar("FuncT", bound=Callable[..., Any])
 
 BASE_DIR = Path(__file__).parent
 
-DEV_COMPOSE = "./docker/dev/compose.yml"
-PROD_COMPOSE = "./docker/prod/compose.yml"
-
 
 def production_opt(func: FuncT) -> FuncT:
     return click.option("-p", "--production", is_flag=True, help="Use production compose")(func)
 
 
-def get_compose_file(production: bool) -> str:
+def run_docker_command(command: str, production: bool = False, *, raise_exception: bool = True) -> None:
     click.echo(click.style(f"Running command in {'PROD' if production else 'DEV'} mode...", fg="green", bold=True))
-    return PROD_COMPOSE if production else DEV_COMPOSE
-
-
-def run_docker_command(compose_file: str, command: str) -> None:
-    subprocess.run(f"docker compose -f {compose_file} {command}", shell=True, check=True)
-    subprocess.run(f"docker compose -f {compose_file} stop", shell=True, check=True)
+    folder = BASE_DIR / "docker" / ("prod" if production else "dev")
+    try:
+        subprocess.run(f"cd {folder.resolve()} && docker compose {command}", shell=True, check=True)
+        subprocess.run(f"cd {folder.resolve()} && docker compose stop", shell=True, check=True)
+    except:
+        if raise_exception:
+            raise
 
 
 @click.group
@@ -36,16 +34,14 @@ def cli() -> None:
 @production_opt
 def run(production: bool) -> None:
     """Run docker compose up to start the server."""
-    compose = get_compose_file(production)
-    run_docker_command(compose, "up")
+    run_docker_command("up", production)
 
 
 @cli.command
 @production_opt
 def build(production: bool) -> None:
     """Build the docker containers."""
-    compose = get_compose_file(production)
-    run_docker_command(compose, "build")
+    run_docker_command("build", production)
 
 
 @cli.command
@@ -61,7 +57,7 @@ def test(skip_lint: bool, lint_only: bool, test_suite: str) -> None:
         )
         raise click.Abort()
 
-    test_commands = ["coverage run manage.py test", "coverage html", "rm -rf .coverage"]
+    test_commands = ["coverage run manage.py test", "coverage html"]
     if test_suite:
         test_commands[0] += " " + test_suite
 
@@ -73,24 +69,7 @@ def test(skip_lint: bool, lint_only: bool, test_suite: str) -> None:
         commands = test_commands
     else:
         commands = lint_commands + test_commands
-    run_docker_command(DEV_COMPOSE, f'run --rm app sh -c "{" && ".join(commands)}"')
-
-
-@cli.command
-@production_opt
-@click.option("-a", "--all", is_flag=True, help="Clear ALL data")
-def clean(production: bool, all: bool) -> None:
-    """Clear pycache folders; optionally, clear all data (database, logs, media, coverage)."""
-    get_compose_file(production)  # To echo the mode
-    # Clear pycache
-    [shutil.rmtree(p.resolve()) for p in BASE_DIR.rglob("__pycache__")]
-    # If all, clear the folders
-    if all:
-        base_path = BASE_DIR / "docker" / ("prod" if production else "dev")
-        for folder_name in ("db", "logs", "media", "coverage"):
-            path = base_path / folder_name
-            if path.exists():
-                shutil.rmtree(path.resolve())
+    run_docker_command(f'run --rm app sh -c "{" && ".join(commands)}"', production=False, raise_exception=False)
 
 
 @cli.command
@@ -98,8 +77,32 @@ def clean(production: bool, all: bool) -> None:
 @click.argument("commands", nargs=-1)
 def command(production: bool, commands: tuple[str, ...]) -> None:
     """Pass a command to Django's `manage.py`."""
-    compose = get_compose_file(production)
-    run_docker_command(compose, f'run --rm app sh -c "python manage.py {" ".join(commands)}"')
+    run_docker_command(f'run --rm app sh -c "python manage.py {" ".join(commands)}"', production)
+
+
+@cli.command
+@production_opt
+@click.option("-a", "--all", is_flag=True, help="Clear ALL data")
+@click.option("-y", "--yes", is_flag=True, help="Confirm cleaning ALL data without prompt.")
+def clean(production: bool, all: bool, yes: bool) -> None:
+    """Clear pycache folders; optionally, clear all data (database, logs, media, coverage)."""
+    if yes and not all:
+        click.echo(click.style("Passing --yes without --all does nothing.", fg="yellow"))
+    # Clear pycache
+    [shutil.rmtree(p.resolve()) for p in BASE_DIR.rglob("__pycache__")]
+    click.echo(click.style("Pycache cleared.", fg="green"))
+    # If all, clear the folders
+    if all:
+        if not yes:
+            click.confirm(
+                f"This will delete all data (database, logs, media and coverage) for the {'PROD' if production else 'DEV'} environment. Are you sure?",
+                abort=True,
+            )
+        base_path = BASE_DIR / "docker" / ("prod" if production else "dev")
+        for folder_name in ("db", "logs", "media", "coverage"):
+            path = base_path / folder_name
+            if path.exists():
+                shutil.rmtree(path.resolve())
 
 
 @cli.command
@@ -111,10 +114,11 @@ def schema(ctx: click.Context) -> None:
     if target.exists():
         target.unlink()
     (BASE_DIR / "app" / "schema.yml").rename(BASE_DIR / "schema.yml")
+    click.echo(click.style("Schema generated.", fg="green"))
 
 
 @cli.command
-@click.option("-y", "--yes", is_flag=True, help="Answer yes to the prompt")
+@click.option("-y", "--yes", is_flag=True, help="Confirm deleting current migrations without prompt.")
 @click.pass_context
 def regenerate_migrations(ctx: click.Context, yes: bool) -> None:
     """Regenerate all migrations, by deleting them and running `makemigrations` again."""
@@ -132,6 +136,7 @@ def regenerate_migrations(ctx: click.Context, yes: bool) -> None:
             if file.name != "__init__.py" and file.suffix == ".py":
                 file.unlink()
     ctx.invoke(command, production=False, commands=("makemigrations",))
+    click.echo(click.style("Migrations regenerated.", fg="green"))
 
 
 if __name__ == "__main__":

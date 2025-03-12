@@ -6,9 +6,10 @@ readme = "README.md"
 
 
 [tool.ruff]
+cache-dir = "/dev/null"
 exclude=[
-    "app/**/migrations/[0-9][0-9][0-9][0-9]_*.py",
-    "app/manage.py",
+    "./**/migrations/[0-9][0-9][0-9][0-9]_*.py",
+    "./manage.py",
 ]
 line-length = 119
 
@@ -51,12 +52,13 @@ addons = ["rest_framework_simplejwt", "drf_spectacular", "drf_standardized_error
 
 
 [tool.mypy]
-mypy_path = "$MYPY_CONFIG_FILE_DIR/app, $MYPY_CONFIG_FILE_DIR/typing"
-files = "./app"
+cache_dir = "/dev/null"
+mypy_path = "$MYPY_CONFIG_FILE_DIR, /typing"
+files = "."
 # Exclude django files
 exclude = [
-    "app/.*/migrations/[0-9]{4}_.*.py$",
-    "app/manage.py",
+    "^.*/migrations/[0-9]{4}_.*.py$",
+    "^manage.py$",
 ]
 plugins = [
     "mypy_django_plugin.main",
@@ -80,7 +82,8 @@ django_settings_module = "app.settings"
 
 
 [tool.coverage.run]
-source = ["./app"]
+source = ["."]
+data_file = "/.coverage"
 
 [tool.coverage.report]
 exclude_lines = [
@@ -91,10 +94,10 @@ exclude_lines = [
     "NotImplementedError",
 ]
 omit = [
-    "./app/manage.py",
-    "./app/app/asgi.py",
-    "./app/app/wsgi.py",
+    "./manage.py",
+    "./app/asgi.py",
+    "./app/wsgi.py",
 ]
 
 [tool.coverage.html]
-directory = "./coverage"
+directory = "/coverage"
