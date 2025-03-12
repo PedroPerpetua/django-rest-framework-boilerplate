@@ -1,4 +1,4 @@
-name: "backend-dev"
+name: "${PROJECT_NAME:-boilerplate}-backend-dev"
 
 services:
 
