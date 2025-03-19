@@ -5,6 +5,9 @@ requires-python = "== 3.13.2"
 readme = "README.md"
 
 
+[boilerplate]
+version = "2.1.0"
+
 [tool.ruff]
 cache-dir = "/dev/null"
 exclude=[
@@ -30,21 +33,15 @@ section-order = [
 no-lines-before = [
     "future",
     "standard-library",
+    "third-party",
     "django",
     "addons",
-    "third-party",
     "first-party",
     "local-folder",
 ]
 
 lines-after-imports = 2
 lines-between-types = 0
-known-first-party = [
-    "extensions",
-    "core",
-    "users",
-    # ADD OTHERS HERE
-]
 
 [tool.ruff.lint.isort.sections]
 django = ["django", "rest_framework"]
@@ -70,7 +67,7 @@ disallow_untyped_defs = true
 disallow_any_unimported = true
 no_implicit_optional = true
 check_untyped_defs = true
-# Warn everyhing
+# Warn everything
 warn_redundant_casts = true
 warn_unused_ignores = true
 warn_no_return = true
@@ -97,6 +94,7 @@ omit = [
     "./manage.py",
     "./app/asgi.py",
     "./app/wsgi.py",
+    "./core/management/commands/_base_command.py",
 ]
 
 [tool.coverage.html]
