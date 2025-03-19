@@ -36,10 +36,20 @@ class TestUserRegisterView(APITestCase):
         # Get the current User count
         original_count = User.objects.count()
         # Make the call
-        res = self.client.post(self.URL, data=payload)
+        res = self.client.post(
+            self.URL,
+            data=payload,
+            HTTP_ACCEPT_LANGUAGE="en-gb",  # Set language to English to compare error message
+        )
         # Verify the response
         self.assertResponseStatusCode(status.HTTP_403_FORBIDDEN, res)
-        self.assertEqual("Registration is disabled.", res.json()["errors"][0]["detail"])
+        self.assertEqual(
+            {
+                "type": "client_error",
+                "errors": [{"code": "permission_denied", "detail": "Registration is disabled.", "attr": None}],
+            },
+            res.json(),
+        )
         # Make sure no User was created
         self.assertEqual(original_count, User.objects.count())
 
