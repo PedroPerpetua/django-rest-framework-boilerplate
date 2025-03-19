@@ -94,6 +94,7 @@ omit = [
     "./manage.py",
     "./app/asgi.py",
     "./app/wsgi.py",
+    "./core/management/commands/_base_command.py",
 ]
 
 [tool.coverage.html]

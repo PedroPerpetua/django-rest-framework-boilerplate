@@ -2,7 +2,6 @@ import re
 import requests
 from pathlib import Path
 from typing import TYPE_CHECKING, Any, Optional, Type, cast
-from unittest import SkipTest
 from django.core.files.uploadedfile import SimpleUploadedFile
 from django.db import connection
 from django.db.models import Model
@@ -19,7 +18,7 @@ else:
     from rest_framework.response import Response
 
 
-class APITestCase(DRFAPITestCase):  # pragma: no cover
+class APITestCase(DRFAPITestCase):
     def assertResponseStatusCode(self, expected_status_code: int, response: Response) -> None:
         """
         Assert that the response's status code matches the expected one.
@@ -35,7 +34,7 @@ class APITestCase(DRFAPITestCase):  # pragma: no cover
         self.assertEqual(expected_status_code, response.status_code, content)
 
 
-class AbstractModelTestCase(TestCase):  # pragma: no cover
+class AbstractModelTestCase(TestCase):
     """
     TestCase class to generate new models from an abstract at runtime.
 
@@ -63,11 +62,10 @@ class AbstractModelTestCase(TestCase):  # pragma: no cover
 
     @classmethod
     def setUpClass(cls) -> None:
-        if len(cls.MODELS) == 0:
-            raise SkipTest(
-                "AbstractModelTestCase class used with no MODELS. Did you forget to include your abstract models in "
-                "the class variable?",
-            )
+        # pragma: no cover
+        assert len(cls.MODELS) != 0, (
+            "AbstractModelTestCase class used with no MODELS. Did you forget to include your abstract models in the class variable?"
+        )
         # Create the schemas for all models
         with connection.schema_editor() as schema_editor:
             for model in cls.MODELS:
