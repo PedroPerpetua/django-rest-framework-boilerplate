@@ -5,6 +5,9 @@ requires-python = "== 3.13.2"
 readme = "README.md"
 
 
+[boilerplate]
+version = "2.0.1"
+
 [tool.ruff]
 cache-dir = "/dev/null"
 exclude=[
@@ -30,21 +33,15 @@ section-order = [
 no-lines-before = [
     "future",
     "standard-library",
+    "third-party",
     "django",
     "addons",
-    "third-party",
     "first-party",
     "local-folder",
 ]
 
 lines-after-imports = 2
 lines-between-types = 0
-known-first-party = [
-    "extensions",
-    "core",
-    "users",
-    # ADD OTHERS HERE
-]
 
 [tool.ruff.lint.isort.sections]
 django = ["django", "rest_framework"]
