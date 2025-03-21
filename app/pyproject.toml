@@ -8,6 +8,7 @@ readme = "README.md"
 [boilerplate]
 version = "2.1.0"
 
+
 [tool.ruff]
 cache-dir = "/dev/null"
 exclude=[
