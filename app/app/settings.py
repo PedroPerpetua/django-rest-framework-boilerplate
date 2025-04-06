@@ -222,8 +222,8 @@ AUTH_PASSWORD_VALIDATORS = [
         "NAME": "django.contrib.auth.password_validation.NumericPasswordValidator",
     },
 ]
-AUTHENTICATION_BACKENDS = ["users.backends.AuthenticationBackend"]
 AUTH_USER_REGISTRATION_ENABLED = env.as_bool("AUTH_USER_REGISTRATION_ENABLED", False)
+AUTHENTICATION_BACKENDS = ["users.backends.AuthenticationBackend"]
 
 
 # Localization settings

@@ -1,3 +1,4 @@
+from __future__ import annotations
 from typing import TYPE_CHECKING, Any, Optional
 from django.contrib import admin
 from django.http import HttpRequest
@@ -43,7 +44,7 @@ class BaseAdminSite(admin.AdminSite):
         return ordered_apps
 
 
-object_metadata_fieldset: "tuple[_StrOrPromise | None, _FieldOpts]" = (
+object_metadata_fieldset: tuple[_StrOrPromise | None, _FieldOpts] = (
     _("Object metadata"),
     {"fields": ("id", "is_deleted", "created_at", "updated_at")},
 )

@@ -1,3 +1,4 @@
+from __future__ import annotations
 import re
 import requests
 from pathlib import Path
@@ -132,7 +133,7 @@ class SampleFile(SimpleUploadedFile):
         return self.bytes.decode()
 
     @staticmethod
-    def from_file_path(file_path: str | Path) -> "SampleFile":
+    def from_file_path(file_path: str | Path) -> SampleFile:
         """Generates a SampleFile from a real file, having the same contents."""
         if isinstance(file_path, str):
             file_path = Path(file_path)

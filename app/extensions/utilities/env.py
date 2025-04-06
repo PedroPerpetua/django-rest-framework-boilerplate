@@ -1,3 +1,4 @@
+from __future__ import annotations
 import json
 import os
 from typing import TYPE_CHECKING, Optional, TypeVar
@@ -75,7 +76,7 @@ def as_list(var: str, default: Optional[list[str]] = None) -> list[str]:
     return value
 
 
-def as_json(var: str, default: Optional["JSON"] = None) -> "JSON":
+def as_json(var: str, default: Optional[JSON] = None) -> JSON:
     """
     Return the environment variable loaded as a JSON object. If no default value is given and the variable is not set,
     raises KeyError.
