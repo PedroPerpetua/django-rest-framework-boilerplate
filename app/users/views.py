@@ -1,6 +1,7 @@
 from typing import Any
 from django.conf import settings
 from django.contrib.auth.password_validation import validate_password
+from django.utils.module_loading import import_string
 from django.utils.translation import gettext_lazy as _
 from rest_framework import generics, status
 from rest_framework.exceptions import AuthenticationFailed, PermissionDenied
@@ -8,6 +9,7 @@ from rest_framework.permissions import AllowAny
 from rest_framework.request import Request
 from rest_framework.response import Response
 from drf_spectacular.utils import OpenApiResponse, extend_schema, extend_schema_view
+from rest_framework_simplejwt import settings as jwt_settings
 from rest_framework_simplejwt import views as jwt_views
 from users import serializers
 from users.view_mixins import TargetAuthenticatedUserMixin
@@ -65,6 +67,32 @@ class UserRegisterView(generics.CreateAPIView):
         operation_id="users_login",
         summary="Login user",
         description="Endpoint to login a user and obtain a pair of `(access_token, refresh_token)`.",
+        responses={
+            # This is the default way the JWT view obtains the serializer
+            200: import_string(jwt_settings.api_settings.TOKEN_OBTAIN_SERIALIZER),
+            401: OpenApiResponse(
+                response={
+                    "type": "object",
+                    "properties": {
+                        "type": {"enum": ["client_error"]},
+                        "errors": {
+                            "type": "array",
+                            "items": {
+                                "type": "object",
+                                "properties": {
+                                    "code": {"enum": ["no_active_account"]},
+                                    "detail": {"enum": ["No active account found with the given credentials"]},
+                                    "attr": {"enum": [None]},
+                                },
+                                "required": ["code", "detail", "attr"],
+                            },
+                        },
+                    },
+                    "required": ["type", "errors"],
+                },
+                description="Registration is disabled",
+            ),
+        },
     )
 )
 class UserLoginView(jwt_views.TokenObtainPairView): ...
