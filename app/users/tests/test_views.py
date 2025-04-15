@@ -274,7 +274,7 @@ class TestUserChangePasswordView(APITestCase):
                         "code": "password_too_short",
                         "detail": "This password is too short. It must contain at least 8 characters.",
                         "attr": "non_field_errors",
-                    }
+                    },
                 ],
             },
             res.json(),

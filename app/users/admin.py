@@ -13,15 +13,7 @@ class UserAdmin(BaseUserAdmin):
     search_fields = ("username",)
     ordering = ("created_at",)
 
-    add_fieldsets = (
-        (
-            None,
-            {
-                "classes": ("wide",),
-                "fields": ("username", "password1", "password2"),
-            },
-        ),
-    )
+    add_fieldsets = ((None, {"classes": ("wide",), "fields": ("username", "password1", "password2")}),)
 
     readonly_fields = ("id", "created_at", "updated_at", "last_login")
     fieldsets = (

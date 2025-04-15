@@ -40,7 +40,9 @@ class NestedPrimaryKeyRelatedFieldSerializerExtension(OpenApiSerializerFieldExte
     target: NestedPrimaryKeyRelatedField
 
     def map_serializer_field(
-        self, auto_schema: AutoSchema, direction: Literal["request", "response"]
+        self,
+        auto_schema: AutoSchema,
+        direction: Literal["request", "response"],
     ) -> dict[str, Any]:
         """
         Override the serialization so that, in the response, we use the field's serializer; and in the request, we use
