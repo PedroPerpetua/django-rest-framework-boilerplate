@@ -1,8 +1,10 @@
 from __future__ import annotations
 import re
 import requests
+from collections.abc import Sequence
 from pathlib import Path
-from typing import TYPE_CHECKING, Any, Iterable, Optional, Type, cast
+from typing import TYPE_CHECKING, Any, Optional, Type, cast
+from typing import Sequence as SequenceType
 from django.core.files.uploadedfile import SimpleUploadedFile
 from django.db import connection
 from django.db.models import Model
@@ -32,9 +34,9 @@ class APITestCase(DRFAPITestCase):
             content = str(response.content)
         self.assertEqual(expected_status_code, response.status_code, content)
 
-    def assertResponseData[T: Model](
+    def assertResponseData[T: Model | dict[str, Any]](
         self,
-        expected_instance: T | Iterable[T],
+        expected_instance: T | SequenceType[T],
         serializer: type[BaseSerializer[T]],
         response: Response,
     ) -> None:
@@ -42,7 +44,7 @@ class APITestCase(DRFAPITestCase):
         data = serializer(
             # https://github.com/typeddjango/djangorestframework-stubs/issues/260
             expected_instance,  # type: ignore[arg-type]
-            many=(not isinstance(expected_instance, Model)),
+            many=isinstance(expected_instance, Sequence),
             # https://github.com/typeddjango/djangorestframework-stubs/issues/389
             context={"request": response.wsgi_request},  # type: ignore[attr-defined]
         ).data
