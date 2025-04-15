@@ -43,6 +43,8 @@ class APITestCase(DRFAPITestCase):
             # https://github.com/typeddjango/djangorestframework-stubs/issues/260
             expected_instance,  # type: ignore[arg-type]
             many=(not isinstance(expected_instance, Model)),
+            # https://github.com/typeddjango/djangorestframework-stubs/issues/389
+            context={"request": response.wsgi_request},  # type: ignore[attr-defined]
         ).data
         self.assertEqual(data, response.json())
 
