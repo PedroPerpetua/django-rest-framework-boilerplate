@@ -5,6 +5,8 @@ FROM ${PYTHON} AS builder
 
 # Add build-time dependencies ----------------------------
 RUN apk update
+# For psycopg2
+RUN apk add build-base libpq libpq-dev
 
 # Create venv --------------------------------------------
 RUN python3 -m venv --upgrade-deps /venv
@@ -25,6 +27,8 @@ ENV PYTHONUNBUFFERED 1
 
 # Add runtime dependencies -------------------------------
 RUN apk update
+# For psycopg2
+RUN apk add --no-cache libpq
 
 # Setup Supervisor + nginx -------------------------------
 RUN apk --no-cache add nginx
