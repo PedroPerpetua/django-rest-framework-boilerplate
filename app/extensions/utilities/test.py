@@ -2,11 +2,12 @@ from __future__ import annotations
 import re
 import requests
 from pathlib import Path
-from typing import TYPE_CHECKING, Any, Optional, Type, cast
+from typing import TYPE_CHECKING, Any, Iterable, Optional, Type, cast
 from django.core.files.uploadedfile import SimpleUploadedFile
 from django.db import connection
 from django.db.models import Model
 from django.test import TestCase
+from rest_framework.serializers import BaseSerializer
 from rest_framework.test import APITestCase as DRFAPITestCase
 from extensions.utilities import uuid
 from extensions.utilities.types import JSON
@@ -14,9 +15,6 @@ from extensions.utilities.types import JSON
 
 if TYPE_CHECKING:
     from rest_framework.response import _MonkeyPatchedResponse as Response
-
-else:
-    from rest_framework.response import Response
 
 
 class APITestCase(DRFAPITestCase):
@@ -33,6 +31,20 @@ class APITestCase(DRFAPITestCase):
         except:
             content = str(response.content)
         self.assertEqual(expected_status_code, response.status_code, content)
+
+    def assertResponseData[T: Model](
+        self,
+        expected_instance: T | Iterable[T],
+        serializer: type[BaseSerializer[T]],
+        response: Response,
+    ) -> None:
+        """Assert that the response's data matches the given instance(s) serialized."""
+        data = serializer(
+            # https://github.com/typeddjango/djangorestframework-stubs/issues/260
+            expected_instance,  # type: ignore[arg-type]
+            many=(not isinstance(expected_instance, Model)),
+        ).data
+        self.assertEqual(data, response.json())
 
 
 class AbstractModelTestCase(TestCase):
