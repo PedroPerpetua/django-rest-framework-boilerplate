@@ -1,4 +1,4 @@
-ARG PYTHON=python:3.13.2-alpine
+ARG PYTHON=python:3.13.3-alpine
 
 # Building stage +++++++++++++++++++++++++++++++++++++++++
 FROM ${PYTHON} AS builder
