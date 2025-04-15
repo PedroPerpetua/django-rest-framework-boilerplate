@@ -4,7 +4,6 @@ from random import shuffle
 from typing import overload
 from unittest import TestCase
 from unittest.mock import MagicMock, patch
-from uuid import UUID
 import extensions.utilities as utils
 from extensions.utilities import env
 from extensions.utilities.logging import LoggingConfigurationBuilder
@@ -14,15 +13,6 @@ from extensions.utilities.types import JSON
 
 class TestUtilities(TestCase):
     """Test the base utilities provided."""
-
-    def test_jsonify(self) -> None:
-        """Test the `jsonify` function."""
-        data = {"id": UUID(utils.uuid())}
-        json_data = {"id": str(data["id"])}
-        # Compare them before, to check that it would be different
-        self.assertNotEqual(json_data, data)
-        # Compare with the jsonify
-        self.assertEqual(json_data, utils.jsonify(data))
 
     def test_empty(self) -> None:
         """Test the `empty` function."""

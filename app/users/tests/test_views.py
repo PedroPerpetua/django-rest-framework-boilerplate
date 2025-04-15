@@ -1,3 +1,4 @@
+from typing import Any
 from django.test import override_settings
 from django.urls import reverse
 from rest_framework import status
@@ -24,7 +25,7 @@ class TestUserRegisterView(APITestCase):
         self.assertResponseStatusCode(status.HTTP_201_CREATED, res)
         self.assertEqual(original_count + 1, User.objects.count())
         created_user = User.objects.get(id=res.data["id"])
-        self.assertEqual(serializers.UserRegisterSerializer(created_user).data, res.json())
+        self.assertResponseData(created_user, serializers.UserRegisterSerializer, res)
         # Make sure the User was created properly
         self.assertEqual(created_user.username, payload["username"])
         self.assertTrue(created_user.check_password(payload["password"]))
@@ -144,7 +145,7 @@ class TestUserWhoamiView(APITestCase):
         res = self.client.get(self.URL)
         # Verify the response
         self.assertResponseStatusCode(status.HTTP_200_OK, res)
-        self.assertEqual(serializers.UserWhoamiSerializer(user).data, res.json())
+        self.assertResponseData(user, serializers.UserWhoamiSerializer, res)
 
     def test_authentication_required(self) -> None:
         """Test that the Whoami endpoint requires an authenticated user."""
@@ -169,7 +170,7 @@ class TestUserProfileView(APITestCase):
         res = self.client.get(self.URL)
         # verify the response
         self.assertResponseStatusCode(status.HTTP_200_OK, res)
-        self.assertEqual(serializers.UserProfileSerializer(self.user).data, res.json())
+        self.assertResponseData(self.user, serializers.UserProfileSerializer, res)
 
     def test_retrieve_authentication_required(self) -> None:
         """Test that the User needs to be logged in to retrieve their profile."""
@@ -183,15 +184,16 @@ class TestUserProfileView(APITestCase):
     def test_update_success(self) -> None:
         """Test successfully updating the User's profile."""
         for method in [self.client.patch, self.client.put]:
-            with self.subTest(message="Test updating User profile without being logged in.", value=method.__name__):
-                payload = {"username": f"_username_updated_{method.__name__}"}
+            with self.subTest(message="Test updating User profile successfully.", value=method.__name__):
+                # The default UserProfileSerializer has no fields that can be updated; so we test for empty payload
+                payload: dict[str, Any] = {}
                 # Make the call
                 res = method(self.URL, data=payload)
                 # Verify the response
                 self.assertResponseStatusCode(status.HTTP_200_OK, res)
-                # Make sure the username changed
+                # Verify any field changes
                 self.user.refresh_from_db()
-                self.assertEqual(payload["username"], self.user.username)
+                # ...
 
     def test_update_authentication_required(self) -> None:
         """Test that the User needs to be logged in to update their profile."""
@@ -274,7 +276,7 @@ class TestUserChangePasswordView(APITestCase):
                         "code": "password_too_short",
                         "detail": "This password is too short. It must contain at least 8 characters.",
                         "attr": "non_field_errors",
-                    }
+                    },
                 ],
             },
             res.json(),

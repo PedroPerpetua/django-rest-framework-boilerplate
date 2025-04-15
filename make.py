@@ -3,6 +3,7 @@ import requests
 import shutil
 import subprocess
 import tomllib
+import webbrowser
 import zipfile
 from pathlib import Path
 from tempfile import TemporaryDirectory
@@ -405,6 +406,16 @@ def test(skip_lint: bool, lint_only: bool, test_suite: str) -> None:
 
 
 @cli.command
+def open_coverage() -> None:
+    """Open the coverage index file on a new tab in your browser."""
+    coverage_file = BASE_DIR / "docker" / "dev" / "coverage" / "index.html"
+    if not coverage_file.exists():
+        error("No coverage file found. Please run the test command first.")
+        raise click.Abort()
+    webbrowser.open(f"file://{coverage_file.resolve()}", new=2)
+
+
+@cli.command
 @production_opt
 @click.argument("commands", nargs=-1)
 def command(production: bool, commands: tuple[str, ...]) -> None:
@@ -438,6 +449,7 @@ def clean(production: bool, all: bool, yes: bool) -> None:
             path = base_path / folder_name
             if path.exists():
                 shutil.rmtree(path.resolve())
+        success("All data cleared.", bold=True)
 
 
 @cli.command

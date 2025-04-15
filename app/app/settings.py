@@ -122,7 +122,7 @@ DATABASES = {
         "PASSWORD": env.as_string("POSTGRES_PASSWORD"),
         "HOST": env.as_string("POSTGRES_HOST"),
         "PORT": env.as_string("POSTGRES_PORT"),
-    }
+    },
 }
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
@@ -209,21 +209,13 @@ SPECTACULAR_SETTINGS = {
 
 AUTH_USER_MODEL = "users.User"
 AUTH_PASSWORD_VALIDATORS = [
-    {
-        "NAME": "django.contrib.auth.password_validation.UserAttributeSimilarityValidator",
-    },
-    {
-        "NAME": "django.contrib.auth.password_validation.MinimumLengthValidator",
-    },
-    {
-        "NAME": "django.contrib.auth.password_validation.CommonPasswordValidator",
-    },
-    {
-        "NAME": "django.contrib.auth.password_validation.NumericPasswordValidator",
-    },
+    {"NAME": "django.contrib.auth.password_validation.UserAttributeSimilarityValidator"},
+    {"NAME": "django.contrib.auth.password_validation.MinimumLengthValidator"},
+    {"NAME": "django.contrib.auth.password_validation.CommonPasswordValidator"},
+    {"NAME": "django.contrib.auth.password_validation.NumericPasswordValidator"},
 ]
-AUTHENTICATION_BACKENDS = ["users.backends.AuthenticationBackend"]
 AUTH_USER_REGISTRATION_ENABLED = env.as_bool("AUTH_USER_REGISTRATION_ENABLED", False)
+AUTHENTICATION_BACKENDS = ["users.backends.AuthenticationBackend"]
 
 
 # Localization settings

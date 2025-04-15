@@ -1,10 +1,12 @@
-ARG PYTHON=python:3.13.2-alpine
+ARG PYTHON=python:3.13.3-alpine
 
 # Building stage +++++++++++++++++++++++++++++++++++++++++
 FROM ${PYTHON} AS builder
 
 # Add build-time dependencies ----------------------------
 RUN apk update
+# For psycopg2
+RUN apk add build-base libpq libpq-dev
 
 # Create venv --------------------------------------------
 RUN python3 -m venv --upgrade-deps /venv
@@ -22,6 +24,8 @@ ENV RUFF_NO_CACHE=true
 
 # Add runtime dependencies -------------------------------
 RUN apk update
+# For psycopg2
+RUN apk add --no-cache libpq
 
 # Copy Python environment --------------------------------
 COPY --from=builder /venv/ /venv
