@@ -1,3 +1,4 @@
+from typing import Any
 from django.test import override_settings
 from django.urls import reverse
 from rest_framework import status
@@ -183,15 +184,16 @@ class TestUserProfileView(APITestCase):
     def test_update_success(self) -> None:
         """Test successfully updating the User's profile."""
         for method in [self.client.patch, self.client.put]:
-            with self.subTest(message="Test updating User profile without being logged in.", value=method.__name__):
-                payload = {"username": f"_username_updated_{method.__name__}"}
+            with self.subTest(message="Test updating User profile successfully.", value=method.__name__):
+                # The default UserProfileSerializer has no fields that can be updated; so we test for empty payload
+                payload: dict[str, Any] = {}
                 # Make the call
                 res = method(self.URL, data=payload)
                 # Verify the response
                 self.assertResponseStatusCode(status.HTTP_200_OK, res)
-                # Make sure the username changed
+                # Verify any field changes
                 self.user.refresh_from_db()
-                self.assertEqual(payload["username"], self.user.username)
+                # ...
 
     def test_update_authentication_required(self) -> None:
         """Test that the User needs to be logged in to update their profile."""
