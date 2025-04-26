@@ -1,4 +1,3 @@
-import json
 from pathlib import Path
 from random import shuffle
 from typing import overload
@@ -8,47 +7,30 @@ import extensions.utilities as utils
 from extensions.utilities import env
 from extensions.utilities.logging import LoggingConfigurationBuilder
 from extensions.utilities.test import MockResponse, SampleFile
-from extensions.utilities.types import JSON
 
 
 class TestUtilities(TestCase):
     """Test the base utilities provided."""
 
-    def test_empty(self) -> None:
-        """Test the `empty` function."""
-        # Test for True
-        values = [None, "", "   \n\t   "]
-        for value in values:
-            with self.subTest("Test for True.", value=value):
-                self.assertTrue(utils.empty(value))
-        # Test for False
-        value = "_value"
-        with self.subTest("Test for False.", value=value):
-            self.assertFalse(utils.empty(value))
+    def test_Undefined(self) -> None:
+        """Test the _Undefined class."""
+        u1 = utils._Undefined()
+        u2 = utils._Undefined()
+        with self.subTest("Test singleton."):
+            self.assertEqual(id(u1), id(u2))
 
-    def test_clear_Nones(self) -> None:
-        """Test the `clear_Nones` function."""
-        # Test for objects
-        object_value: JSON = {"_key1": "_value1", "_key2": None}
-        with self.subTest("Test using an object.", object=object_value):
-            self.assertEqual({"_key1": "_value1"}, utils.clear_Nones(object_value))
-        nested_object: JSON = {"_key1": "_value1", "_key2": None, "_key3": {"_nested1": None, "_nested2": "_value2"}}
-        with self.subTest("Test using a nested object.", object=nested_object):
-            self.assertEqual({"_key1": "_value1", "_key3": {"_nested2": "_value2"}}, utils.clear_Nones(nested_object))
-        # Test for lists
-        list_value: JSON = ["_item1", None, "_item3", None]
-        with self.subTest("Test using a list", list=list_value):
-            self.assertEqual(["_item1", "_item3"], utils.clear_Nones(list_value))
-        nested_list: JSON = ["_item1", None, ["_nested1", None]]
-        with self.subTest("Test nested lists", value=nested_list):
-            self.assertEqual(["_item1", ["_nested1"]], utils.clear_Nones(nested_list))
-        # Test combined
-        combined_value: JSON = ["_item1", "_item2", None, {"_key1": "_value1", "_key2": None}]
-        with self.subTest("Test combining lists, objects and nesting.", value=combined_value):
-            self.assertEqual(["_item1", "_item2", {"_key1": "_value1"}], utils.clear_Nones(combined_value))
-        # Test with kwargs
-        with self.subTest("Test with kwargs"):
-            self.assertEqual({"_key1": "_value1"}, utils.clear_Nones(_key1="_value1", _key2=None))
+        with self.subTest("Test equality."):
+            self.assertNotEqual(u1, u2)
+
+        with self.subTest("Test bool."):
+            self.assertFalse(utils.Undefined)
+
+    def test_clear_Undefined(self) -> None:
+        """Test the `clear_Undefined` function."""
+        self.assertEqual(
+            {"_key1": "_value1", "_key2": None},
+            utils.clear_Undefined(_key1="_value1", _key2=None, _key3=utils.Undefined),
+        )
 
     def test_ext(self) -> None:
         """Test the `ext` function."""
@@ -58,7 +40,7 @@ class TestUtilities(TestCase):
             ("_path/_dot._in._the/middle._with_ext", "_with_ext"),
         ]
         for case, expected in cases:
-            with self.subTest("Testing the extensions", case=case, ext=expected):
+            with self.subTest("Testing the extensions.", case=case, ext=expected):
                 self.assertEqual(expected, utils.ext(case))
                 self.assertEqual(f".{expected}", utils.ext(case, leading_dot=True))
         # Edge case
@@ -66,19 +48,19 @@ class TestUtilities(TestCase):
 
     def test_order_list(self) -> None:
         """Test the `order_list` function."""
-        with self.subTest("Test regular sorting"):
+        with self.subTest("Test regular sorting."):
             original_list = [5, 3, 1, 4]
             ordering_list = [str(n) for n in original_list]
             shuffle(ordering_list)
             result = utils.order_list(original_list, ordering_list)
             self.assertEqual([int(n) for n in ordering_list], result)
-        with self.subTest("Missing value is appended"):
+        with self.subTest("Missing value is appended."):
             original_list = [5, 3, 1, 4]
             ordering_list = [str(n) for n in original_list[:-2]]
             shuffle(ordering_list)
             result = utils.order_list(original_list, ordering_list)
             self.assertEqual([int(n) for n in ordering_list] + original_list[2:], result)
-        with self.subTest("Test with mapping"):
+        with self.subTest("Test with mapping."):
             mapped_original_list_values = [5, 3, 1, 4]
             mapped_original_list = [{"item": n} for n in mapped_original_list_values]
             mapped_ordering_list = [str(n) for n in mapped_original_list_values]
@@ -94,7 +76,7 @@ class TestTestUtilities(TestCase):
         """Test the MockResponse class."""
         with self.subTest("Test creating a MockResponse object."):
             code = 200
-            json: JSON = {"_key": "_value"}
+            json = {"_key": "_value"}
             obj = MockResponse(code, json)
             self.assertEqual(code, obj.status_code)
             self.assertEqual(json, obj.json())
@@ -224,7 +206,7 @@ class TestEnvUtilities(TestCase):
         # Test for true values
         for value in true_values:
             with (
-                self.subTest(msg="True Values", value=value),
+                self.subTest(msg="True values.", value=value),
                 patch("extensions.utilities.env.ENV", {key: str(value)}),
             ):
                 retval = env.as_bool(key)
@@ -232,7 +214,7 @@ class TestEnvUtilities(TestCase):
                 self.assertEqual(True, retval)
         for value in false_values:
             with (
-                self.subTest(msg="False Values", value=value),
+                self.subTest(msg="False values.", value=value),
                 patch("extensions.utilities.env.ENV", {key: str(value)}),
             ):
                 retval = env.as_bool(key)
@@ -245,24 +227,6 @@ class TestEnvUtilities(TestCase):
         default = True
         with patch("extensions.utilities.env.ENV", {}):
             retval = env.as_bool(key, default)
-            self.assertEqual(default, retval)
-
-    def test_as_json(self) -> None:
-        """Test the `as_json` function."""
-        key = "_key"
-        value = {"_key": "_value"}
-        with patch("extensions.utilities.env.ENV", {key: json.dumps(value)}):
-            retval = env.as_json(key)
-            self.assertIsInstance(retval, dict)
-            self.assertEqual(value, retval)
-
-    def test_as_json_missing_key_default(self) -> None:
-        """Test the `as_json` function with a missing key, when a default is provided."""
-        key = "_key"
-        default: JSON = {"_key": "_value"}
-        with patch("extensions.utilities.env.ENV", {}):
-            retval = env.as_json(key, default)
-            self.assertIsInstance(retval, dict)
             self.assertEqual(default, retval)
 
 

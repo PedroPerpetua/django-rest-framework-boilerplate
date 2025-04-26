@@ -11,12 +11,12 @@ from rest_framework.response import Response
 from drf_spectacular.utils import OpenApiResponse, extend_schema, extend_schema_view
 from rest_framework_simplejwt import settings as jwt_settings
 from rest_framework_simplejwt import views as jwt_views
-from users import serializers
+from users import models, serializers
 from users.view_mixins import TargetAuthenticatedUserMixin
 
 
 @extend_schema(tags=["User Authentication"])
-class UserRegisterView(generics.CreateAPIView):
+class UserRegisterView(generics.CreateAPIView[models.User]):
     """Endpoint to register users."""
 
     permission_classes = (AllowAny,)
@@ -128,7 +128,7 @@ class UserLogoutView(jwt_views.TokenBlacklistView): ...
         description="Endpoint to retrieve the current logged in user.",
     )
 )
-class UserWhoamiView(TargetAuthenticatedUserMixin, generics.RetrieveAPIView):
+class UserWhoamiView(TargetAuthenticatedUserMixin, generics.RetrieveAPIView[models.User]):
     """Endpoint to retrieve the identifying information of the currently logged in User."""
 
     serializer_class = serializers.UserWhoamiSerializer
@@ -144,14 +144,14 @@ class UserWhoamiView(TargetAuthenticatedUserMixin, generics.RetrieveAPIView):
         summary="Patch user details", description="Endpoint to fully override the current user's details."
     ),
 )
-class UserProfileView(TargetAuthenticatedUserMixin, generics.RetrieveUpdateAPIView):
+class UserProfileView(TargetAuthenticatedUserMixin, generics.RetrieveUpdateAPIView[models.User]):
     """Endpoint to retrieve and update a User's details."""
 
     serializer_class = serializers.UserProfileSerializer
 
 
 @extend_schema(tags=["Users"])
-class UserChangePasswordView(TargetAuthenticatedUserMixin, generics.UpdateAPIView):
+class UserChangePasswordView(TargetAuthenticatedUserMixin, generics.UpdateAPIView[models.User]):
     """
     Endpoint to change a user's password.
 

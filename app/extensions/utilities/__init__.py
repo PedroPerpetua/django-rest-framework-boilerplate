@@ -1,18 +1,6 @@
 from pathlib import Path
-from typing import TYPE_CHECKING, Any, Callable, Optional, TypeVar, overload
+from typing import Any, Callable, Optional, Self
 from uuid import uuid4
-
-
-if TYPE_CHECKING:
-    """
-    We only import this when typechecking to prevent DRF from being loaded into this module, as our `settings.py` file
-    imports from this module to setup. If we import this regularly, we're met with an issue where DRF is loaded BEFORE
-    `REST_FRAMEWORK` settings are set, causing them to never be loaded at all.
-    """
-    from extensions.utilities.types import JSON
-
-else:
-    JSON = Any
 
 
 def uuid() -> str:
@@ -20,33 +8,48 @@ def uuid() -> str:
     return str(uuid4())
 
 
-def empty(string: Optional[str]) -> bool:
-    """Given a string, returns True if it's None or empty, or only whitespace."""
-    if not string:
-        return True
-    if string.strip() == "":
-        return True
-    return False
+class _Undefined(object):
+    """
+    This class represents an Undefined value. We use it to specify defaults for arguments that can take `None` as
+    their value, so that we don't mix the two.
+
+    Should be used together with the `clear_Undefined` function.
+
+    This is a singleton class; instances will always evaluate to `False`, and comparisons will always evaluate to
+    `False`.
+    """
+
+    _instance: Optional[Self] = None
+
+    def __new__(cls) -> Self:
+        """Singleton pattern."""
+        if cls._instance is None:
+            cls._instance = super().__new__(cls)
+        assert isinstance(cls._instance, cls)
+        return cls._instance
+
+    def __eq__(self, _: Any) -> bool:
+        return False
+
+    def __bool__(self) -> bool:
+        return False
 
 
-@overload
-def clear_Nones(**kwargs: Any) -> dict[str, Any]: ...
+Undefined = _Undefined()
+"""Singleton of the `_Undefined` class."""
+
+type Undefinable[T] = _Undefined | T
+"""Similar to `Optional`, but with `_Undefined`"""
 
 
-@overload
-def clear_Nones(json_obj: Optional[JSON] = ..., **kwargs: Any) -> JSON: ...
+def clear_Undefined(**kwargs: Any) -> dict[str, Any]:
+    """
+    Clear out `Undefined` objects from the passed kwargs and return the rest.
 
-
-def clear_Nones(json_obj: Optional[JSON] = None, **kwargs: Any) -> JSON:
-    """Clear an object intended to be serialized as JSON by removing all `None` values, recursively."""
-    if json_obj is None:
-        return clear_Nones(kwargs)
-    if isinstance(json_obj, dict):
-        json_obj.update(kwargs)
-        return {k: clear_Nones(v) for k, v in json_obj.items() if v is not None}
-    if isinstance(json_obj, list):
-        return [clear_Nones(v) for v in json_obj if v is not None]
-    return json_obj
+    This function is very useful as a way to "delete" items from kwargs as they're passed down to model object
+    creation; we avoid using `None` because some models do take `None` as an option.
+    """
+    return {k: v for k, v in kwargs.items() if not isinstance(v, _Undefined)}
 
 
 def ext(filename: str, leading_dot: bool = False) -> str:
@@ -61,10 +64,7 @@ def ext(filename: str, leading_dot: bool = False) -> str:
     return extensions[1:]
 
 
-T = TypeVar("T")
-
-
-def order_list(original: list[T], ordering: list[str], func: Callable[[T], str] = lambda x: str(x)) -> list[T]:
+def order_list[T](original: list[T], ordering: list[str], func: Callable[[T], str] = lambda x: str(x)) -> list[T]:
     """
     This function will order a list (original) according to another list (ordering).
 

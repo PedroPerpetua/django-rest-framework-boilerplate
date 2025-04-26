@@ -141,7 +141,7 @@ REST_FRAMEWORK = {
     "EXCEPTION_HANDLER": "drf_standardized_errors.handler.exception_handler",
     "DEFAULT_PERMISSION_CLASSES": ("rest_framework.permissions.IsAuthenticated",),
     "DEFAULT_AUTHENTICATION_CLASSES": ("rest_framework_simplejwt.authentication.JWTAuthentication",),
-    "DEFAULT_SCHEMA_CLASS": "drf_standardized_errors.openapi.AutoSchema",
+    "DEFAULT_SCHEMA_CLASS": "core.exceptions.AutoSchema",
     "TEST_REQUEST_DEFAULT_FORMAT": "json",
 }
 
@@ -169,14 +169,14 @@ DRF_STANDARDIZED_ERRORS = {
 # DRF Spectacular settings
 
 SPECTACULAR_SETTINGS = {
-    "TITLE": env.as_string("SWAGGER_TITLE", "API"),
-    "DESCRIPTION": env.as_string("SWAGGER_DESCRIPTION", "API Schema"),
-    "VERSION": env.as_string("SWAGGER_API_VERSION", "v1"),
+    "TITLE": "API",
+    "DESCRIPTION": "API Schema",
+    "VERSION": "v1",
     "SERVE_INCLUDE_SCHEMA": False,
     "SERVE_PERMISSIONS": (
         (
             "rest_framework.permissions.IsAdminUser"
-            if env.as_bool("SWAGGER_ADMIN_ONLY", True)
+            if env.as_bool("SCHEMA_ADMIN_ONLY", True)
             else "rest_framework.permissions.AllowAny"
         ),
     ),
@@ -200,7 +200,7 @@ SPECTACULAR_SETTINGS = {
         "ErrorCode429Enum": "drf_standardized_errors.openapi_serializers.ErrorCode429Enum.choices",
         "ErrorCode500Enum": "drf_standardized_errors.openapi_serializers.ErrorCode500Enum.choices",
     },
-    "POSTPROCESSING_HOOKS": ["drf_standardized_errors.openapi_hooks.postprocess_schema_enums"],
+    "POSTPROCESSING_HOOKS": ("drf_standardized_errors.openapi_hooks.postprocess_schema_enums",),
     "COMPONENT_SPLIT_REQUEST": True,
 }
 
