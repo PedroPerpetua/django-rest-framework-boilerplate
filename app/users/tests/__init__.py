@@ -1,6 +1,5 @@
-from typing import Optional
 from uuid import UUID
-from extensions.utilities import clear_Nones, uuid
+from extensions.utilities import Undefinable, Undefined, clear_Undefined, uuid
 from users.models import User
 
 
@@ -10,32 +9,27 @@ VALID_PASSWORD = "Password1."
 
 def sample_user(
     *,
-    id: Optional[UUID | str] = None,
-    username: Optional[str] = None,
-    password: Optional[str] = None,
-    is_staff: Optional[bool] = None,
-    is_superuser: Optional[bool] = None,
-    is_active: Optional[bool] = None,
-    is_deleted: Optional[bool] = None,
-    allow_empty_password: bool = False,
+    id: Undefinable[UUID | str] = Undefined,
+    username: Undefinable[str] = Undefined,
+    password: Undefinable[str] = Undefined,
+    is_staff: Undefinable[bool] = Undefined,
+    is_superuser: Undefinable[bool] = Undefined,
+    is_active: Undefinable[bool] = Undefined,
+    is_deleted: Undefinable[bool] = Undefined,
 ) -> User:
     """
     Create a sample user with the following default values:
     - `id`: auto-generated
     - `username`: unique username
-    - `password`: pre-defined valid password
+    - `password`: default value (no password)
     - `is_staff`: default value
     - `is_superuser`: default value
     - `is_active`: default value
     - `is_deleted`: default value
-
-    To set an empty password, set `allow_empty_password` as True.
     """
     username = username or uuid()
-    if not password and not allow_empty_password:
-        password = VALID_PASSWORD
     return User.objects.create_user(
-        **clear_Nones(
+        **clear_Undefined(
             id=id,
             username=username,
             password=password,

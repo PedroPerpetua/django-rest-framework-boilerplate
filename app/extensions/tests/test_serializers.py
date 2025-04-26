@@ -1,7 +1,6 @@
 from django.db import models
 from rest_framework import serializers
 from rest_framework.exceptions import ValidationError
-from rest_framework.utils.serializer_helpers import ReturnDict
 from extensions.models import AbstractBaseModel
 from extensions.serializers import NestedPrimaryKeyRelatedField
 from extensions.utilities.test import AbstractModelTestCase
@@ -63,9 +62,7 @@ class TestNestedPrimaryKeyRelatedField(AbstractModelTestCase):
         serialized_parent = self.parentSerializer(data={"child": serialized_child_data})
         with self.assertRaises(ValidationError) as ctx:
             serialized_parent.is_valid(raise_exception=True)
-        exc_detail: ReturnDict = ctx.exception.detail  # type: ignore
-        self.assertIn("child", exc_detail.keys())
-        self.assertEqual("invalid", exc_detail["child"][0].code)
+        self.assertEqual(ctx.exception.get_codes(), {"child": ["invalid"]})
 
     def test_representation(self) -> None:
         """Test that retrieving the presentation will display the nested data."""

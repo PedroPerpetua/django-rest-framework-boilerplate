@@ -12,7 +12,6 @@ from django.test import TestCase
 from rest_framework.serializers import BaseSerializer
 from rest_framework.test import APITestCase as DRFAPITestCase
 from extensions.utilities import uuid
-from extensions.utilities.types import JSON
 
 
 if TYPE_CHECKING:
@@ -98,21 +97,21 @@ class AbstractModelTestCase(TestCase):
                 schema_editor.delete_model(model)
 
 
-class MockResponse(requests.Response):
+class MockResponse[T: dict[str, Any] | list[Any] = dict[str, Any]](requests.Response):
     """Auxiliary class to mock a `requests.Response`."""
 
-    def __init__(self, code: int, json_response: JSON = None) -> None:
+    def __init__(self, code: int, json_response: Optional[T] = None) -> None:
         if json_response is None:
-            json_response = dict()
+            json_response = cast(T, dict())
         self.status_code = code
-        self.json_data = json_response
+        self._json_data = json_response
 
-    def json(self, *args: Any, **kwargs: Any) -> JSON:
-        return self.json_data
+    def json(self, *args: Any, **kwargs: Any) -> T:
+        return self._json_data
 
     @property
     def text(self) -> str:
-        return str(self.json_data)
+        return str(self._json_data)
 
     @property
     def ok(self) -> bool:

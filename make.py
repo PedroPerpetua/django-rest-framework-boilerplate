@@ -7,11 +7,9 @@ import webbrowser
 import zipfile
 from pathlib import Path
 from tempfile import TemporaryDirectory
-from typing import Any, Callable, Optional, TypedDict, TypeVar
+from typing import Any, Callable, Optional, TypedDict
 import click
 
-
-FuncT = TypeVar("FuncT", bound=Callable[..., Any])
 
 BASE_DIR = Path(__file__).parent
 
@@ -339,7 +337,7 @@ def error(message: str, *, bold: bool = False) -> None:
 # -----------------------------------------------------------------------------
 
 
-def production_opt(func: FuncT) -> FuncT:
+def production_opt[F: Callable[..., Any]](func: F) -> F:
     """Auxiliary common option for multiple commands."""
     return click.option("-p", "--production", is_flag=True, help="Use production compose")(func)
 

@@ -3,7 +3,7 @@ from rest_framework import serializers
 from users import models
 
 
-class UserRegisterSerializer(serializers.ModelSerializer):
+class UserRegisterSerializer(serializers.ModelSerializer[models.User]):
     """Serializer for creating users."""
 
     class Meta:
@@ -15,7 +15,7 @@ class UserRegisterSerializer(serializers.ModelSerializer):
         return models.User.objects.create_user(**validated_data)
 
 
-class UserWhoamiSerializer(serializers.ModelSerializer):
+class UserWhoamiSerializer(serializers.ModelSerializer[models.User]):
     """Serializer for retrieving the current user's `USERNAME_FIELD` data (usually username or email)."""
 
     class Meta:
@@ -23,7 +23,7 @@ class UserWhoamiSerializer(serializers.ModelSerializer):
         fields = (models.User.USERNAME_FIELD,)
 
 
-class UserChangePasswordSerializer(serializers.ModelSerializer):
+class UserChangePasswordSerializer(serializers.ModelSerializer[models.User]):
     """Serializer for change password requests."""
 
     password = serializers.CharField(required=True)
@@ -34,7 +34,7 @@ class UserChangePasswordSerializer(serializers.ModelSerializer):
         fields = ("password", "new_password")
 
 
-class UserProfileSerializer(serializers.ModelSerializer):
+class UserProfileSerializer(serializers.ModelSerializer[models.User]):
     """Serializer to handle user's details."""
 
     class Meta:

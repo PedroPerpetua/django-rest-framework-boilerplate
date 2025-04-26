@@ -1,4 +1,3 @@
-import json
 from pathlib import Path
 from random import shuffle
 from typing import overload
@@ -8,47 +7,17 @@ import extensions.utilities as utils
 from extensions.utilities import env
 from extensions.utilities.logging import LoggingConfigurationBuilder
 from extensions.utilities.test import MockResponse, SampleFile
-from extensions.utilities.types import JSON
 
 
 class TestUtilities(TestCase):
     """Test the base utilities provided."""
 
-    def test_empty(self) -> None:
-        """Test the `empty` function."""
-        # Test for True
-        values = [None, "", "   \n\t   "]
-        for value in values:
-            with self.subTest("Test for True.", value=value):
-                self.assertTrue(utils.empty(value))
-        # Test for False
-        value = "_value"
-        with self.subTest("Test for False.", value=value):
-            self.assertFalse(utils.empty(value))
-
-    def test_clear_Nones(self) -> None:
-        """Test the `clear_Nones` function."""
-        # Test for objects
-        object_value: JSON = {"_key1": "_value1", "_key2": None}
-        with self.subTest("Test using an object.", object=object_value):
-            self.assertEqual({"_key1": "_value1"}, utils.clear_Nones(object_value))
-        nested_object: JSON = {"_key1": "_value1", "_key2": None, "_key3": {"_nested1": None, "_nested2": "_value2"}}
-        with self.subTest("Test using a nested object.", object=nested_object):
-            self.assertEqual({"_key1": "_value1", "_key3": {"_nested2": "_value2"}}, utils.clear_Nones(nested_object))
-        # Test for lists
-        list_value: JSON = ["_item1", None, "_item3", None]
-        with self.subTest("Test using a list", list=list_value):
-            self.assertEqual(["_item1", "_item3"], utils.clear_Nones(list_value))
-        nested_list: JSON = ["_item1", None, ["_nested1", None]]
-        with self.subTest("Test nested lists", value=nested_list):
-            self.assertEqual(["_item1", ["_nested1"]], utils.clear_Nones(nested_list))
-        # Test combined
-        combined_value: JSON = ["_item1", "_item2", None, {"_key1": "_value1", "_key2": None}]
-        with self.subTest("Test combining lists, objects and nesting.", value=combined_value):
-            self.assertEqual(["_item1", "_item2", {"_key1": "_value1"}], utils.clear_Nones(combined_value))
-        # Test with kwargs
-        with self.subTest("Test with kwargs"):
-            self.assertEqual({"_key1": "_value1"}, utils.clear_Nones(_key1="_value1", _key2=None))
+    def test_clear_Undefined(self) -> None:
+        """Test the `clear_Undefined` function."""
+        self.assertEqual(
+            {"_key1": "_value1", "_key2": None},
+            utils.clear_Undefined(_key1="_value1", _key2=None, _key3=utils.Undefined),
+        )
 
     def test_ext(self) -> None:
         """Test the `ext` function."""
@@ -94,7 +63,7 @@ class TestTestUtilities(TestCase):
         """Test the MockResponse class."""
         with self.subTest("Test creating a MockResponse object."):
             code = 200
-            json: JSON = {"_key": "_value"}
+            json = {"_key": "_value"}
             obj = MockResponse(code, json)
             self.assertEqual(code, obj.status_code)
             self.assertEqual(json, obj.json())
@@ -245,24 +214,6 @@ class TestEnvUtilities(TestCase):
         default = True
         with patch("extensions.utilities.env.ENV", {}):
             retval = env.as_bool(key, default)
-            self.assertEqual(default, retval)
-
-    def test_as_json(self) -> None:
-        """Test the `as_json` function."""
-        key = "_key"
-        value = {"_key": "_value"}
-        with patch("extensions.utilities.env.ENV", {key: json.dumps(value)}):
-            retval = env.as_json(key)
-            self.assertIsInstance(retval, dict)
-            self.assertEqual(value, retval)
-
-    def test_as_json_missing_key_default(self) -> None:
-        """Test the `as_json` function with a missing key, when a default is provided."""
-        key = "_key"
-        default: JSON = {"_key": "_value"}
-        with patch("extensions.utilities.env.ENV", {}):
-            retval = env.as_json(key, default)
-            self.assertIsInstance(retval, dict)
             self.assertEqual(default, retval)
 
 
