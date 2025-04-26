@@ -12,6 +12,19 @@ from extensions.utilities.test import MockResponse, SampleFile
 class TestUtilities(TestCase):
     """Test the base utilities provided."""
 
+    def test_Undefined(self) -> None:
+        """Test the _Undefined class."""
+        u1 = utils._Undefined()
+        u2 = utils._Undefined()
+        with self.subTest("Test singleton."):
+            self.assertEqual(id(u1), id(u2))
+
+        with self.subTest("Test equality."):
+            self.assertNotEqual(u1, u2)
+
+        with self.subTest("Test bool."):
+            self.assertFalse(utils.Undefined)
+
     def test_clear_Undefined(self) -> None:
         """Test the `clear_Undefined` function."""
         self.assertEqual(
@@ -27,7 +40,7 @@ class TestUtilities(TestCase):
             ("_path/_dot._in._the/middle._with_ext", "_with_ext"),
         ]
         for case, expected in cases:
-            with self.subTest("Testing the extensions", case=case, ext=expected):
+            with self.subTest("Testing the extensions.", case=case, ext=expected):
                 self.assertEqual(expected, utils.ext(case))
                 self.assertEqual(f".{expected}", utils.ext(case, leading_dot=True))
         # Edge case
@@ -35,19 +48,19 @@ class TestUtilities(TestCase):
 
     def test_order_list(self) -> None:
         """Test the `order_list` function."""
-        with self.subTest("Test regular sorting"):
+        with self.subTest("Test regular sorting."):
             original_list = [5, 3, 1, 4]
             ordering_list = [str(n) for n in original_list]
             shuffle(ordering_list)
             result = utils.order_list(original_list, ordering_list)
             self.assertEqual([int(n) for n in ordering_list], result)
-        with self.subTest("Missing value is appended"):
+        with self.subTest("Missing value is appended."):
             original_list = [5, 3, 1, 4]
             ordering_list = [str(n) for n in original_list[:-2]]
             shuffle(ordering_list)
             result = utils.order_list(original_list, ordering_list)
             self.assertEqual([int(n) for n in ordering_list] + original_list[2:], result)
-        with self.subTest("Test with mapping"):
+        with self.subTest("Test with mapping."):
             mapped_original_list_values = [5, 3, 1, 4]
             mapped_original_list = [{"item": n} for n in mapped_original_list_values]
             mapped_ordering_list = [str(n) for n in mapped_original_list_values]
@@ -193,7 +206,7 @@ class TestEnvUtilities(TestCase):
         # Test for true values
         for value in true_values:
             with (
-                self.subTest(msg="True Values", value=value),
+                self.subTest(msg="True values.", value=value),
                 patch("extensions.utilities.env.ENV", {key: str(value)}),
             ):
                 retval = env.as_bool(key)
@@ -201,7 +214,7 @@ class TestEnvUtilities(TestCase):
                 self.assertEqual(True, retval)
         for value in false_values:
             with (
-                self.subTest(msg="False Values", value=value),
+                self.subTest(msg="False values.", value=value),
                 patch("extensions.utilities.env.ENV", {key: str(value)}),
             ):
                 retval = env.as_bool(key)

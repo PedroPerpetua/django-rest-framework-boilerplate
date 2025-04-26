@@ -18,7 +18,7 @@ class ExceptionHandler(BaseExceptionHandler):
         return super().convert_known_exceptions(exc)
 
 
-class AutoSchema(BaseAutoSchema):
+class AutoSchema(BaseAutoSchema):  # pragma: no cover
     """
     Custom AutoSchema for drf_spectacular so that the drf_standardized_errors are not automatically added to GET and
     DELETE requests.
