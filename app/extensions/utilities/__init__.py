@@ -1,5 +1,6 @@
+from __future__ import annotations
 from pathlib import Path
-from typing import Any, Callable, Optional, Self
+from typing import Any, Callable
 from uuid import uuid4
 
 
@@ -8,7 +9,18 @@ def uuid() -> str:
     return str(uuid4())
 
 
-class _Undefined(object):
+class Singleton[T](type):
+    """A metaclass to apply the Singleton pattern."""
+
+    _instances: dict[Singleton[T], T] = {}
+
+    def __call__(cls, *args: Any, **kwds: Any) -> T:
+        if cls not in cls._instances:
+            cls._instances[cls] = super(Singleton, cls).__call__(*args, **kwds)
+        return cls._instances[cls]
+
+
+class _Undefined(metaclass=Singleton):
     """
     This class represents an Undefined value. We use it to specify defaults for arguments that can take `None` as
     their value, so that we don't mix the two.
@@ -18,15 +30,6 @@ class _Undefined(object):
     This is a singleton class; instances will always evaluate to `False`, and comparisons will always evaluate to
     `False`.
     """
-
-    _instance: Optional[Self] = None
-
-    def __new__(cls) -> Self:
-        """Singleton pattern."""
-        if cls._instance is None:
-            cls._instance = super().__new__(cls)
-        assert isinstance(cls._instance, cls)
-        return cls._instance
 
     def __eq__(self, _: Any) -> bool:
         return False
