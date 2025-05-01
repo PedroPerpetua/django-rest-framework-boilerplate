@@ -18,10 +18,10 @@ class AutoSchema(BaseAutoSchema):  # pragma: no cover
 
 def post_processing_hook_apply_config(result: dict[str, Any], *args: Any, **kwargs: Any) -> dict[str, Any]:
     """
-    Apply the constance configs to the schema definition. We do this at a post_processing_hook level so we have access
+    Apply the Constance configs to the schema definition. We do this at a post_processing_hook level so we have access
     to the configs.
     """
-    # Apply the constance configs
+    # Apply the Constance configs
     result["info"]["title"] = config.OPENAPI_TITLE
     result["info"]["description"] = config.OPENAPI_DESCRIPTION
     result["info"]["version"] = config.OPENAPI_VERSION

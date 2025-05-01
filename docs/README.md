@@ -39,12 +39,13 @@ Run `python make.py run` to run the dev server.
 - Base command to ease command development, with additional `wait_for_db` and `setup` commands.
 - Ready to edit custom Admin page.
   - Also features an ordering utility to easily re-order apps and models on the admin page.
+- Dynamic configuration through Constance.
 - A base for a custom user model with the full JWT authentication flow.
   - This custom user model can be easily setup with mixins to change the username field, set up required email or username, etc.
   - Also includes classes and mixins for views to facilitate working with Users.
   - **NOTE**: The users, by default, have `active=True`. It may be desired to change this behavior.
   - **NOTE**: The simplejwt settings have `UPDATE_LAST_LOGIN: True`. This may hinder performance and may be desired to change this behavior.
-  - **NOTE**: By default, registration trough REST endpoints is disabled. This can be changed in the `.env` file, or directly in the settings (setting `AUTH_USER_REGISTRATION_ENABLED`).
+  - **NOTE**: By default, registration through REST endpoints is disabled. This can be changed in the Constance configuration.
 
 ### REST
 - A `/ping` endpoint to check server availability.
@@ -57,6 +58,9 @@ Run `python make.py run` to run the dev server.
 
 
 ## Configuration
+
+### Dynamic configuration
+Settings can be included as dynamic using [Constance](https://github.com/jazzband/django-constance). See their docs for more information.
 
 ### Config files
 `.env` is the main configuration file. It's recommended to use `extensions.utilities.env` functions to extract variables in multiple formats from here. See `.env.example` for available configurations and more details. This file should be placed in the respective docker folders: `./docker/dev/.env` and / or `./docker/prod/.env`.

@@ -10,5 +10,5 @@ class AdminSite(BaseAdminSite):
 
 admin_site = AdminSite()
 
-# Register the constance configs
+# Register the Constance configs
 admin_site.register([Config], ConstanceAdmin)

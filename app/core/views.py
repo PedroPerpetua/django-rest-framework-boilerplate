@@ -24,7 +24,7 @@ class PingView(APIView):
 
 
 class SpectacularAPIView(BaseSpectacularAPIView):
-    """Custom SpectacularAPIView so that we can configure the permissions from the constance config."""
+    """Custom SpectacularAPIView so that we can configure the permissions from the Constance config."""
 
     def __init__(self, **kwargs: Any) -> None:
         super().__init__(**kwargs)
@@ -32,7 +32,7 @@ class SpectacularAPIView(BaseSpectacularAPIView):
 
 
 class SpectacularSwaggerView(BaseSpectacularSwaggerView):
-    """Custom SpectacularSwaggerView so that we can configure the permissions from the constance config."""
+    """Custom SpectacularSwaggerView so that we can configure the permissions from the Constance config."""
 
     def __init__(self, **kwargs: Any) -> None:
         super().__init__(**kwargs)
