@@ -17,6 +17,8 @@ class BaseAdminSite(admin.AdminSite):
 
     See the documentation on `ORDERING` to know how to order models and apps.
     """
+    # For a REST server, the site url will usually be a different domain, and we can't link that here.
+    site_url = None
 
     ORDERING: dict[str, list[str]] = {}
     """
