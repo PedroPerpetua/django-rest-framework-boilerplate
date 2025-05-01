@@ -1,5 +1,4 @@
 from typing import Any
-from django.conf import settings
 from django.contrib.auth.password_validation import validate_password
 from django.utils.module_loading import import_string
 from django.utils.translation import gettext_lazy as _
@@ -8,6 +7,7 @@ from rest_framework.exceptions import AuthenticationFailed, PermissionDenied
 from rest_framework.permissions import AllowAny
 from rest_framework.request import Request
 from rest_framework.response import Response
+from constance import config  # type: ignore[import-untyped]
 from drf_spectacular.utils import OpenApiResponse, extend_schema, extend_schema_view
 from rest_framework_simplejwt import settings as jwt_settings
 from rest_framework_simplejwt import views as jwt_views
@@ -55,7 +55,7 @@ class UserRegisterView(generics.CreateAPIView[models.User]):
     )
     def post(self, request: Request, *args: Any, **kwargs: Any) -> Response:
         """Override the POST method to block registration if disabled."""
-        registration_enabled = settings.AUTH_USER_REGISTRATION_ENABLED
+        registration_enabled = config.AUTH_USER_REGISTRATION_ENABLED
         if not registration_enabled:
             raise PermissionDenied(_("Registration is disabled."))
         return super().post(request, *args, **kwargs)

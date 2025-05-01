@@ -1,7 +1,7 @@
 from typing import Any
-from django.test import override_settings
 from django.urls import reverse
 from rest_framework import status
+from constance.test import override_config  # type: ignore[import-untyped]
 from extensions.utilities.test import APITestCase
 from users import serializers
 from users.models import User
@@ -13,7 +13,7 @@ class TestUserRegisterView(APITestCase):
 
     URL = reverse("users:register")
 
-    @override_settings(AUTH_USER_REGISTRATION_ENABLED=True)
+    @override_config(AUTH_USER_REGISTRATION_ENABLED=True)
     def test_success(self) -> None:
         """Test successfully creating a User."""
         payload = {"username": "_username", "password": VALID_PASSWORD}
@@ -30,7 +30,7 @@ class TestUserRegisterView(APITestCase):
         self.assertEqual(created_user.username, payload["username"])
         self.assertTrue(created_user.check_password(payload["password"]))
 
-    @override_settings(AUTH_USER_REGISTRATION_ENABLED=False)
+    @override_config(AUTH_USER_REGISTRATION_ENABLED=False)
     def test_registration_disabled_fails(self) -> None:
         """Test creating a User with the registration disabled fails."""
         payload = {"username": "_username", "password": VALID_PASSWORD}

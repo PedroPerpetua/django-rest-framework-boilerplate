@@ -1,3 +1,4 @@
+from constance.admin import Config, ConstanceAdmin  # type: ignore[import-untyped]
 from extensions.admin import BaseAdminSite
 
 
@@ -8,3 +9,6 @@ class AdminSite(BaseAdminSite):
 
 
 admin_site = AdminSite()
+
+# Register the constance configs
+admin_site.register([Config], ConstanceAdmin)

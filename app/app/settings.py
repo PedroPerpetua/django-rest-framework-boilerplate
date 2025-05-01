@@ -1,6 +1,8 @@
 import logging
+from collections import OrderedDict
 from datetime import datetime, timedelta
 from pathlib import Path
+from django.utils.translation import gettext_lazy as _
 from extensions.utilities import env
 from extensions.utilities.logging import LoggingConfigurationBuilder
 
@@ -17,6 +19,23 @@ DEBUG = env.as_bool("DEBUG")
 ALLOWED_HOSTS = env.as_list("ALLOWED_HOSTS")
 
 
+# Constance settings
+
+CONSTANCE_BACKEND = "constance.backends.database.DatabaseBackend"
+CONSTANCE_CONFIG = OrderedDict(
+    [
+        ("AUTH_USER_REGISTRATION_ENABLED", (False, _("Enable regular user registration"), bool)),
+        ("OPENAPI_TITLE", ("API", _("OpenAPI schema title"), str)),
+        ("OPENAPI_DESCRIPTION", ("", _("OpenAPI schema description"), str)),
+        ("OPENAPI_VERSION", ("v0.0.1", _("OpenAPI schema version"), str)),
+        ("OPENAPI_ADMIN_ONLY", (True, _("Only allow admins to have access to the schema"), bool)),
+    ]
+)
+CONSTANCE_CONFIG_FIELDSETS = (
+    (_("Users"), ("AUTH_USER_REGISTRATION_ENABLED",)),
+    (_("OpenAPI"), ("OPENAPI_ADMIN_ONLY", "OPENAPI_TITLE", "OPENAPI_DESCRIPTION", "OPENAPI_VERSION")),
+)
+
 # CORS configuration
 
 CORS_ALLOW_ALL_ORIGINS = env.as_bool("CORS_ALLOW_ALL_ORIGINS")
@@ -29,6 +48,7 @@ CORS_ALLOWED_ORIGINS = env.as_list("CORS_ALLOWED_ORIGINS")
 CSRF_TRUSTED_ORIGINS = env.as_list("CSRF_TRUSTED_ORIGINS")
 CSRF_COOKIE_SECURE = env.as_bool("CSRF_COOKIE_SECURE")
 SESSION_COOKIE_SECURE = env.as_bool("SESSION_COOKIE_SECURE")
+
 
 # Application definition
 
@@ -46,6 +66,7 @@ INSTALLED_APPS = [
     "drf_spectacular_sidecar",
     "drf_standardized_errors",
     "corsheaders",
+    "constance",
     # Our apps here
     "core",
     "users",
@@ -69,6 +90,7 @@ TEMPLATES = [
         "APP_DIRS": True,
         "OPTIONS": {
             "context_processors": [
+                "constance.context_processors.config",
                 "django.template.context_processors.debug",
                 "django.template.context_processors.request",
                 "django.contrib.auth.context_processors.auth",
@@ -141,7 +163,7 @@ REST_FRAMEWORK = {
     "EXCEPTION_HANDLER": "drf_standardized_errors.handler.exception_handler",
     "DEFAULT_PERMISSION_CLASSES": ("rest_framework.permissions.IsAuthenticated",),
     "DEFAULT_AUTHENTICATION_CLASSES": ("rest_framework_simplejwt.authentication.JWTAuthentication",),
-    "DEFAULT_SCHEMA_CLASS": "core.exceptions.AutoSchema",
+    "DEFAULT_SCHEMA_CLASS": "core.openapi.AutoSchema",
     "TEST_REQUEST_DEFAULT_FORMAT": "json",
 }
 
@@ -169,17 +191,7 @@ DRF_STANDARDIZED_ERRORS = {
 # DRF Spectacular settings
 
 SPECTACULAR_SETTINGS = {
-    "TITLE": "API",
-    "DESCRIPTION": "API Schema",
-    "VERSION": "v1",
     "SERVE_INCLUDE_SCHEMA": False,
-    "SERVE_PERMISSIONS": (
-        (
-            "rest_framework.permissions.IsAdminUser"
-            if env.as_bool("SCHEMA_ADMIN_ONLY", True)
-            else "rest_framework.permissions.AllowAny"
-        ),
-    ),
     "SERVE_AUTHENTICATION": (
         "rest_framework.authentication.SessionAuthentication",  # Same auth for admin page
         "rest_framework_simplejwt.authentication.JWTAuthentication",
@@ -200,7 +212,10 @@ SPECTACULAR_SETTINGS = {
         "ErrorCode429Enum": "drf_standardized_errors.openapi_serializers.ErrorCode429Enum.choices",
         "ErrorCode500Enum": "drf_standardized_errors.openapi_serializers.ErrorCode500Enum.choices",
     },
-    "POSTPROCESSING_HOOKS": ("drf_standardized_errors.openapi_hooks.postprocess_schema_enums",),
+    "POSTPROCESSING_HOOKS": (
+        "drf_standardized_errors.openapi_hooks.postprocess_schema_enums",
+        "core.openapi.post_processing_hook_apply_config",
+    ),
     "COMPONENT_SPLIT_REQUEST": True,
 }
 
@@ -214,7 +229,6 @@ AUTH_PASSWORD_VALIDATORS = [
     {"NAME": "django.contrib.auth.password_validation.CommonPasswordValidator"},
     {"NAME": "django.contrib.auth.password_validation.NumericPasswordValidator"},
 ]
-AUTH_USER_REGISTRATION_ENABLED = env.as_bool("AUTH_USER_REGISTRATION_ENABLED", False)
 AUTHENTICATION_BACKENDS = ["users.backends.AuthenticationBackend"]
 
 

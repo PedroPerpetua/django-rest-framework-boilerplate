@@ -46,7 +46,7 @@ lines-between-types = 0
 
 [tool.ruff.lint.isort.sections]
 django = ["django", "rest_framework"]
-addons = ["rest_framework_simplejwt", "drf_spectacular", "drf_standardized_errors"]
+addons = ["rest_framework_simplejwt", "drf_spectacular", "drf_standardized_errors", "constance"]
 
 
 [tool.mypy]
