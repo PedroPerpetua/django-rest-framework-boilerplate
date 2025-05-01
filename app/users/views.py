@@ -90,7 +90,7 @@ class UserRegisterView(generics.CreateAPIView[models.User]):
                     },
                     "required": ["type", "errors"],
                 },
-                description="Registration is disabled",
+                description="Account not found",
             ),
         },
     )
