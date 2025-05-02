@@ -1,7 +1,6 @@
 from django.urls import include, path
-from drf_spectacular.views import SpectacularAPIView, SpectacularSwaggerView
+from core import views
 from core.admin import admin_site
-from core.views import PingView
 from extensions.utilities.types import URLPatternsList
 
 
@@ -15,10 +14,10 @@ urlpatterns: URLPatternsList = [
         "schema/",
         include(
             [
-                path("", SpectacularAPIView.as_view(), name="schema"),
-                path("swagger/", SpectacularSwaggerView.as_view(), name="schema-swagger"),
+                path("", views.SpectacularAPIView.as_view(), name="schema"),
+                path("swagger/", views.SpectacularSwaggerView.as_view(), name="schema-swagger"),
             ]
         ),
     ),
-    path("ping/", PingView.as_view(), name="ping"),
+    path("ping/", views.PingView.as_view(), name="ping"),
 ]

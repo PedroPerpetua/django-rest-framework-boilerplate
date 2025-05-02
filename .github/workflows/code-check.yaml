@@ -26,7 +26,7 @@ jobs:
         "ruff check . --fix --unsafe-fixes && ruff format && mypy && python manage.py test"
 
     - name: Commit the changes
-      uses: stefanzweifel/git-auto-commit-action@v5.1.0
+      uses: stefanzweifel/git-auto-commit-action@v5.2.0
       with:
         commit_message: Linting
         status_options: '--untracked-files=no' # Should not create new files

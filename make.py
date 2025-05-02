@@ -342,13 +342,20 @@ def production_opt[F: Callable[..., Any]](func: F) -> F:
     return click.option("-p", "--production", is_flag=True, help="Use production compose")(func)
 
 
-def run_docker_command(command: str, production: bool = False, *, raise_exception: bool = True) -> None:
+def run_docker_command(
+    command: str,
+    production: bool = False,
+    stop_on_finish: bool = True,
+    *,
+    raise_exception: bool = True
+) -> None:
     """Run a command inside the specified docker container."""
     warning(f"Running command in {'PROD' if production else 'DEV'} mode...")
     folder = BASE_DIR / "docker" / ("prod" if production else "dev")
     try:
         subprocess.run(f"cd {folder.resolve()} && docker compose {command}", shell=True, check=True)
-        subprocess.run(f"cd {folder.resolve()} && docker compose stop", shell=True, check=True)
+        if stop_on_finish:
+            subprocess.run(f"cd {folder.resolve()} && docker compose stop", shell=True, check=True)
     except:
         if raise_exception:
             raise
@@ -415,13 +422,18 @@ def open_coverage() -> None:
 
 @cli.command
 @production_opt
+@click.option("--keep-alive", is_flag=True, help="Do not stop containers after command")
 @click.argument("commands", nargs=-1)
-def command(production: bool, commands: tuple[str, ...]) -> None:
+def command(production: bool, keep_alive: bool, commands: tuple[str, ...]) -> None:
     """Pass a command to Django's `manage.py`."""
     if len(commands) == 0:
         error("No command passed!")
         raise click.Abort()
-    run_docker_command(f'run --rm app sh -c "python manage.py {" ".join(commands)}"', production)
+    run_docker_command(
+        f'run --rm app sh -c "python manage.py {" ".join(commands)}"',
+        production,
+        stop_on_finish=not keep_alive,
+    )
 
 
 @cli.command

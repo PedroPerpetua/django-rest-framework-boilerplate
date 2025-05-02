@@ -12,15 +12,17 @@ from extensions.utilities.test import MockResponse, SampleFile
 class TestUtilities(TestCase):
     """Test the base utilities provided."""
 
+    def test_Singleton(self) -> None:
+        """Test the Singleton metaclass"""
+
+        class TestClass(metaclass=utils.Singleton): ...
+
+        self.assertEqual(id(TestClass()), id(TestClass()))
+
     def test_Undefined(self) -> None:
         """Test the _Undefined class."""
-        u1 = utils._Undefined()
-        u2 = utils._Undefined()
-        with self.subTest("Test singleton."):
-            self.assertEqual(id(u1), id(u2))
-
         with self.subTest("Test equality."):
-            self.assertNotEqual(u1, u2)
+            self.assertNotEqual(utils.Undefined, utils.Undefined)
 
         with self.subTest("Test bool."):
             self.assertFalse(utils.Undefined)
