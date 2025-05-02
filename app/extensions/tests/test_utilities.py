@@ -22,7 +22,7 @@ class TestUtilities(TestCase):
     def test_Undefined(self) -> None:
         """Test the _Undefined class."""
         with self.subTest("Test equality."):
-            self.assertNotEqual(utils._Undefined(), utils._Undefined())
+            self.assertNotEqual(utils.Undefined, utils.Undefined)
 
         with self.subTest("Test bool."):
             self.assertFalse(utils.Undefined)
