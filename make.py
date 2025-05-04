@@ -565,6 +565,7 @@ def update(commit: bool, target_version: Optional[str], ignore_cache: bool) -> N
             zip_path = cache_dir / f"{version}.zip"
             with open(zip_path, "+wb") as out_file:
                 shutil.copyfileobj(res.raw, out_file)
+            success(f"Successfully downloaded version {version}.")
         except Exception as e:
             error(f"Failed to download {version}.", bold=True)
             raise click.Abort() from e
