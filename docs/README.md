@@ -54,7 +54,7 @@ Run `python make.py run` to run the dev server.
 - Out of the box OpenAPI schema with Swagger support using [DRF Spectacular](https://github.com/tfranzel/drf-spectacular)
   - The schema is made available in the `/schema` endpoint.
   - The Swagger view is made available in the `/schema/swagger` endpoint.
-  - **NOTE**: By default, only admin users can access these endpoints. This can be changed in the `.env` file, or directly in the settings(setting `SPECTACULAR_SETTINGS["SERVE_PERMISSIONS"]`).
+  - **NOTE**: By default, only admin users can access these endpoints. This can be changed in the Constance configuration.
 
 
 ## Configuration
