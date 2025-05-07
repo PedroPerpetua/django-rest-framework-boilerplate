@@ -504,7 +504,14 @@ def schema(ctx: click.Context) -> None:
 @click.option("-y", "--yes", is_flag=True, help="Confirm deleting current migrations without prompt.")
 @click.pass_context
 def regenerate_migrations(ctx: click.Context, yes: bool) -> None:
-    """Regenerate all migrations, by deleting them and running `makemigrations` again."""
+    """
+    Regenerate all migrations, by deleting them and running `makemigrations` again.
+
+    An order for migrations to be generated can be defined in the `pyproject.toml` file, with the
+    `boilerplate.regenerate-migrations-folder` variable. This variable takes a list of strings, and will make this
+    command run `makemigrations {app}` for each app in the list. At the very end, an "empty" `makemigrations` will
+    always run to ensure all migrations are generated.
+    """
     if not yes:
         click.confirm(
             click.style("THIS WILL DELETE ALL EXISTING MIGRATIONS before generating new ones. Are you sure you want to proceed?", fg="yellow", bold=True),

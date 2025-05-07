@@ -9,7 +9,7 @@ Provided by [PedroPerpetua](https://github.com/PedroPerpetua).
 
 
 ## Version
-Currently set up for `python 3.13.3` with `Django 5.2.0` and `Django Rest Framework 3.16.0`.
+Currently set up for `python 3.13.3` with `Django 5.2.1` and `Django Rest Framework 3.16.0`.
 
 
 ## Getting started
@@ -89,3 +89,21 @@ version = "<Your current boilerplate version here>"
 ```
 
 Afterwards, copy the most recent `make.py` script onto the project root renamed (for example, `_make.py`, so it doesn't conflict with the new `make.py`s that may be created) and run `python <make.py renamed> update` as usual.
+
+
+## Deployment
+A production ready compose is available in the `docker/prod` folder. The images here _assume_ the existence of `cert.pem` and `key.pem` files in the same folder, with the certificates to used for production.
+
+The following configs are highly recommended for production:
+```env
+DEBUG=0
+ALLOWED_HOSTS"<not empty>"
+LOG_LEVEL=20
+
+CORS_ALLOW_ALL_ORIGINS=0
+CORS_ALLOWED_ORIGINS="<not empty>"
+
+CSRF_TRUSTED_ORIGINS="<not empty>"
+CSRF_COOKIE_SECURE=1
+SESSION_COOKIE_SECURE=1
+```
