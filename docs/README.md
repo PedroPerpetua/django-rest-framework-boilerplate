@@ -97,7 +97,7 @@ A production ready compose is available in the `docker/prod` folder. The images 
 The following configs are highly recommended for production:
 ```env
 DEBUG=0
-ALLOWED_HOSTS"<not empty>"
+ALLOWED_HOSTS="<not empty>"
 LOG_LEVEL=20
 
 CORS_ALLOW_ALL_ORIGINS=0
