@@ -8,6 +8,10 @@ __pycache__
 # Config files
 .env
 
+# Production certificates
+docker/prod/cert.pem
+docker/prod/key.pem
+
 # App "temp" files
 docker/**/db
 docker/**/logs

@@ -1,4 +1,4 @@
 -r boilerplate.dev.requirements.txt
 -r requirements.txt
 
-# Add projet specific dev requirements here.
+# Add project specific dev requirements here.

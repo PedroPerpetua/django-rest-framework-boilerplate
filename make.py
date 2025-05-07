@@ -333,6 +333,29 @@ def error(message: str, *, bold: bool = False) -> None:
 
 
 # -----------------------------------------------------------------------------
+# Other Auxiliary functions ---------------------------------------------------
+# -----------------------------------------------------------------------------
+
+
+def load_pyproject(*, raise_exception: bool = True) -> dict[str, Any]:
+    try:
+        pyproject_file = BASE_DIR / "app" / "pyproject.toml"
+        if not pyproject_file.exists() or not pyproject_file.is_file():
+            raise Exception("File not found.")
+        with open(pyproject_file, "rb") as pyproject:
+            return tomllib.load(pyproject)
+    except:
+        if not raise_exception:
+            return {}
+        error("Failed to load pyproject.toml file.", bold=True)
+        raise
+
+# -----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
+
+
+# -----------------------------------------------------------------------------
 # Auxiliary CLI functions -----------------------------------------------------
 # -----------------------------------------------------------------------------
 
@@ -347,10 +370,12 @@ def run_docker_command(
     production: bool = False,
     stop_on_finish: bool = True,
     *,
-    raise_exception: bool = True
+    raise_exception: bool = True,
+    show_mode: bool = True,
 ) -> None:
     """Run a command inside the specified docker container."""
-    warning(f"Running command in {'PROD' if production else 'DEV'} mode...")
+    if show_mode:
+        warning(f"Running command in {'PROD' if production else 'DEV'} mode...")
     folder = BASE_DIR / "docker" / ("prod" if production else "dev")
     try:
         subprocess.run(f"cd {folder.resolve()} && docker compose {command}", shell=True, check=True)
@@ -383,6 +408,7 @@ def run(production: bool) -> None:
 def build(production: bool) -> None:
     """Build the docker containers."""
     run_docker_command("build", production)
+    run_docker_command("pull", production, show_mode=False)
 
 
 @cli.command
@@ -407,7 +433,7 @@ def test(skip_lint: bool, lint_only: bool, test_suite: str) -> None:
         commands = test_commands
     else:
         commands = lint_commands + test_commands
-    run_docker_command(f'run --rm app sh -c "{" && ".join(commands)}"', production=False, raise_exception=False)
+    run_docker_command(f'run --rm app sh -c "{" && ".join(commands)}"', production=False, raise_exception=False, show_mode=False)
 
 
 @cli.command
@@ -478,10 +504,17 @@ def schema(ctx: click.Context) -> None:
 @click.option("-y", "--yes", is_flag=True, help="Confirm deleting current migrations without prompt.")
 @click.pass_context
 def regenerate_migrations(ctx: click.Context, yes: bool) -> None:
-    """Regenerate all migrations, by deleting them and running `makemigrations` again."""
+    """
+    Regenerate all migrations, by deleting them and running `makemigrations` again.
+
+    An order for migrations to be generated can be defined in the `pyproject.toml` file, with the
+    `boilerplate.regenerate-migrations-folder` variable. This variable takes a list of strings, and will make this
+    command run `makemigrations {app}` for each app in the list. At the very end, an "empty" `makemigrations` will
+    always run to ensure all migrations are generated.
+    """
     if not yes:
         click.confirm(
-            "THIS WILL DELETE ALL EXISTING MIGRATIONS before generating new ones. Are you sure you want to proceed?",
+            click.style("THIS WILL DELETE ALL EXISTING MIGRATIONS before generating new ones. Are you sure you want to proceed?", fg="yellow", bold=True),
             abort=True,
         )
     for migration_folder in (BASE_DIR / "app").rglob("migrations"):
@@ -492,7 +525,14 @@ def regenerate_migrations(ctx: click.Context, yes: bool) -> None:
             # Skip __init__.py and any non-Python files
             if file.name != "__init__.py" and file.suffix == ".py":
                 file.unlink()
-    ctx.invoke(command, production=False, commands=("makemigrations",))
+    # Determine if we should apply an order
+    configuration = load_pyproject(raise_exception=False)
+    boilerplate_data = configuration.get("boilerplate", {})
+    order = boilerplate_data.get("regenerate-migrations-order", [])
+    # Concat all determined apps
+    app_commands = "".join([f"python manage.py makemigrations {app} && " for app in order])
+    # Run the command, and run it "in general" at the end to cover any unordered apps
+    run_docker_command(f'run --rm app sh -c "{app_commands}python manage.py makemigrations"', production=False, show_mode=False)
     success("Migrations regenerated.")
 
 
@@ -503,12 +543,10 @@ def regenerate_migrations(ctx: click.Context, yes: bool) -> None:
 def update(commit: bool, target_version: Optional[str], ignore_cache: bool) -> None:
     """Update the base boilerplate. See the README for more information."""
     # Get the current version
-    pyproject_file = BASE_DIR / "app" / "pyproject.toml"
-    if not pyproject_file.exists() or not pyproject_file.is_file():
-        error("Failed to find pyproject.toml file.", bold=True)
+    try:
+        data = load_pyproject()
+    except:
         raise click.Abort()
-    with open(pyproject_file, "rb") as pyproject:
-        data = tomllib.load(pyproject)
     current_version = data.get("boilerplate", {}).get("version", None)
     if current_version is None:
         error("Failed to find boilerplate version in pyproject.toml file (boilerplate.version).", bold=True)
@@ -565,6 +603,7 @@ def update(commit: bool, target_version: Optional[str], ignore_cache: bool) -> N
             zip_path = cache_dir / f"{version}.zip"
             with open(zip_path, "+wb") as out_file:
                 shutil.copyfileobj(res.raw, out_file)
+            success(f"Successfully downloaded version {version}.")
         except Exception as e:
             error(f"Failed to download {version}.", bold=True)
             raise click.Abort() from e

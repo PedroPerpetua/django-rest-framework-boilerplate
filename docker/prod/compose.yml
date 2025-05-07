@@ -20,6 +20,8 @@ services:
     volumes:
       - ./logs:/logs
       - ./media:/media
+      - ./cert.pem:/etc/nginx/ssl/cert.pem
+      - ./key.pem:/etc/nginx/ssl/key.pem
     ports:
       - "8000:8000"
     env_file: .env
