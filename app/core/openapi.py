@@ -16,7 +16,9 @@ class AutoSchema(BaseAutoSchema):  # pragma: no cover
         return super()._should_add_error_response(responses, status_code)
 
 
-def post_processing_hook_apply_config(result: dict[str, Any], *args: Any, **kwargs: Any) -> dict[str, Any]:
+def post_processing_hook_apply_config(
+    result: dict[str, Any], *args: Any, **kwargs: Any
+) -> dict[str, Any]:  # pragma: no cover
     """
     Apply the Constance configs to the schema definition. We do this at a post_processing_hook level so we have access
     to the configs.
