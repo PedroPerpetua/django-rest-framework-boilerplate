@@ -183,7 +183,7 @@ class TestUserProfileView(APITestCase):
 
     def test_update_success(self) -> None:
         """Test successfully updating the User's profile."""
-        for method in [self.client.patch, self.client.put]:
+        for method in (self.client.patch, self.client.put):
             with self.subTest(message="Test updating User profile successfully.", value=method.__name__):
                 # The default UserProfileSerializer has no fields that can be updated; so we test for empty payload
                 payload: dict[str, Any] = {}
@@ -198,7 +198,7 @@ class TestUserProfileView(APITestCase):
     def test_update_authentication_required(self) -> None:
         """Test that the User needs to be logged in to update their profile."""
         self.client.logout()
-        for method in [self.client.patch, self.client.put]:
+        for method in (self.client.patch, self.client.put):
             with self.subTest(message="Test updating User profile without being logged in.", value=method.__name__):
                 payload = {"username": f"_username_updated_{method.__name__}"}
                 # Make the call
@@ -302,7 +302,7 @@ class TestUserChangePasswordView(APITestCase):
 
     def test_method_not_allowed(self) -> None:
         """Because we changed the default HTTP methods, make sure the previous ones now return an error."""
-        for method in [self.client.patch, self.client.put]:
+        for method in (self.client.patch, self.client.put):
             with self.subTest(msg="Testing updating password with methods not allowed.", value=method.__name__):
                 new_password = VALID_PASSWORD + "_updated"
                 # Make the call

@@ -26,7 +26,7 @@ class PingView(APIView):
 class SpectacularAPIView(BaseSpectacularAPIView):
     """Custom SpectacularAPIView so that we can configure the permissions from the Constance config."""
 
-    def __init__(self, **kwargs: Any) -> None:
+    def __init__(self, **kwargs: Any) -> None:  # pragma: no cover
         super().__init__(**kwargs)
         self.permission_classes = (IsAdminUser,) if config.OPENAPI_ADMIN_ONLY else (AllowAny,)
 
@@ -34,6 +34,6 @@ class SpectacularAPIView(BaseSpectacularAPIView):
 class SpectacularSwaggerView(BaseSpectacularSwaggerView):
     """Custom SpectacularSwaggerView so that we can configure the permissions from the Constance config."""
 
-    def __init__(self, **kwargs: Any) -> None:
+    def __init__(self, **kwargs: Any) -> None:  # pragma: no cover
         super().__init__(**kwargs)
         self.permission_classes = (IsAdminUser,) if config.OPENAPI_ADMIN_ONLY else (AllowAny,)

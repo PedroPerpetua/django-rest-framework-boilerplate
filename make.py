@@ -477,7 +477,11 @@ def clean(production: bool, all: bool, yes: bool) -> None:
     if all:
         if not yes:
             click.confirm(
-                f"This will delete all data (database, logs, media and coverage) for the {'PROD' if production else 'DEV'} environment. Are you sure?",
+                click.style(
+                    f"This will delete all data (database, logs, media and coverage) for the {'PROD' if production else 'DEV'} environment. Are you sure?",
+                    fg="yellow",
+                    bold=True,
+                ),
                 abort=True,
             )
         base_path = BASE_DIR / "docker" / ("prod" if production else "dev")
@@ -514,7 +518,11 @@ def regenerate_migrations(ctx: click.Context, yes: bool) -> None:
     """
     if not yes:
         click.confirm(
-            click.style("THIS WILL DELETE ALL EXISTING MIGRATIONS before generating new ones. Are you sure you want to proceed?", fg="yellow", bold=True),
+            click.style(
+                "This will delete ALL existing migrations before generating new ones. Are you sure you want to proceed?",
+                fg="yellow",
+                bold=True,
+            ),
             abort=True,
         )
     for migration_folder in (BASE_DIR / "app").rglob("migrations"):
