@@ -6,7 +6,7 @@ readme = "README.md"
 
 
 [boilerplate]
-version = "2.4.1"
+version = "2.4.2"
 
 
 [tool.ruff]
