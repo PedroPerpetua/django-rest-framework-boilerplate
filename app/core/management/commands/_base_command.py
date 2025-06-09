@@ -23,7 +23,7 @@ class BaseCommand(DjangoCommand):
             self._level = 1
             if hasattr(source, "_level") and isinstance(source._level, int):
                 self._level = source._level + 1
-            self.style_func = None  # type: ignore[assignment] # Setting 'None' sets it to the default style_func
+            self.style_func = None
             if hasattr(source, "style_func"):
                 self.style_func = source.style_func
 

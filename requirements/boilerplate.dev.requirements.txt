@@ -4,8 +4,8 @@
 click == 8.2.1
 
 # Linting
-ruff == 0.11.11
-mypy == 1.15.0
+ruff == 0.11.13
+mypy == 1.16.0
 
 # Type hint stubs
 django-stubs == 5.2.0
