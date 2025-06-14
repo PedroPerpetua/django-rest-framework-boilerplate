@@ -3,7 +3,6 @@ from datetime import datetime
 from typing import Any, Self
 from unittest.mock import MagicMock, patch
 from uuid import UUID
-from django.conf import settings
 from django.db import models
 from django.test import override_settings
 from django.utils.timezone import make_aware
@@ -122,6 +121,7 @@ class TestSoftDeleteMixin(AbstractModelTestCase):
         self.assertNotIn(obj, self.ConcreteModel._default_manager.exclude_deleted())  # type: ignore[attr-defined]
 
 
+@override_settings(DEBUG=True)
 class TestExtendedReprMixin(AbstractModelTestCase):
     """Test the `ExtendedReprMixin`."""
 
@@ -198,13 +198,6 @@ class TestExtendedReprMixin(AbstractModelTestCase):
         ExtendedReprSimpleConcreteModel,
         SimpleRecursiveConcreteModel,
     ]
-
-    def setUp(self) -> None:
-        # Because Django tests always runs with `DEBUG=False` and we need to test with DEBUG on.
-        settings.DEBUG = True
-
-    def tearDown(self) -> None:
-        settings.DEBUG = False
 
     def test_repr(self) -> None:
         """Test the `repr` of a model with the mixin."""
