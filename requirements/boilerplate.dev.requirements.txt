@@ -12,4 +12,4 @@ django-stubs == 5.2.0
 djangorestframework-stubs == 3.16.0
 
 # Testing
-coverage == 7.8.2
+coverage == 7.9.1
