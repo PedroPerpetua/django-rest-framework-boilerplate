@@ -243,4 +243,5 @@ LOCALE_PATHS = [str(Path(__file__).parent.parent / "locale")]
 
 TIME_ZONE = "UTC"
 USE_TZ = True
+TEST_RUNNER = "pytest_django.runner.TestRunner"
 COMMAND_WAIT_FOR_DB_MAX_RETRIES = 10
