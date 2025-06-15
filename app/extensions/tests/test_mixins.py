@@ -3,7 +3,6 @@ from datetime import datetime
 from typing import Any, Self
 from unittest.mock import MagicMock, patch
 from uuid import UUID
-from django.conf import settings
 from django.db import models
 from django.test import override_settings
 from django.utils.timezone import make_aware
@@ -21,7 +20,7 @@ class TestUUIDPrimaryKeyMixin(AbstractModelTestCase):
             # Because extensions is not an "installed_app"
             app_label = uuid()
 
-    MODELS = [ConcreteModel]
+    MODELS = (ConcreteModel,)
 
     def test_create(self) -> None:
         """Test creating an instance of a model with the mixin."""
@@ -38,7 +37,7 @@ class TestCreatedAtMixin(AbstractModelTestCase):
             # Because extensions is not an "installed_app"
             app_label = uuid()
 
-    MODELS = [ConcreteModel]
+    MODELS = (ConcreteModel,)
 
     @patch("django.utils.timezone.now")
     def test_create(self, datetime_mock: MagicMock) -> None:
@@ -69,7 +68,7 @@ class TestUpdatedAtMixin(AbstractModelTestCase):
             # Because extensions is not an "installed_app"
             app_label = uuid()
 
-    MODELS = [ConcreteModel]
+    MODELS = (ConcreteModel,)
 
     @patch("django.utils.timezone.now")
     def test_create(self, datetime_mock: MagicMock) -> None:
@@ -102,7 +101,7 @@ class TestSoftDeleteMixin(AbstractModelTestCase):
             # Because extensions is not an "installed_app"
             app_label = uuid()
 
-    MODELS = [ConcreteModel]
+    MODELS = (ConcreteModel,)
 
     def test_create(self) -> None:
         """Test creating an instance of a model with the mixin."""
@@ -122,6 +121,7 @@ class TestSoftDeleteMixin(AbstractModelTestCase):
         self.assertNotIn(obj, self.ConcreteModel._default_manager.exclude_deleted())  # type: ignore[attr-defined]
 
 
+@override_settings(DEBUG=True)
 class TestExtendedReprMixin(AbstractModelTestCase):
     """Test the `ExtendedReprMixin`."""
 
@@ -193,18 +193,11 @@ class TestExtendedReprMixin(AbstractModelTestCase):
             # Because extensions is not an "installed_app", and related name needs a real installed app name.
             app_label = "core"
 
-    MODELS = [
+    MODELS = (
         ExtendedReprConcreteModel,
         ExtendedReprSimpleConcreteModel,
         SimpleRecursiveConcreteModel,
-    ]
-
-    def setUp(self) -> None:
-        # Because Django tests always runs with `DEBUG=False` and we need to test with DEBUG on.
-        settings.DEBUG = True
-
-    def tearDown(self) -> None:
-        settings.DEBUG = False
+    )
 
     def test_repr(self) -> None:
         """Test the `repr` of a model with the mixin."""

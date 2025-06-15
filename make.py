@@ -7,7 +7,7 @@ import webbrowser
 import zipfile
 from pathlib import Path
 from tempfile import TemporaryDirectory
-from typing import Any, Callable, Optional, TypedDict
+from typing import Any, Callable, Literal, Optional, TypedDict
 import click
 
 
@@ -411,19 +411,55 @@ def build(production: bool) -> None:
     run_docker_command("pull", production, show_mode=False)
 
 
-@cli.command
+@cli.command(help="Run the test suite. A test can be specified the same way pytest picks tests. Example: app/users/tests/test_models.py::TestUser::test_creation")
+@click.argument("test", required=False)
 @click.option("--skip-lint", is_flag=True, help="Skip linting. Can't be used with lint-only.")
 @click.option("--lint-only", is_flag=True, help="Run lint tools only. Can't be used with skip-lint.")
-@click.argument("test-suite", required=False)
-def test(skip_lint: bool, lint_only: bool, test_suite: str) -> None:
+@click.option("--pattern", "-p", type=str, help="Specify a pattern for pytest to pick tests.")
+@click.option("--cpus", "-c", type=str, help='Specify the number of CPUs to use with xdist (positive integer or "auto").')
+@click.option("--with-stdout", "-s", is_flag=True, help="Include stdout and stderr in the output.")
+def test(
+    test: str,
+    skip_lint: bool,
+    lint_only: bool,
+    pattern: str,
+    cpus: int | Literal["auto"],
+    with_stdout: bool,
+) -> None:
     """Runs the linting tools and test suite."""
     if skip_lint and lint_only:
         error("Options skip-lint and lint-only options can't be used together!", bold=True)
         raise click.Abort()
 
-    test_commands = ["coverage run manage.py test", "coverage html"]
-    if test_suite:
-        test_commands[0] += " " + test_suite
+    test_commands = ["pytest"]
+    # Check for a specific test
+    if test:
+        if test.startswith("app/"):
+            test = test[4:]
+        test_commands += [test]
+
+    # Check for a pattern
+    if pattern:
+        test_commands +=['-k', pattern]
+
+    # Check for xdist cpus
+    if cpus:
+        if cpus != "auto":
+            try:
+                cpus = int(cpus)
+                if cpus <= 0:
+                    raise ValueError()
+            except ValueError:
+                error(f"Invalid cpus value: '{cpus}'.")
+                raise click.Abort()
+        test_commands += ["-n", str(cpus)]
+
+    # Check for stdout
+    if with_stdout:
+        test_commands += ["-s"]
+
+    # Join all test commands
+    test_commands = [" ".join(test_commands)]
 
     lint_commands = ["ruff check . --fix --unsafe-fixes", "ruff format .", "mypy"]
 
@@ -569,20 +605,20 @@ def update(commit: bool, target_version: Optional[str], ignore_cache: bool) -> N
         raise click.Abort() from e
 
     if target_version is None:
-        target_version = tags_data[0].get("name")[1:]  # Remove the "v."
+        target_version = tags_data[0].get("name", "v")[1:]  # Remove the "v"
 
     if current_version == target_version:
         success(f"Already at the target version! ({target_version})")
         return
 
     # Check the current version
-    current_version_data = next((tag for tag in tags_data if tag.get("name")[1:] == current_version), None)
+    current_version_data = next((tag for tag in tags_data if tag.get("name", "v")[1:] == current_version), None)
     if current_version_data is None:
         error("Failed to match current version to remote.", bold=True)
         raise click.Abort()
 
     # Check the target version
-    target_version_data = next((tag for tag in tags_data if tag.get("name")[1:] == target_version), None)
+    target_version_data = next((tag for tag in tags_data if tag.get("name", "v")[1:] == target_version), None)
     if target_version_data is None:
         error("Failed to match current version to remote.", bold=True)
         raise click.Abort()
@@ -630,8 +666,8 @@ def update(commit: bool, target_version: Optional[str], ignore_cache: bool) -> N
             raise click.Abort() from e
 
     # Download both versions
-    download_and_extract(current_version_data.get("zipball_url"), current_version)
-    download_and_extract(target_version_data.get("zipball_url"), target_version)
+    download_and_extract(current_version_data.get("zipball_url", ""), current_version)
+    download_and_extract(target_version_data.get("zipball_url", ""), target_version)
 
     # Find the files that changed
     current_version_dir = cache_dir / current_version

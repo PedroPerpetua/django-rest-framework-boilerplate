@@ -81,7 +81,7 @@ class TestAuthentication(APITestCase):
             reverse("users:whoami"), HTTP_AUTHORIZATION=f"Bearer {login_token_dict['access']}"
         )
         self.assertResponseStatusCode(status.HTTP_200_OK, whoami_res)
-        self.assertEqual({"username": user.username}, whoami_res.json())
+        self.assertResponseData(user, serializers.UserWhoamiSerializer, whoami_res)
 
         # Refresh the tokens
         refresh_res = self.client.post(reverse("users:login-refresh"), data={"refresh": login_token_dict["refresh"]})
@@ -184,7 +184,7 @@ class TestUserProfileView(APITestCase):
     def test_update_success(self) -> None:
         """Test successfully updating the User's profile."""
         for method in (self.client.patch, self.client.put):
-            with self.subTest(message="Test updating User profile successfully.", value=method.__name__):
+            with self.subTest("Test updating User profile successfully", value=method.__name__):
                 # The default UserProfileSerializer has no fields that can be updated; so we test for empty payload
                 payload: dict[str, Any] = {}
                 # Make the call
@@ -199,7 +199,7 @@ class TestUserProfileView(APITestCase):
         """Test that the User needs to be logged in to update their profile."""
         self.client.logout()
         for method in (self.client.patch, self.client.put):
-            with self.subTest(message="Test updating User profile without being logged in.", value=method.__name__):
+            with self.subTest("Test updating User profile without being logged in", value=method.__name__):
                 payload = {"username": f"_username_updated_{method.__name__}"}
                 # Make the call
                 res = method(self.URL, data=payload)
@@ -303,7 +303,7 @@ class TestUserChangePasswordView(APITestCase):
     def test_method_not_allowed(self) -> None:
         """Because we changed the default HTTP methods, make sure the previous ones now return an error."""
         for method in (self.client.patch, self.client.put):
-            with self.subTest(msg="Testing updating password with methods not allowed.", value=method.__name__):
+            with self.subTest("Testing updating password with methods not allowed", value=method.__name__):
                 new_password = VALID_PASSWORD + "_updated"
                 # Make the call
                 res = method(self.URL, data={"password": self.password, "new_password": new_password})
