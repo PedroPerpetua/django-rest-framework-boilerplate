@@ -1,6 +1,5 @@
-from typing import Any, Iterable, Literal, Optional, overload
-from django.db.models import Model
-from rest_framework.relations import PKOnlyObject
+from typing import Any, Iterable, Literal, Optional, Protocol, overload
+from django.db.models import Model, QuerySet
 from rest_framework.serializers import ModelSerializer, PrimaryKeyRelatedField
 from drf_spectacular.extensions import OpenApiSerializerFieldExtension
 from drf_spectacular.openapi import AutoSchema
@@ -112,7 +111,41 @@ class InlineSerializer[_MT: Model](ModelSerializer[_MT]):
         return InnerSerializer
 
 
-class NestedPrimaryKeyRelatedField(PrimaryKeyRelatedField):
+class FilterFunction[_MT: Model](Protocol):
+    def __call__(self, context: dict[str, Any], queryset: Optional[QuerySet[_MT]]) -> QuerySet[_MT]: ...
+
+
+class FilteredPrimaryKeyRelatedField[_MT: Model](PrimaryKeyRelatedField[_MT]):
+    """
+    PrimaryKeyRelatedField that will be filtered by the `filter_queryset` method that is passed. This method will be
+    called with the serializer's context and the field's queryset (if any).
+
+    **NOTE**: because of the way DRF serializers work, the filter function can not be a StaticMethod in the serializer
+    class.
+
+    Example usage:
+    ```
+    def my_filter(context: dict[str, Any], queryset: QuerySet[MyModel]) -> QuerySet[MyModel]:
+        # Here, you can use, for example, the `context["request"].user` to filter with the current user
+        return queryset.filter(...)
+
+    class MySerializer(ModelSerializer[MyModel]):
+        field = FilteredPrimaryRelatedField(filter_queryset=my_filter)
+    """
+
+    def __init__(self, *args: Any, filter_queryset: Optional[FilterFunction[_MT]] = None, **kwargs: Any) -> None:
+        super().__init__(*args, **kwargs)
+        self._filter_func = filter_queryset
+
+    # https://github.com/typeddjango/djangorestframework-stubs/issues/779
+    def get_queryset(self) -> Optional[QuerySet[_MT]]:  # type: ignore[override]
+        qs = super().get_queryset()
+        if self._filter_func:
+            qs = self._filter_func(context=self.context, queryset=qs)
+        return qs
+
+
+class NestedPrimaryKeyRelatedField[_MT: Model](FilteredPrimaryKeyRelatedField[_MT]):
     """
     Custom field to serializer a related Foreign Key in a way that it's used as a PK, but on representation it's
     serialized according to the given serializer.
@@ -120,18 +153,21 @@ class NestedPrimaryKeyRelatedField(PrimaryKeyRelatedField):
     Based on this issue: https://github.com/tfranzel/drf-spectacular/issues/778
     """
 
-    def __init__(self, serializer: type[ModelSerializer], **kwargs: Any) -> None:
+    def __init__(self, serializer: type[ModelSerializer[_MT]], **kwargs: Any) -> None:
         """
         On read display a complete nested representation of the object(s).
         On write only require the PK (not an entire object) as value.
         """
-        self.serializer = serializer
+        self._serializer = serializer
         kwargs.setdefault("queryset", serializer.Meta.model._default_manager.all())  # type: ignore[attr-defined]
         super().__init__(**kwargs)
 
-    def to_representation(self, obj: PKOnlyObject) -> Any:
-        model_obj = self.get_queryset().get(pk=obj.pk)
-        return self.serializer(model_obj, context=self.context).to_representation(model_obj)
+    def to_representation(self, obj: _MT) -> Any:
+        qs = self.get_queryset()
+        # Because we set the default queryset in the `__init__` we should always have a QuerySet here
+        assert isinstance(qs, QuerySet)
+        model_obj = qs.get(pk=obj.pk)
+        return self._serializer(model_obj, context=self.context).to_representation(model_obj)
 
 
 class NestedPrimaryKeyRelatedFieldSerializerExtension(OpenApiSerializerFieldExtension):  # pragma: no cover
@@ -156,7 +192,7 @@ class NestedPrimaryKeyRelatedFieldSerializerExtension(OpenApiSerializerFieldExte
         the default value instead.
         """
         if direction == "response":
-            component = auto_schema.resolve_serializer(self.target.serializer, direction)
+            component = auto_schema.resolve_serializer(self.target._serializer, direction)
             return component.ref
         # Return the default value for the request (regular serialization)
         default: dict[str, Any] = auto_schema._map_serializer_field(self.target, direction, bypass_extensions=True)

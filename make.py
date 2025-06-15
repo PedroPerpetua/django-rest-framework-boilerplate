@@ -415,9 +415,17 @@ def build(production: bool) -> None:
 @click.argument("test", required=False)
 @click.option("--skip-lint", is_flag=True, help="Skip linting. Can't be used with lint-only.")
 @click.option("--lint-only", is_flag=True, help="Run lint tools only. Can't be used with skip-lint.")
-@click.option("--pattern", "-p", type=str, required=False, help="Specify a pattern for pytest to pick tests.")
-@click.option("--cpus", "-c", type=str, required=False, help='Specify the number of CPUs to use with xdist (positive integer or "auto").')
-def test(test: str, skip_lint: bool, lint_only: bool, pattern: str, cpus: int | Literal["auto"]) -> None:
+@click.option("--pattern", "-p", type=str, help="Specify a pattern for pytest to pick tests.")
+@click.option("--cpus", "-c", type=str, help='Specify the number of CPUs to use with xdist (positive integer or "auto").')
+@click.option("--with-stdout", "-s", is_flag=True, help="Include stdout and stderr in the output.")
+def test(
+    test: str,
+    skip_lint: bool,
+    lint_only: bool,
+    pattern: str,
+    cpus: int | Literal["auto"],
+    with_stdout: bool,
+) -> None:
     """Runs the linting tools and test suite."""
     if skip_lint and lint_only:
         error("Options skip-lint and lint-only options can't be used together!", bold=True)
@@ -445,6 +453,10 @@ def test(test: str, skip_lint: bool, lint_only: bool, pattern: str, cpus: int | 
                 error(f"Invalid cpus value: '{cpus}'.")
                 raise click.Abort()
         test_commands += ["-n", str(cpus)]
+
+    # Check for stdout
+    if with_stdout:
+        test_commands += ["-s"]
 
     # Join all test commands
     test_commands = [" ".join(test_commands)]
