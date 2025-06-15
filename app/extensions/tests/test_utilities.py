@@ -9,6 +9,17 @@ from extensions.utilities.logging import LoggingConfigurationBuilder
 from extensions.utilities.test import MockResponse, SampleFile
 
 
+class TestTODO(TestCase):
+    """
+    Force a failure to test github actions with pytest.
+
+    TODO: remove this
+    """
+
+    def test(self) -> None:
+        self.fail("FAILED!")
+
+
 class TestUtilities(TestCase):
     """Test the base utilities provided."""
 
