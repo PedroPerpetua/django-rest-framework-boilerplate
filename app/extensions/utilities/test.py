@@ -3,7 +3,7 @@ import re
 import requests
 from collections.abc import Sequence
 from pathlib import Path
-from typing import TYPE_CHECKING, Any, Optional, Type, cast
+from typing import TYPE_CHECKING, Any, Collection, Optional, Type, cast
 from typing import Sequence as SequenceType
 from django.core.files.uploadedfile import SimpleUploadedFile
 from django.db import connection
@@ -63,7 +63,7 @@ class AbstractModelTestCase(TestCase):
             # Any additional settings
             ...
 
-        MODELS = [MyConcreteModel]
+        MODELS = (MyConcreteModel,)
 
         def my_test(self) -> None:
             # Use self.MyConcreteModel
@@ -73,7 +73,7 @@ class AbstractModelTestCase(TestCase):
     Adapted from: https://michael.mior.ca/blog/unit-testing-django-model-mixins/
     """
 
-    MODELS: list[Type[Model]] = []
+    MODELS: Collection[Type[Model]] = []
 
     @classmethod
     def setUpClass(cls) -> None:
@@ -83,8 +83,8 @@ class AbstractModelTestCase(TestCase):
         )
         # Create the schemas for all models
         with connection.schema_editor() as schema_editor:
-            for model in cls.MODELS:
-                schema_editor.create_model(model)
+            for ModelClass in cls.MODELS:
+                schema_editor.create_model(ModelClass)
         super().setUpClass()
 
     @classmethod

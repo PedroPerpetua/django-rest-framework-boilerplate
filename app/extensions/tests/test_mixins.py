@@ -20,7 +20,7 @@ class TestUUIDPrimaryKeyMixin(AbstractModelTestCase):
             # Because extensions is not an "installed_app"
             app_label = uuid()
 
-    MODELS = [ConcreteModel]
+    MODELS = (ConcreteModel,)
 
     def test_create(self) -> None:
         """Test creating an instance of a model with the mixin."""
@@ -37,7 +37,7 @@ class TestCreatedAtMixin(AbstractModelTestCase):
             # Because extensions is not an "installed_app"
             app_label = uuid()
 
-    MODELS = [ConcreteModel]
+    MODELS = (ConcreteModel,)
 
     @patch("django.utils.timezone.now")
     def test_create(self, datetime_mock: MagicMock) -> None:
@@ -68,7 +68,7 @@ class TestUpdatedAtMixin(AbstractModelTestCase):
             # Because extensions is not an "installed_app"
             app_label = uuid()
 
-    MODELS = [ConcreteModel]
+    MODELS = (ConcreteModel,)
 
     @patch("django.utils.timezone.now")
     def test_create(self, datetime_mock: MagicMock) -> None:
@@ -101,7 +101,7 @@ class TestSoftDeleteMixin(AbstractModelTestCase):
             # Because extensions is not an "installed_app"
             app_label = uuid()
 
-    MODELS = [ConcreteModel]
+    MODELS = (ConcreteModel,)
 
     def test_create(self) -> None:
         """Test creating an instance of a model with the mixin."""
@@ -193,11 +193,11 @@ class TestExtendedReprMixin(AbstractModelTestCase):
             # Because extensions is not an "installed_app", and related name needs a real installed app name.
             app_label = "core"
 
-    MODELS = [
+    MODELS = (
         ExtendedReprConcreteModel,
         ExtendedReprSimpleConcreteModel,
         SimpleRecursiveConcreteModel,
-    ]
+    )
 
     def test_repr(self) -> None:
         """Test the `repr` of a model with the mixin."""

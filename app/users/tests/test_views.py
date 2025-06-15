@@ -81,7 +81,7 @@ class TestAuthentication(APITestCase):
             reverse("users:whoami"), HTTP_AUTHORIZATION=f"Bearer {login_token_dict['access']}"
         )
         self.assertResponseStatusCode(status.HTTP_200_OK, whoami_res)
-        self.assertEqual({"username": user.username}, whoami_res.json())
+        self.assertResponseData(user, serializers.UserWhoamiSerializer, whoami_res)
 
         # Refresh the tokens
         refresh_res = self.client.post(reverse("users:login-refresh"), data={"refresh": login_token_dict["refresh"]})
