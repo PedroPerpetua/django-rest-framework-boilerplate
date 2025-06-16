@@ -456,7 +456,10 @@ def test(
 
     # Check for stdout
     if with_stdout:
-        test_commands += ["-s"]
+        if cpus:
+            warning("Options cpus and with_stdout don't work together. Ignoring with_stdout.")
+        else:
+            test_commands += ["-s"]
 
     # Join all test commands
     test_commands = [" ".join(test_commands)]

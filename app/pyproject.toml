@@ -86,8 +86,6 @@ django_settings_module = "app.settings"
 
 [tool.pytest.ini_options]
 DJANGO_SETTINGS_MODULE = "app.settings"
-python_files = ["*/tests/test_*.py"]
-# Coverage
 addopts = "--cov=. --cov-report html"
 
 

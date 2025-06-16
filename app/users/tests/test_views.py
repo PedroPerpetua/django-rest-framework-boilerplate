@@ -2,7 +2,7 @@ from typing import Any
 from django.urls import reverse
 from rest_framework import status
 from constance.test import override_config  # type: ignore[import-untyped]
-from extensions.utilities.test import APITestCase
+from extensions.utilities.test import APITestCase, UpdateFunction, subTest_patch_and_put
 from users import serializers
 from users.models import User
 from users.tests import VALID_PASSWORD, sample_user
@@ -181,33 +181,31 @@ class TestUserProfileView(APITestCase):
         # Verify the response
         self.assertResponseStatusCode(status.HTTP_401_UNAUTHORIZED, res)
 
-    def test_update_success(self) -> None:
+    @subTest_patch_and_put
+    def test_update_success(self, update_function: UpdateFunction) -> None:
         """Test successfully updating the User's profile."""
-        for method in (self.client.patch, self.client.put):
-            with self.subTest("Test updating User profile successfully", value=method.__name__):
-                # The default UserProfileSerializer has no fields that can be updated; so we test for empty payload
-                payload: dict[str, Any] = {}
-                # Make the call
-                res = method(self.URL, data=payload)
-                # Verify the response
-                self.assertResponseStatusCode(status.HTTP_200_OK, res)
-                # Verify any field changes
-                self.user.refresh_from_db()
-                # ...
+        # The default UserProfileSerializer has no fields that can be updated; so we test for empty payload
+        payload: dict[str, Any] = {}
+        # Make the call
+        res = update_function(self.URL, data=payload)
+        # Verify the response
+        self.assertResponseStatusCode(status.HTTP_200_OK, res)
+        # Verify any field changes
+        self.user.refresh_from_db()
+        # ...
 
-    def test_update_authentication_required(self) -> None:
+    @subTest_patch_and_put
+    def test_update_authentication_required(self, update_function: UpdateFunction) -> None:
         """Test that the User needs to be logged in to update their profile."""
         self.client.logout()
-        for method in (self.client.patch, self.client.put):
-            with self.subTest("Test updating User profile without being logged in", value=method.__name__):
-                payload = {"username": f"_username_updated_{method.__name__}"}
-                # Make the call
-                res = method(self.URL, data=payload)
-                # Verify the response
-                self.assertResponseStatusCode(status.HTTP_401_UNAUTHORIZED, res)
-                # Make sure the username didn't change
-                self.user.refresh_from_db()
-                self.assertNotEqual(payload["username"], self.user.username)
+        payload = {"username": "_username_updated"}
+        # Make the call
+        res = update_function(self.URL, data=payload)
+        # Verify the response
+        self.assertResponseStatusCode(status.HTTP_401_UNAUTHORIZED, res)
+        # Make sure the username didn't change
+        self.user.refresh_from_db()
+        self.assertNotEqual(payload["username"], self.user.username)
 
 
 class TestUserChangePasswordView(APITestCase):
@@ -300,16 +298,15 @@ class TestUserChangePasswordView(APITestCase):
         self.assertFalse(self.user.check_password(new_password))
         self.assertTrue(self.user.check_password(self.password))
 
-    def test_method_not_allowed(self) -> None:
+    @subTest_patch_and_put
+    def test_method_not_allowed(self, update_function: UpdateFunction) -> None:
         """Because we changed the default HTTP methods, make sure the previous ones now return an error."""
-        for method in (self.client.patch, self.client.put):
-            with self.subTest("Testing updating password with methods not allowed", value=method.__name__):
-                new_password = VALID_PASSWORD + "_updated"
-                # Make the call
-                res = method(self.URL, data={"password": self.password, "new_password": new_password})
-                # Verify the response
-                self.assertResponseStatusCode(status.HTTP_405_METHOD_NOT_ALLOWED, res)
-                # Make sure the password didn't change
-                self.user.refresh_from_db()
-                self.assertFalse(self.user.check_password(new_password))
-                self.assertTrue(self.user.check_password(self.password))
+        new_password = VALID_PASSWORD + "_updated"
+        # Make the call
+        res = update_function(self.URL, data={"password": self.password, "new_password": new_password})
+        # Verify the response
+        self.assertResponseStatusCode(status.HTTP_405_METHOD_NOT_ALLOWED, res)
+        # Make sure the password didn't change
+        self.user.refresh_from_db()
+        self.assertFalse(self.user.check_password(new_password))
+        self.assertTrue(self.user.check_password(self.password))
