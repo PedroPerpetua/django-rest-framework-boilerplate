@@ -2,13 +2,17 @@ from __future__ import annotations
 import re
 import requests
 from collections.abc import Sequence
+from contextlib import contextmanager
+from datetime import datetime
 from pathlib import Path
-from typing import TYPE_CHECKING, Any, Callable, Collection, Optional, Protocol, Type, cast
+from typing import TYPE_CHECKING, Any, Callable, Collection, Generator, Optional, Protocol, Type, cast
 from typing import Sequence as SequenceType
+from unittest.mock import patch
 from django.core.files.uploadedfile import SimpleUploadedFile
 from django.db import connection
 from django.db.models import Model
 from django.test import TestCase
+from django.utils.timezone import now
 from rest_framework.serializers import BaseSerializer
 from rest_framework.test import APITestCase as DRF_APITestCase
 from extensions.utilities import uuid
@@ -16,54 +20,6 @@ from extensions.utilities import uuid
 
 if TYPE_CHECKING:
     from rest_framework.response import _MonkeyPatchedResponse as Response
-
-
-class UpdateFunction(Protocol):
-    def __call__(
-        self,
-        path: str,
-        data: Any | None = ...,
-        format: str | None = ...,
-        content_type: str | None = ...,
-        follow: bool = ...,
-        **extra: Any,
-    ) -> Response: ...
-
-
-def subTest_patch_and_put[**P](test: Callable[P, None]) -> Callable[P, None]:
-    """
-    Decorator to repeat a test for both PATCH and PUT calls.
-
-    This decorator will split the test in two subtests, one for PATCH and one for PUT. An extra argument will be
-    passed to the test at the end, with the corresponding method to use (which will be either `self.client.patch` or
-    `self.client.put`).
-
-    **NOTE**: Test context **will not** be reset between the PATCH / PUT calls. This will simply turn the test into
-    two subTests, which don't reset by default.
-
-    Example usage:
-    ```
-    def TestClass(APITestCase):
-
-        @subTest_patch_and_put
-        def my_update_test(self, update_function: UpdateFunction) -> None:
-            # This test will run twice - one where update_function is patch; the other where it's put.
-            res = update_function(..., data=...)
-            self.assertResponseStatusCode(status.HTTP_200_OK, res)
-            self.assertResponseData(..., ..., res)
-    """
-
-    def wrapper(*args: P.args, **kwargs: P.kwargs) -> None:
-        test_class = args[0]
-        assert isinstance(test_class, APITestCase)
-        with test_class.subTest("Testing PATCH"):
-            update_method = test_class.client.patch
-            test(*args, update_method, **kwargs)  # type: ignore[arg-type]
-        with test_class.subTest("Testing PUT"):
-            update_method = test_class.client.put
-            test(*args, update_method, **kwargs)  # type: ignore[arg-type]
-
-    return wrapper
 
 
 class APITestCase(DRF_APITestCase):
@@ -142,6 +98,81 @@ class AbstractModelTestCase(TestCase):
         with connection.schema_editor() as schema_editor:
             for model in cls.MODELS:
                 schema_editor.delete_model(model)
+
+
+class UpdateFunction(Protocol):
+    def __call__(
+        self,
+        path: str,
+        data: Any | None = ...,
+        format: str | None = ...,
+        content_type: str | None = ...,
+        follow: bool = ...,
+        **extra: Any,
+    ) -> Response: ...
+
+
+def subTest_patch_and_put[**P](test: Callable[P, None]) -> Callable[P, None]:
+    """
+    Decorator to repeat a test for both PATCH and PUT calls.
+
+    This decorator will split the test in two subtests, one for PATCH and one for PUT. An extra argument will be
+    passed to the test at the end, with the corresponding method to use (which will be either `self.client.patch` or
+    `self.client.put`).
+
+    **NOTE**: Test context **will not** be reset between the PATCH / PUT calls. This will simply turn the test into
+    two subTests, which don't reset by default.
+
+    Example usage:
+    ```
+    def TestClass(APITestCase):
+
+        @subTest_patch_and_put
+        def my_update_test(self, update_function: UpdateFunction) -> None:
+            # This test will run twice - one where update_function is patch; the other where it's put.
+            res = update_function(..., data=...)
+            self.assertResponseStatusCode(status.HTTP_200_OK, res)
+            self.assertResponseData(..., ..., res)
+    """
+
+    def wrapper(*args: P.args, **kwargs: P.kwargs) -> None:
+        test_class = args[0]
+        assert isinstance(test_class, APITestCase)
+        with test_class.subTest("Testing PATCH"):
+            update_method = test_class.client.patch
+            test(*args, update_method, **kwargs)  # type: ignore[arg-type]
+        with test_class.subTest("Testing PUT"):
+            update_method = test_class.client.put
+            test(*args, update_method, **kwargs)  # type: ignore[arg-type]
+
+    return wrapper
+
+
+@contextmanager
+def override_auto_now(value: Optional[datetime] = None) -> Generator[datetime, None, None]:
+    """
+    Context manager to patch Django's `django.utils.timezone.now` in the given block.
+
+    Example usage:
+    ```
+    with override_auto_now() as time_value:
+       obj = MyModel.objects.create()
+
+    self.assertEqual(time_value, obj.created_at)
+    ```
+
+    An optional datetime can also be passed to be used as the mock value:
+    ```
+    with override_auto_now(my_datetime):
+        obj = MyModel.objects.create()
+
+    self.assertEqual(my_datetime, obj.created_at)
+    ```
+    """
+    override_value = value or now()
+    with patch("django.utils.timezone.now") as now_mock:
+        now_mock.return_value = override_value
+        yield override_value
 
 
 class MockResponse[T: dict[str, Any] | list[Any] = dict[str, Any]](requests.Response):
