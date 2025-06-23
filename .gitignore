@@ -1,8 +1,7 @@
 # Editor files
 .vscode/
 
-# Python source and cache
-.venv
+# Python cache
 __pycache__
 
 # Config files
