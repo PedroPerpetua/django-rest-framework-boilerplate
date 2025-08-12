@@ -88,7 +88,7 @@ It's possible to attempt to auto-update projects with versions _before_ `2.1.0`.
 version = "<Your current boilerplate version here>"
 ```
 
-Afterwards, copy the most recent `make.py` script onto the project root renamed (for example, `_make.py`, so it doesn't conflict with the new `make.py`s that may be created) and run `python <make.py renamed> update` as usual.
+Afterwards, copy the `cli/` folder and `make.py` file from the most recent version and run `python <make.py renamed> update` as usual. You may need to install extra dependencies for this to work.
 
 
 ## Deployment
