@@ -4,16 +4,16 @@
 click == 8.2.1
 
 # Linting
-ruff == 0.12.0
-mypy == 1.16.1
+ruff == 0.12.8
+mypy == 1.17.1
 
 # Type hint stubs
-django-stubs == 5.2.1
-djangorestframework-stubs == 3.16.0
+django-stubs == 5.2.2
+djangorestframework-stubs == 3.16.1
 
 # Testing
 pytest == 8.4.1
 pytest-subtests == 0.14.2
 pytest-cov == 6.2.1
-pytest-xdist == 3.7.0
+pytest-xdist == 3.8.0
 pytest-django == 4.11.1

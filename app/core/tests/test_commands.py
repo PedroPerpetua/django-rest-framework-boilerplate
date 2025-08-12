@@ -1,5 +1,4 @@
 from io import StringIO
-from typing import Any
 from unittest import TestCase as UnitTest
 from unittest.mock import MagicMock, patch
 from django.core.management import call_command
@@ -133,7 +132,7 @@ class TestStartAppCommand(UnitTest):
         call_command("startapp", app_name, stdout=output_buffer, stderr=error_buffer)
         # Make sure the mock was called correctly
         handle_mock.assert_called_once()
-        kwargs: dict[str, Any] = handle_mock.call_args.kwargs
+        kwargs = handle_mock.call_args.kwargs
         self.assertIn("template", kwargs)
         self.assertEqual(self.TEMPLATE_PATH, kwargs["template"])
         self.assertIn("name", kwargs)
@@ -152,7 +151,7 @@ class TestStartAppCommand(UnitTest):
         call_command("startapp", app_name, template=template, stdout=output_buffer, stderr=error_buffer)
         # Make sure the mock was called correctly
         handle_mock.assert_called_once()
-        kwargs: dict[str, Any] = handle_mock.call_args.kwargs
+        kwargs = handle_mock.call_args.kwargs
         self.assertIn("template", kwargs)
         self.assertEqual(template, kwargs["template"])
         self.assertIn("name", kwargs)
