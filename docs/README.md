@@ -9,7 +9,7 @@ Provided by [PedroPerpetua](https://github.com/PedroPerpetua).
 
 
 ## Version
-Currently set up for `python 3.13.5` with `Django 5.2.3` and `Django Rest Framework 3.16.0`.
+Currently set up for `python 3.13.5` with `Django 5.2.5` and `Django Rest Framework 3.16.1`.
 
 
 ## Getting started
@@ -88,7 +88,7 @@ It's possible to attempt to auto-update projects with versions _before_ `2.1.0`.
 version = "<Your current boilerplate version here>"
 ```
 
-Afterwards, copy the most recent `make.py` script onto the project root renamed (for example, `_make.py`, so it doesn't conflict with the new `make.py`s that may be created) and run `python <make.py renamed> update` as usual.
+Afterwards, copy the `cli/` folder and `make.py` file from the most recent version and run `python <make.py renamed> update` as usual. You may need to install extra dependencies for this to work.
 
 
 ## Deployment

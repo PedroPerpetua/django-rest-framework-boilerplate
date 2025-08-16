@@ -1,0 +1,41 @@
+[project]
+name = "Django-Rest-Framework-Boilerplate-CLI"
+version = "1.0.0"
+requires-python = "== 3.13.5"
+
+[tool.ruff]
+cache-dir = "/dev/null"
+exclude=["diff3.py"]
+line-length = 119
+
+[tool.ruff.lint]
+select = ["F", "I", "B"]
+
+[tool.ruff.lint.isort]
+extra-standard-library = ["requests"]
+no-lines-before = [
+    "future",
+    "standard-library",
+    "third-party",
+    "first-party",
+    "local-folder",
+]
+lines-after-imports = 2
+lines-between-types = 0
+
+[tool.mypy]
+cache_dir = "/dev/null"
+mypy_path = "$MYPY_CONFIG_FILE_DIR/.."
+exclude=["diff3.py"]
+show_error_codes = true
+# Be more strict
+disallow_untyped_defs = true
+disallow_any_unimported = true
+no_implicit_optional = true
+check_untyped_defs = true
+# Warn everything
+warn_redundant_casts = true
+warn_unused_ignores = true
+warn_no_return = true
+warn_return_any = true
+warn_unreachable = true

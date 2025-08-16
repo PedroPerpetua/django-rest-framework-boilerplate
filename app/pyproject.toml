@@ -6,7 +6,7 @@ readme = "README.md"
 
 
 [boilerplate]
-version = "2.5.0"
+version = "2.6.0"
 
 
 [tool.ruff]
@@ -86,8 +86,6 @@ django_settings_module = "app.settings"
 
 [tool.pytest.ini_options]
 DJANGO_SETTINGS_MODULE = "app.settings"
-python_files = ["*/tests/test_*.py"]
-# Coverage
 addopts = "--cov=. --cov-report html"
 
 
