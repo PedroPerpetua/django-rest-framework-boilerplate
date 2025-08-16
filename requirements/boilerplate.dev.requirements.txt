@@ -10,7 +10,7 @@ mypy == 1.17.1
 
 # Type hint stubs
 django-stubs == 5.2.2
-djangorestframework-stubs == 3.16.1
+djangorestframework-stubs == 3.16.2
 types-docker == 7.1.0.20250809
 
 # Testing
