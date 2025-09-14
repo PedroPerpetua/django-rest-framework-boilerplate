@@ -7,7 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 This CHANGELOG was only adopted from v2.6.0 forward, so previous release are **not** documented. Maybe in the future they'll be added.
 
-## [Unreleased]
+## [2.6.1] - 2025-09-14
 
 ### Dependencies
 - Python version: `3.13.5` -> `3.13.7`.
