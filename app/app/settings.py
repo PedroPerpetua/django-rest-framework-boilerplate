@@ -37,9 +37,6 @@ CONSTANCE_CONFIG_FIELDSETS = (
 )
 
 # CORS configuration
-
-CORS_ALLOW_ALL_ORIGINS = env.as_bool("CORS_ALLOW_ALL_ORIGINS")
-# If CORS_ALLOW_ALL_ORIGINS is True, this setting is ignored
 CORS_ALLOWED_ORIGINS = env.as_list("CORS_ALLOWED_ORIGINS")
 
 

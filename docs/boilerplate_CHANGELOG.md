@@ -10,7 +10,13 @@ This CHANGELOG was only adopted from v2.6.0 forward, so previous release are **n
 
 ## [Unreleased]
 
-## Dependencies
+### Changed
+- Removed `CORS_ALLOW_ALL_ORIGINS` setting. Use `CORS_ALLOWED_ORIGINS=*` instead.
+
+### Fixed
+- Added missing CORS headers to nginx `/media` location.
+
+### Dependencies
 - `python`: `3.1.5` -> `3.1.7`.
 - `Django`: `5.2.5` -> `5.2.7`.
 - `django-cors-headers` `4.7.0` -> `4.9.0`.

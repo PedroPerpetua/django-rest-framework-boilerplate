@@ -20,12 +20,17 @@ http {
         server 0.0.0.0:8001 fail_timeout=0;
     }
 
+    # This map will be filled at runtime by the entrypoint
+    map $http_origin $allow_origin {
+        __CORS_ALLOWED_ORIGINS__
+    }
+
     server {
-        listen 8000 ssl;
+        listen 8000;
         client_max_body_size 10M;
 
-        ssl_certificate     /etc/nginx/ssl/cert.pem;
-        ssl_certificate_key /etc/nginx/ssl/key.pem;
+        #ssl_certificate     /etc/nginx/ssl/cert.pem;
+        #ssl_certificate_key /etc/nginx/ssl/key.pem;
 
         location / {
             proxy_pass http://django_server;
@@ -41,6 +46,7 @@ http {
 
         location /media {
             alias /media;
+            add_header 'Access-Control-Allow-Origin' $allow_origin;
         }
     }
 }
