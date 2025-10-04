@@ -12,9 +12,11 @@ This CHANGELOG was only adopted from v2.6.0 forward, so previous release are **n
 
 ### Changed
 - Removed `CORS_ALLOW_ALL_ORIGINS` setting. Use `CORS_ALLOWED_ORIGINS=*` instead.
+- Logs moved to `/logs` (no longer inside a folder with the date). Log folders were previously dated but had no actual log rotation implemented; users that want their logs rotating can implement their own directives (like with `logrotate`).
+- Added `NGINX` and `gunicorn` logs in production.
 
 ### Fixed
-- Added missing CORS headers to nginx `/media` location.
+- Added missing CORS headers to `NGINX` `/media` location.
 - Improved Docker builds.
 
 ### Dependencies

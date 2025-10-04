@@ -1,6 +1,6 @@
 import logging
 from collections import OrderedDict
-from datetime import datetime, timedelta
+from datetime import timedelta
 from pathlib import Path
 from django.utils.translation import gettext_lazy as _
 from extensions.utilities import env
@@ -101,11 +101,11 @@ WSGI_APPLICATION = "app.wsgi.application"
 
 # Logging configuration
 
-LOG_FOLDER = Path("/logs") / datetime.now().strftime("%Y-%m-%d")
+LOG_FOLDER = Path("/logs")
 LOG_LEVEL = env.as_int("LOG_LEVEL", logging.NOTSET)
 
 # Use our custom log configuration builder to setup the logger
-LOGGING = (
+logger_config = (
     LoggingConfigurationBuilder()
     # Setup the default formatter
     .add_formatter("default", "[{levelname}] {asctime} {module}: {message}")
@@ -128,7 +128,19 @@ LOGGING = (
     # Core app
     .add_file_handler("core_handler", LOG_FOLDER / "core.log")
     .add_logger("core", ["debug_handler", "core_handler"], level=LOG_LEVEL, propagate=False)
-).build()
+)
+
+if "gunicorn" in env.as_string("SERVER_SOFTWARE", "").lower():
+    # If we're running under gunicorn, add it to our logger
+    logger_config.add_file_handler("gunicorn_handler", LOG_FOLDER / "gunicorn.log")
+    logger_config.add_logger(
+        "gunicorn",
+        handlers=["debug_handler", "gunicorn_handler"],
+        level=LOG_LEVEL,
+        propagate=False,
+    )
+
+LOGGING = logger_config.build()
 
 
 # Database

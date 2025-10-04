@@ -225,7 +225,7 @@ def compare_version(base_version: Path, updated_version: Path, current_version: 
                 continue
 
             if not current_file.exists():
-                # Our current version was deleted; TODO
+                # Our current version was deleted; it's a conflict
                 updates.append(ErrorFile(base_file, updated_file, current_file))
                 continue
             if are_files_equal(current_file, base_file):
