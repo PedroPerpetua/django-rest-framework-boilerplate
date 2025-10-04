@@ -37,6 +37,7 @@ WORKDIR /app
 # Copy additional files required for linting
 COPY ./typing /typing
 
-
-CMD sh -c "python manage.py setup \
-           && python manage.py runserver 0.0.0.0"
+# Set up the entrypoint and run
+COPY ./docker/dev/docker-entrypoint.sh /docker-entrypoint.sh
+RUN chmod +x /docker-entrypoint.sh
+ENTRYPOINT ["/docker-entrypoint.sh"]

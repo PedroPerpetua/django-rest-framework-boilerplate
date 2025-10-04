@@ -15,6 +15,7 @@ This CHANGELOG was only adopted from v2.6.0 forward, so previous release are **n
 
 ### Fixed
 - Added missing CORS headers to nginx `/media` location.
+- Improved Docker builds.
 
 ### Dependencies
 - `python`: `3.1.5` -> `3.1.7`.
