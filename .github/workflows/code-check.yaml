@@ -22,7 +22,7 @@ jobs:
 
     - name: Run the Test container
       run: >
-        docker compose -f docker/dev/compose.yml run --rm app sh -c
+        docker compose -f docker/dev/compose.yml run --rm --entrypoint "" app sh -c
         "ruff check . --fix --unsafe-fixes && ruff format && mypy && pytest --no-cov"
 
     - name: Commit the changes
