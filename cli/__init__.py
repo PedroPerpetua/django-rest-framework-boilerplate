@@ -111,7 +111,7 @@ def test(
     else:
         commands = lint_commands + test_commands
     run_docker_command(
-        f'run --rm app sh -c "{" && ".join(commands)}"',
+        f'run --rm --entrypoint "" app sh -c "{" && ".join(commands)}"',
         production=False,
         raise_exception=False,
         show_mode=False,
@@ -130,7 +130,7 @@ def test(
 def command(production: bool, stop_on_finish: bool, commands: tuple[str, ...]) -> None:
     """Pass a command to Django's manage.py and execute it."""
     run_docker_command(
-        f'run --rm app sh -c "python manage.py {" ".join(commands)}"',
+        f'run --rm --entrypoint "" app sh -c "python manage.py {" ".join(commands)}"',
         production,
         stop_on_finish,
     )
@@ -158,7 +158,7 @@ def schema(output: Path) -> None:
     """Generate an OpenAPI schema using drf_spectacular."""
     log("Generating schema...")
     run_docker_command(
-        'run --rm app sh -c "python manage.py spectacular --color --file schema.yml"',
+        'run --rm --entrypoint "" app sh -c "python manage.py spectacular --color --file schema.yml"',
         production=False,
         stop_on_finish=False,
         show_mode=False,
@@ -251,7 +251,7 @@ def regenerate_migrations(yes: bool) -> None:
 
     # Run the migrations, and run it without arguments at the end to cover any unordered apps
     run_docker_command(
-        f'run --rm app sh -c "{app_commands}python manage.py makemigrations"',
+        f'run --rm --entrypoint "" app sh -c "{app_commands}python manage.py makemigrations"',
         production=False,
         show_mode=False,
     )

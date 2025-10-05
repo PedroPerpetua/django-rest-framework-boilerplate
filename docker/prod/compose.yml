@@ -14,9 +14,6 @@ services:
     build:
       context: ../../
       dockerfile: ./docker/prod/Dockerfile
-    command: >
-      sh -c "python manage.py setup
-      && supervisord -c /etc/supervisor.d/supervisord.ini"
     volumes:
       - ./logs:/logs
       - ./media:/media

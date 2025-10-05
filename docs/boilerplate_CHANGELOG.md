@@ -7,6 +7,32 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 This CHANGELOG was only adopted from v2.6.0 forward, so previous release are **not** documented. Maybe in the future they'll be added.
 
+
+## [2.7.0] - 2025-10-05
+
+### Changed
+- Removed `CORS_ALLOW_ALL_ORIGINS` setting. Use `CORS_ALLOWED_ORIGINS=*` instead.
+- Logs moved to `/logs` (no longer inside a folder with the date). Log folders were previously dated but had no actual log rotation implemented; users that want their logs rotating can implement their own directives (like with `logrotate`).
+- Added `NGINX` and `gunicorn` logs in production.
+
+### Fixed
+- Added missing CORS headers to `NGINX` `/media` location.
+- Improved Docker builds.
+
+### Dependencies
+- `python`: `3.1.5` -> `3.1.7`.
+- `Django`: `5.2.5` -> `5.2.7`.
+- `django-cors-headers` `4.7.0` -> `4.9.0`.
+- `click`: `8.2.1` -> `8.3.0`.
+- `ruff`: `0.12.8` -> `0.13.3`.
+- `mypy`: `1.17.1` -> `1.18.2`.
+- `django-stubs`: `5.2.2` -> `5.2.5`.
+- `djangorestframework-stubs`: `3.16.2` -> `3.16.4`.
+- `types-docker`: `7.1.0.20250809` -> `7.1.0.20250916`.
+- `pytest`: `8.4.1` -> `8.4.2`.
+- `pytest-cov`: `6.2.1` -> `7.0.0`.
+
+
 ## [2.6.1] - 2025-09-14
 
 ### Dependencies

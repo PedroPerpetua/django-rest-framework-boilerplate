@@ -32,7 +32,7 @@ RUN apk add --no-cache libpq
 
 # Setup Supervisor + nginx -------------------------------
 RUN apk --no-cache add nginx
-COPY ./docker/prod/nginx.conf /etc/nginx/nginx.conf
+COPY ./docker/prod/nginx.conf.template /etc/nginx/nginx.conf.template
 COPY ./docker/prod/supervisord.ini /etc/supervisor.d/supervisord.ini
 RUN chown -R nginx:nginx /var/lib/nginx
 
@@ -44,5 +44,7 @@ ENV PATH=/venv/bin:$PATH
 COPY ./app /app
 WORKDIR /app
 
-CMD sh -c "python manage.py setup \
-           && supervisord -c /etc/supervisor.d/supervisord.ini"
+# Set up the entrypoint and run
+COPY ./docker/prod/docker-entrypoint.sh /docker-entrypoint.sh
+RUN chmod +x /docker-entrypoint.sh
+ENTRYPOINT ["/docker-entrypoint.sh"]

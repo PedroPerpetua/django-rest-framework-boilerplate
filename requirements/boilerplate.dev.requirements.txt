@@ -1,17 +1,17 @@
 -r boilerplate.requirements.txt
 
 # CLI
-click == 8.2.1
+click == 8.3.0
 docker == 7.1.0
 
 # Linting
-ruff == 0.13.0
-mypy == 1.18.1
+ruff == 0.13.3
+mypy == 1.18.2
 
 # Type hint stubs
 django-stubs == 5.2.5
-djangorestframework-stubs == 3.16.2
-types-docker == 7.1.0.20250907
+djangorestframework-stubs == 3.16.4
+types-docker == 7.1.0.20250916
 
 # Testing
 pytest == 8.4.2
