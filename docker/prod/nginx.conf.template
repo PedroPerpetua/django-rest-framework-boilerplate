@@ -29,8 +29,8 @@ http {
         listen 8000;
         client_max_body_size 10M;
 
-        #ssl_certificate     /etc/nginx/ssl/cert.pem;
-        #ssl_certificate_key /etc/nginx/ssl/key.pem;
+        ssl_certificate     /etc/nginx/ssl/cert.pem;
+        ssl_certificate_key /etc/nginx/ssl/key.pem;
 
         location / {
             proxy_pass http://django_server;
