@@ -26,7 +26,7 @@ http {
     }
 
     server {
-        listen 8000;
+        listen 8000 ssl;
         client_max_body_size 10M;
 
         ssl_certificate     /etc/nginx/ssl/cert.pem;
