@@ -42,17 +42,13 @@ This CHANGELOG was only adopted from v2.6.0 forward, so previous release are **n
 - Improved Docker builds.
 
 ### Dependencies
-- `python`: `3.13.5` -> `3.13.7`.
-- `Django`: `5.2.5` -> `5.2.7`.
-- `django-cors-headers` `4.7.0` -> `4.9.0`.
+- `Django`: `5.2.6` -> `5.2.7`.
+- `django-cors-headers` `4.8.0` -> `4.9.0`.
 - `click`: `8.2.1` -> `8.3.0`.
-- `ruff`: `0.12.8` -> `0.13.3`.
-- `mypy`: `1.17.1` -> `1.18.2`.
-- `django-stubs`: `5.2.2` -> `5.2.5`.
+- `ruff`: `0.13.0` -> `0.13.3`.
+- `mypy`: `1.18.1` -> `1.18.2`.
 - `djangorestframework-stubs`: `3.16.2` -> `3.16.4`.
-- `types-docker`: `7.1.0.20250809` -> `7.1.0.20250916`.
-- `pytest`: `8.4.1` -> `8.4.2`.
-- `pytest-cov`: `6.2.1` -> `7.0.0`.
+- `types-docker`: `7.1.0.20250907` -> `7.1.0.20250916`.
 
 
 ## [2.6.1] - 2025-09-14
