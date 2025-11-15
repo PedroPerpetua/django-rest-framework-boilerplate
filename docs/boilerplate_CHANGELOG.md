@@ -8,6 +8,28 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 This CHANGELOG was only adopted from v2.6.0 forward, so previous release are **not** documented. Maybe in the future they'll be added.
 
 
+## [2.8.0] - 2025-11-15
+
+### Changed
+- Reordered Constance settings to an order that makes more sense.
+
+### Fixed
+- Fixed some Docker syntax inconsistencies.
+
+### Dependencies
+- `python`: `3.13.7` -> `3.14.0`.
+- `Django`: `5.2.7` -> `5.2.8`.
+- `psycopg2`: `2.9.10` -> `2.9.11`.
+- `drf-spectacular`: `0.28.0` -> `0.29.0`.
+- `django-constance`: `4.3.2` -> `4.3.4`.
+- `ruff`: `0.13.3` -> `0.14.5`.
+- `django-stubs`: `5.2.5` -> `5.2.7`.
+- `djangorestframework-stubs`: `3.16.4` -> `3.16.5`.
+- `types-docker`: `7.1.0.20250916` -> `7.1.0.20251009`.
+- `pytest`: `8.4.2` -> `9.0.1`.
+- `pytest-subtest`: `0.14.2` -> `0.15.0`.
+
+
 ## [2.7.0] - 2025-10-05
 
 ### Changed
@@ -20,7 +42,7 @@ This CHANGELOG was only adopted from v2.6.0 forward, so previous release are **n
 - Improved Docker builds.
 
 ### Dependencies
-- `python`: `3.1.5` -> `3.1.7`.
+- `python`: `3.13.5` -> `3.13.7`.
 - `Django`: `5.2.5` -> `5.2.7`.
 - `django-cors-headers` `4.7.0` -> `4.9.0`.
 - `click`: `8.2.1` -> `8.3.0`.
@@ -36,7 +58,7 @@ This CHANGELOG was only adopted from v2.6.0 forward, so previous release are **n
 ## [2.6.1] - 2025-09-14
 
 ### Dependencies
-- Python version: `3.13.5` -> `3.13.7`.
+- `python`: `3.13.5` -> `3.13.7`.
 - `Django`: `5.2.5` -> `5.2.6`.
 - `django-cors-headers`: `4.7.0` -> `4.8.0`.
 - `ruff`: `0.12.8` -> `0.13.0`.
