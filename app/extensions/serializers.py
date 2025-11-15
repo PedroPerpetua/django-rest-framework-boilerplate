@@ -1,5 +1,6 @@
 from typing import Any, Iterable, Literal, Optional, Protocol, overload
 from django.db.models import Model, QuerySet
+from rest_framework.relations import PKOnlyObject
 from rest_framework.serializers import ModelSerializer, PrimaryKeyRelatedField
 from drf_spectacular.extensions import OpenApiSerializerFieldExtension
 from drf_spectacular.openapi import AutoSchema
@@ -162,7 +163,7 @@ class NestedPrimaryKeyRelatedField[_MT: Model](FilteredPrimaryKeyRelatedField[_M
         kwargs.setdefault("queryset", serializer.Meta.model._default_manager.all())  # type: ignore[attr-defined]
         super().__init__(**kwargs)
 
-    def to_representation(self, obj: _MT) -> Any:
+    def to_representation(self, obj: _MT | PKOnlyObject) -> Any:
         qs = self.get_queryset()
         # Because we set the default queryset in the `__init__` we should always have a QuerySet here
         assert isinstance(qs, QuerySet)

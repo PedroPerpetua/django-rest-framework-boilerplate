@@ -1,7 +1,7 @@
 [project]
 name = "Django-Rest-Framework-Boilerplate-CLI"
 version = "1.0.0"
-requires-python = "== 3.13.7"
+requires-python = "== 3.14.0"
 
 [tool.ruff]
 cache-dir = "/dev/null"

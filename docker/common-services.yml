@@ -1,7 +1,7 @@
 services:
   db:
     image: postgres:17.5-alpine
-    healthcheck :
+    healthcheck:
       test: [ "CMD", "pg_isready", "-q", "-d", "postgres", "-U", "postgres" ]
       interval : 5s
       timeout : 2s

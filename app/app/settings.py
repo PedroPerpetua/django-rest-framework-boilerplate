@@ -26,8 +26,8 @@ CONSTANCE_CONFIG = OrderedDict(
     [
         ("AUTH_USER_REGISTRATION_ENABLED", (False, _("Enable regular user registration"), bool)),
         ("OPENAPI_TITLE", ("API", _("OpenAPI schema title"), str)),
-        ("OPENAPI_DESCRIPTION", ("", _("OpenAPI schema description"), str)),
         ("OPENAPI_VERSION", ("v0.0.1", _("OpenAPI schema version"), str)),
+        ("OPENAPI_DESCRIPTION", ("", _("OpenAPI schema description"), str)),
         ("OPENAPI_ADMIN_ONLY", (True, _("Only allow admins to have access to the schema"), bool)),
     ]
 )
@@ -130,7 +130,7 @@ logger_config = (
     .add_logger("core", ["debug_handler", "core_handler"], level=LOG_LEVEL, propagate=False)
 )
 
-if "gunicorn" in env.as_string("SERVER_SOFTWARE", "").lower():
+if "gunicorn" in env.as_string("SERVER_SOFTWARE", "").lower():  # pragma: no cover
     # If we're running under gunicorn, add it to our logger
     logger_config.add_file_handler("gunicorn_handler", LOG_FOLDER / "gunicorn.log")
     logger_config.add_logger(
