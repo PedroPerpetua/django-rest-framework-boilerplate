@@ -12,6 +12,8 @@ This CHANGELOG was only adopted from v2.6.0 forward, so previous release are **n
 
 ### Changed
 - Swapped to `uv` for package management.
+  - CLI `run` command was renamed `start` to not be confused with `uv run` command.
+- CLI `build` command now supports extra arguments to be passed to the compose build command.
 
 
 ## [2.8.0] - 2025-11-15

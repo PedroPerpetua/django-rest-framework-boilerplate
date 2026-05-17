@@ -37,10 +37,6 @@ boilerplate-prod = [
 dev = []
 
 
-[tool.uv]
-default-groups = ["boilerplate", "boilerplate-dev", "dev"]
-
-
 [tool.ruff]
 cache-dir = "/dev/null"
 exclude=[
