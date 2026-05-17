@@ -1,0 +1,18 @@
+[boilerplate]
+version = "2.8.0"
+
+
+[dependency-groups]
+# https://github.com/astral-sh/uv/issues/14377
+boilerplate = []
+boilerplate-dev = []
+boilerplate-prod = []
+dev = []
+
+
+[tool.uv]
+# https://github.com/astral-sh/uv/issues/14377
+default-groups = ["boilerplate", "boilerplate-dev", "dev"]
+
+[tool.uv.workspace]
+members = ["app", "cli"]

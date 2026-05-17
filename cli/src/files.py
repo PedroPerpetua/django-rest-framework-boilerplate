@@ -1,15 +1,15 @@
 from pathlib import Path
 
 
-PROJECT_DIR = Path(__file__).parent.parent
+PROJECT_DIR = Path(__file__).parent.parent.parent
 
 APP_DIR = PROJECT_DIR / "app"
 
-PYPROJECT_FILE = APP_DIR / "pyproject.toml"
+PYPROJECT_FILE = PROJECT_DIR / "pyproject.toml"
 
 DOCKER_DIR = PROJECT_DIR / "docker"
 
-CACHE_DIR = Path(__file__).parent / ".cache"
+CACHE_DIR = Path(__file__).parent.parent / ".cache"
 
 
 def get_cache() -> Path:

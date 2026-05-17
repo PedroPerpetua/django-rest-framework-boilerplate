@@ -1,6 +1,6 @@
 worker_processes 8;
 
-user nginx nginx;
+user www-data www-data;
 error_log /logs/nginx.error.log __LOG_LEVEL__;
 pid /var/run/nginx.pid;
 daemon off;

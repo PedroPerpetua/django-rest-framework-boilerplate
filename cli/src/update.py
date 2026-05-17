@@ -7,9 +7,9 @@ from pathlib import Path
 from tempfile import TemporaryDirectory
 from typing import Any, Optional, TypedDict
 import click
-from cli.diff3 import merge
-from cli.files import PROJECT_DIR, get_cache
-from cli.logging import success, warning
+from cli.src.diff3 import merge
+from cli.src.files import PROJECT_DIR, get_cache
+from cli.src.logging import success, warning
 
 
 TAGS_URL = "https://api.github.com/repos/PedroPerpetua/django-rest-framework-boilerplate/tags"

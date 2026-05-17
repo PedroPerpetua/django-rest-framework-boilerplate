@@ -1,6 +1,6 @@
 import tomllib
 from typing import Any
-from cli.files import PYPROJECT_FILE
+from cli.src.files import PYPROJECT_FILE
 
 
 class Config(dict[str, Any]):

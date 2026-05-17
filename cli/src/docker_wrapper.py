@@ -1,10 +1,10 @@
 import subprocess
 from typing import Any, Callable
 import click
-from cli.files import DOCKER_DIR
-from cli.logging import error, warning
 from docker import DockerClient
 from docker.errors import DockerException
+from cli.src.files import DOCKER_DIR
+from cli.src.logging import error, warning
 
 
 def run_docker_command(

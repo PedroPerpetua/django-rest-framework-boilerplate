@@ -3,10 +3,38 @@ name = "Django-Rest-Framework-Boilerplate"
 version = "0.0.1"
 requires-python = "== 3.14.0"
 readme = "README.md"
+dependencies = []
 
-
-[boilerplate]
-version = "2.8.0"
+[dependency-groups]
+boilerplate = [
+    "Django==5.2.8",
+    "psycopg2==2.9.11",
+    "django-cors-headers==4.9.0",
+    "djangorestframework==3.16.1",
+    "djangorestframework-simplejwt==5.5.1",
+    "drf-standardized-errors[openapi]==0.15.0",
+    "drf-spectacular[sidecar]==0.29.0",
+    "django-constance==4.3.4",
+]
+boilerplate-dev = [
+    # Linting
+    "ruff==0.14.5",
+    "mypy==1.18.2",
+    # Type hint stubs
+    "django-stubs==5.2.7",
+    "djangorestframework-stubs==3.16.5",
+    # Testing
+    "pytest==9.0.1",
+    "pytest-subtests==0.15.0",
+    "pytest-cov==7.0.0",
+    "pytest-xdist==3.8.0",
+    "pytest-django==4.11.1",
+]
+boilerplate-prod = [
+    "gunicorn==26.0.0",
+    "supervisor==4.3.0"
+]
+dev = []
 
 
 [tool.ruff]

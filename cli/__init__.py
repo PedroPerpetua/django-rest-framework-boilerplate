@@ -3,12 +3,12 @@ import webbrowser
 from pathlib import Path
 from typing import Literal, Optional
 import click
-from cli.config import load_config
-from cli.docker import production_opt, run_docker_command
-from cli.files import APP_DIR, DOCKER_DIR, PROJECT_DIR
-from cli.logging import error, log, success, warning
-from cli.options import confirm_opt
-from cli.update import compare_version, get_tag, get_tags
+from cli.src.config import load_config
+from cli.src.docker_wrapper import production_opt, run_docker_command
+from cli.src.files import APP_DIR, DOCKER_DIR, PROJECT_DIR
+from cli.src.logging import error, log, success, warning
+from cli.src.options import confirm_opt
+from cli.src.update import compare_version, get_tag, get_tags
 
 
 @click.group
@@ -17,16 +17,21 @@ def cli_instance() -> None: ...
 
 @cli_instance.command
 @production_opt
-def run(production: bool) -> None:
+def start(production: bool) -> None:
     """Run docker compose up to start the server."""
     run_docker_command("up", production)
 
 
 @cli_instance.command
 @production_opt
-def build(production: bool) -> None:
-    """Build the docker containers."""
-    run_docker_command("build", production)
+@click.argument("extra_args", nargs=-1)
+def build(production: bool, extra_args: tuple[str, ...]) -> None:
+    """
+    Build the docker containers.
+
+    Extra options to be passed to the compose build command. Pass -- before extra flags.
+    """
+    run_docker_command(" ".join(["build"] + list(extra_args)), production)
     run_docker_command("pull", production, show_mode=False)
     success(f"Finished building {'PROD' if production else 'DEV'} docker containers.")
 
