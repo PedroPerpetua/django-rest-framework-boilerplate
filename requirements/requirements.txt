@@ -1,3 +1,0 @@
--r boilerplate.requirements.txt
-
-# Add project-specific requirements here.

@@ -1,20 +1,25 @@
-ARG PYTHON=python:3.14.0-alpine
+ARG PYTHON=python:3.14.0-bookworm
 
 # Building stage +++++++++++++++++++++++++++++++++++++++++
 FROM ${PYTHON} AS builder
 
-# Add build-time dependencies ----------------------------
-RUN apk update
-# For psycopg2
-RUN apk add --no-cache build-base libpq libpq-dev
+ENV UV_LINK_MODE=copy
+ENV UV_COMPILE_BYTECODE=1
 
-# Create venv --------------------------------------------
-RUN python3 -m venv --upgrade-deps /venv
-ENV PATH=/venv/bin:$PATH
+# Add build-time dependencies ----------------------------
+RUN apt-get update
+
+# Install and configure uv -------------------------------
+COPY --from=ghcr.io/astral-sh/uv:0.11.14 /uv /uvx /bin/
+RUN uv venv /venv
+ENV VIRTUAL_ENV=/venv
+ENV PATH="/venv/bin:${PATH}"
 
 # Install Python requirements ----------------------------
-COPY ./requirements /requirements
-RUN pip install -r /requirements/dev.requirements.txt
+WORKDIR /project
+COPY ./pyproject.toml ./uv.lock ./
+COPY ./app/pyproject.toml ./app/pyproject.toml
+RUN uv sync --frozen --active
 
 # Final stage ++++++++++++++++++++++++++++++++++++++++++++
 FROM ${PYTHON}
@@ -23,12 +28,10 @@ FROM ${PYTHON}
 ENV RUFF_NO_CACHE=true
 
 # Add runtime dependencies -------------------------------
-RUN apk update
-# For psycopg2
-RUN apk add --no-cache libpq
+RUN apt-get update
 
 # Copy Python environment --------------------------------
-COPY --from=builder /venv/ /venv
+COPY --from=builder /venv /venv
 ENV PATH=/venv/bin:$PATH
 
 # Copy the app ------------------------------------------

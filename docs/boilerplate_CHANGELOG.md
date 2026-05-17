@@ -8,6 +8,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 This CHANGELOG was only adopted from v2.6.0 forward, so previous release are **not** documented. Maybe in the future they'll be added.
 
 
+## UNRELEASED
+
+### Changed
+- Swapped to `uv` for package management.
+
+
 ## [2.8.0] - 2025-11-15
 
 ### Changed
