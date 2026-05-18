@@ -1,4 +1,4 @@
-from typing import Any, Iterable, Literal, Optional, Protocol, overload
+from typing import Any, Iterable, Literal, Mapping, Optional, Protocol, overload
 from django.db.models import Model, QuerySet
 from rest_framework.relations import PKOnlyObject
 from rest_framework.serializers import ModelSerializer, PrimaryKeyRelatedField
@@ -113,7 +113,7 @@ class InlineSerializer[_MT: Model](ModelSerializer[_MT]):
 
 
 class FilterFunction[_MT: Model](Protocol):
-    def __call__(self, context: dict[str, Any], queryset: Optional[QuerySet[_MT]]) -> QuerySet[_MT]: ...
+    def __call__(self, context: Mapping[str, Any], queryset: Optional[QuerySet[_MT]]) -> QuerySet[_MT]: ...
 
 
 class FilteredPrimaryKeyRelatedField[_MT: Model](PrimaryKeyRelatedField[_MT]):
@@ -126,7 +126,7 @@ class FilteredPrimaryKeyRelatedField[_MT: Model](PrimaryKeyRelatedField[_MT]):
 
     Example usage:
     ```
-    def my_filter(context: dict[str, Any], queryset: QuerySet[MyModel]) -> QuerySet[MyModel]:
+    def my_filter(context: Mapping[str, Any], queryset: QuerySet[MyModel]) -> QuerySet[MyModel]:
         # Here, you can use, for example, the `context["request"].user` to filter with the current user
         return queryset.filter(...)
 
@@ -138,8 +138,7 @@ class FilteredPrimaryKeyRelatedField[_MT: Model](PrimaryKeyRelatedField[_MT]):
         super().__init__(*args, **kwargs)
         self._filter_func = filter_queryset
 
-    # https://github.com/typeddjango/djangorestframework-stubs/issues/779
-    def get_queryset(self) -> Optional[QuerySet[_MT]]:  # type: ignore[override]
+    def get_queryset(self) -> Optional[QuerySet[_MT]]:
         qs = super().get_queryset()
         if self._filter_func:
             qs = self._filter_func(context=self.context, queryset=qs)

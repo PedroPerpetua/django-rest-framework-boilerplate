@@ -1,4 +1,4 @@
-ARG PYTHON=python:3.14.0-bookworm
+ARG PYTHON=python:3.14.5-bookworm
 
 # Building stage +++++++++++++++++++++++++++++++++++++++++
 FROM ${PYTHON} AS builder
