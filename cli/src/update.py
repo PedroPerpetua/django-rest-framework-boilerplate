@@ -5,7 +5,7 @@ import zipfile
 from abc import ABC, abstractmethod
 from pathlib import Path
 from tempfile import TemporaryDirectory
-from typing import Any, Optional, TypedDict
+from typing import Any, Optional, TypedDict, cast
 import click
 from cli.src.diff3 import merge
 from cli.src.files import PROJECT_DIR, get_cache
@@ -31,43 +31,95 @@ class TagData(TypedDict):
 def get_tags() -> list[TagData]:
     tags_res = requests.get(TAGS_URL)
     tags_res.raise_for_status()
-    return tags_res.json()
+    return cast(list[TagData], tags_res.json())
 
 
-def get_tag(tag: TagData, use_cache: bool = True) -> Path:
-    version = tag["name"]
-    if use_cache:
-        download_dir = get_cache() / version
-    else:
-        temp_dir = TemporaryDirectory(ignore_cleanup_errors=True)
-        download_dir = Path(temp_dir.name) / version
+class VersionData:
+    """
+    Base class to represent a clean version of the project, for the updater to work with.
 
-    # Check for existing version
-    if download_dir.exists():
-        warning(f"Version {version} found in cache.", bold=False)
+    Subclasses should implement the `get` method, to retrieve the file path to the extracted clean version.
+    """
+
+    _temp_dir: Optional[TemporaryDirectory] = None  # To hold references
+
+    @property
+    def name(self) -> str:
+        raise NotImplementedError()
+
+    def get(self, use_cache: bool) -> Path:
+        raise NotImplementedError()
+
+    def extract_zip(self, zip_path: Path, dest_path: Path) -> None:
+        with zipfile.ZipFile(zip_path, "r") as zip_file:
+            files = zip_file.infolist()
+            for file_path in files[1:]:
+                if file_path.is_dir():
+                    continue
+                file_path.filename = "/".join(file_path.filename.split("/")[1:])
+                zip_file.extract(file_path, dest_path)
+
+
+class TagVersion(VersionData):
+    """Subclass of VersionData to represent a version that comes from a git tag."""
+
+    def __init__(self, tag: TagData) -> None:
+        self.tag_data = tag
+
+    @property
+    def name(self) -> str:
+        return self.tag_data["name"]
+
+    def get(self, use_cache: bool) -> Path:
+        version = self.tag_data["name"]
+        if use_cache:
+            download_dir = get_cache() / version
+        else:
+            self._temp_dir = TemporaryDirectory(ignore_cleanup_errors=True)
+            download_dir = Path(self._temp_dir.name) / version
+
+        # Check for existing version
+        if download_dir.exists():
+            warning(f"Version {version} found in cache.", bold=False)
+            return download_dir
+
+        # Check for existing zip
+        zip_path = download_dir.parent / f"{version}.zip"
+        if zip_path.exists():
+            warning(f"Zip file for {version} found in cache.", bold=False)
+        else:
+            res = requests.get(self.tag_data["zipball_url"], stream=True)
+            with open(zip_path, "+wb") as out_file:
+                shutil.copyfileobj(res.raw, out_file)
+            success(f"Version {version} successfully downloaded.", bold=False)
+
+        # Extract the file
+        download_dir.mkdir(exist_ok=True)
+        self.extract_zip(zip_path, download_dir)
         return download_dir
 
-    # Check for existing zip
-    zip_path = download_dir.parent / f"{version}.zip"
-    if zip_path.exists():
-        warning(f"Zip file for {version} found in cache.", bold=False)
-    else:
-        res = requests.get(tag["zipball_url"], stream=True)
-        with open(zip_path, "+wb") as out_file:
-            shutil.copyfileobj(res.raw, out_file)
-        success(f"Version {version} successfully downloaded.", bold=False)
 
-    # Extract the file
-    download_dir.mkdir()
-    with zipfile.ZipFile(zip_path, "r") as zip_file:
-        files = zip_file.infolist()
-        for file_path in files[1:]:
-            if file_path.is_dir():
-                continue
-            file_path.filename = "/".join(file_path.filename.split("/")[1:])
-            zip_file.extract(file_path, download_dir)
+class LocalVersion(VersionData):
+    """Subclass of VersionData to represent a version that comes from a local file."""
 
-    return download_dir
+    def __init__(self, zip_path: Path):
+        self.extracted_path: Optional[Path] = None
+        self.zip_path = zip_path
+
+    @property
+    def name(self) -> str:
+        return f"[Zip] {self.zip_path.as_posix()}"
+
+    def get(self, use_cache: bool) -> Path:
+        if self.extracted_path is None:
+            # Extract the zip
+            # Because we don't download anything, and the zip can be changed, cache is pointless
+            self._temp_dir = TemporaryDirectory(ignore_cleanup_errors=True)
+            self.extracted_path = Path(self._temp_dir.name)
+            # Extract the file
+            self.extracted_path.mkdir(exist_ok=True)
+            self.extract_zip(self.zip_path, self.extracted_path)
+        return self.extracted_path
 
 
 def merge_files(ancestor: Path, source: Path, dest: Path) -> tuple[list[str], int]:
@@ -85,6 +137,11 @@ def are_files_equal(f1: Path, f2: Path) -> bool:
     """filecmp has trouble comparing file endings, so we implement our own compare."""
     if filecmp.cmp(f1, f2):
         return True
+    if f1.is_dir() and f2.is_dir():
+        cmp = filecmp.dircmp(f1, f2, ignore=[])
+        return len(cmp.diff_files) == 0 and len(cmp.left_only) == 0 and len(cmp.right_only) == 0
+    if not f1.is_file() or not f2.is_file():
+        return False
     with open(f1, "r") as f1_file:
         f1_lines = f1_file.readlines()
     with open(f2, "r") as f2_file:
@@ -111,7 +168,10 @@ class FileUpdate(ABC):
 
     @property
     def relative_path(self) -> str:
-        return self.current_file.relative_to(PROJECT_DIR).as_posix()
+        path = self.current_file.relative_to(PROJECT_DIR).as_posix()
+        if self.current_file.is_dir():
+            path += "/"
+        return path
 
     @property
     def message(self) -> str:
@@ -131,8 +191,11 @@ class CopyFile(FileUpdate):
             self.code = "MOD"
             self.click_color = "cyan"
 
-    def perform(self):
-        shutil.copy(self.updated_file, self.current_file)
+    def perform(self) -> None:
+        if self.updated_file.is_dir():
+            shutil.copytree(self.updated_file, self.current_file)
+        else:
+            shutil.copy(self.updated_file, self.current_file)
 
 
 class DeleteFile(FileUpdate):
@@ -142,13 +205,16 @@ class DeleteFile(FileUpdate):
     click_color = "green"
 
     def perform(self) -> None:
-        self.current_file.unlink()
+        if self.current_file.is_dir():
+            shutil.rmtree(self.current_file)
+        else:
+            self.current_file.unlink()
 
 
 class MergeFile(FileUpdate):
     """This represents a file where the current version will be merged with the update version."""
 
-    def __init__(self, *args, **kwargs) -> None:
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
         super().__init__(*args, **kwargs)
         # Perform the merge
         self.merged_lines, self.issues = merge_files(self.base_file, self.updated_file, self.current_file)
@@ -160,7 +226,7 @@ class MergeFile(FileUpdate):
             self.code = "MGD"
             self.click_color = "magenta"
 
-    def perform(self):
+    def perform(self) -> None:
         with open(self.current_file, "w+") as current_file:
             current_file.writelines([f"{line}\n" for line in self.merged_lines])
 

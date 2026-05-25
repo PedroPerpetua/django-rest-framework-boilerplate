@@ -16,6 +16,10 @@ This CHANGELOG was only adopted from v2.6.0 forward, so previous release are **n
 - CLI `build` command now supports extra arguments to be passed to the compose build command.
 - Docker now uses the `bookworm` images instead of `alpine`.
 - Pinned the versions of `gunicorn`, `supervisord` and `NGINX` used in production.
+- Added ability for the `update` command to update from a local zip file.
+
+### Fixed
+- Fixed issue with the `update` command when handling folders.
 
 ### Dependencies
 - `python`: `3.14.0` -> `3.14.5`.
