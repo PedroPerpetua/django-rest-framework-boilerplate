@@ -47,7 +47,7 @@ class BaseAdminSite(admin.AdminSite):
         return ordered_apps
 
 
-object_metadata_fieldset: tuple[_StrOrPromise | None, _FieldOpts] = (
+object_metadata_fieldset: tuple[Optional[_StrOrPromise], _FieldOpts] = (
     _("Object metadata"),
     {"fields": ("id", "created_at", "updated_at")},
 )
