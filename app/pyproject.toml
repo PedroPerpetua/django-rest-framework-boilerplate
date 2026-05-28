@@ -1,12 +1,40 @@
 [project]
 name = "Django-Rest-Framework-Boilerplate"
 version = "0.0.1"
-requires-python = "== 3.14.0"
+requires-python = "== 3.14.5"
 readme = "README.md"
+dependencies = []
 
-
-[boilerplate]
-version = "2.8.0"
+[dependency-groups]
+boilerplate = [
+    "Django==6.0.5",
+    "psycopg2==2.9.12",
+    "django-cors-headers==4.9.0",
+    "djangorestframework==3.17.1",
+    "djangorestframework-simplejwt==5.5.1",
+    "drf-standardized-errors[openapi]==0.16.0",
+    "drf-spectacular[sidecar]==0.29.0",
+    "django-constance==4.3.5",
+]
+boilerplate-dev = [
+    # Linting
+    "ruff==0.15.14",
+    "mypy==2.1.0",
+    # Type hint stubs
+    "django-stubs==6.0.5",
+    "djangorestframework-stubs==3.17.0",
+    # Testing
+    "pytest==9.0.3",
+    "pytest-subtests==0.15.0",
+    "pytest-cov==7.1.0",
+    "pytest-xdist==3.8.0",
+    "pytest-django==4.12.0",
+]
+boilerplate-prod = [
+    "gunicorn==26.0.0",
+    "supervisor==4.3.0"
+]
+dev = []
 
 
 [tool.ruff]

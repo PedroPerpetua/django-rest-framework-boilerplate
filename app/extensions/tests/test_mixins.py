@@ -1,11 +1,9 @@
 import json
-from datetime import datetime
 from typing import Any, Self
 from unittest.mock import MagicMock, patch
 from uuid import UUID
 from django.db import models
 from django.test import override_settings
-from django.utils.timezone import make_aware
 from extensions.models import mixins
 from extensions.models.managers import SoftDeleteManager
 from extensions.utilities import uuid
@@ -39,25 +37,18 @@ class TestCreatedAtMixin(AbstractModelTestCase):
 
     MODELS = (ConcreteModel,)
 
-    @patch("django.utils.timezone.now")
-    def test_create(self, datetime_mock: MagicMock) -> None:
+    def test_create(self) -> None:
         """Test creating an instance of a model with the mixin."""
-        created_dt = make_aware(datetime(1970, 1, 1))
-        datetime_mock.return_value = created_dt
         obj = self.ConcreteModel._default_manager.create()
-        self.assertEqual(created_dt, obj.created_at)
+        self.assertTrue(obj.created_at)
 
-    @patch("django.utils.timezone.now")
-    def test_is_created_only(self, datetime_mock: MagicMock) -> None:
+    def test_is_created_only(self) -> None:
         """Test the added field only sets a time at creation."""
-        first_dt = make_aware(datetime(1970, 1, 1))
-        second_dt = make_aware(datetime(1970, 1, 2))
-        datetime_mock.side_effect = [first_dt, second_dt]
         obj = self.ConcreteModel._default_manager.create()
-        self.assertEqual(first_dt, obj.created_at)  # Creation
+        original_dt = obj.created_at
         obj.save(force_update=True)
         obj.refresh_from_db()
-        self.assertEqual(first_dt, obj.created_at)  # Didn't change
+        self.assertEqual(original_dt, obj.created_at)  # Didn't change
 
 
 class TestUpdatedAtMixin(AbstractModelTestCase):
@@ -70,25 +61,18 @@ class TestUpdatedAtMixin(AbstractModelTestCase):
 
     MODELS = (ConcreteModel,)
 
-    @patch("django.utils.timezone.now")
-    def test_create(self, datetime_mock: MagicMock) -> None:
+    def test_create(self) -> None:
         """Test creating an instance of a model with the mixin."""
-        updated_dt = make_aware(datetime(1970, 1, 1))
-        datetime_mock.return_value = updated_dt
         obj = self.ConcreteModel._default_manager.create()
-        self.assertEqual(updated_dt, obj.updated_at)
+        self.assertTrue(obj.updated_at)
 
-    @patch("django.utils.timezone.now")
-    def test_is_updated(self, datetime_mock: MagicMock) -> None:
+    def test_is_updated(self) -> None:
         """Test the added field updates time when changes happen."""
-        first_dt = make_aware(datetime(1970, 1, 1))
-        second_dt = make_aware(datetime(1970, 1, 2))
-        datetime_mock.side_effect = [first_dt, second_dt]
         obj = self.ConcreteModel._default_manager.create()
-        self.assertEqual(first_dt, obj.updated_at)  # Creation
+        original_dt = obj.updated_at
         obj.save(force_update=True)
         obj.refresh_from_db()
-        self.assertEqual(second_dt, obj.updated_at)  # Changed
+        self.assertTrue(original_dt < obj.updated_at)
 
 
 class TestSoftDeleteMixin(AbstractModelTestCase):

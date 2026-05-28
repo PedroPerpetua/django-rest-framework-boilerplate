@@ -1,0 +1,19 @@
+[boilerplate]
+version = "3.0.0"
+
+
+[dependency-groups]
+# https://github.com/astral-sh/uv/issues/14377
+boilerplate = []
+boilerplate-dev = []
+boilerplate-prod = []
+dev = []
+
+
+[tool.uv]
+# https://github.com/astral-sh/uv/issues/14377
+default-groups = ["boilerplate", "boilerplate-dev", "dev"]
+exclude-newer = "3 days"
+
+[tool.uv.workspace]
+members = ["app", "cli"]

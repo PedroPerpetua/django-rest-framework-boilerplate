@@ -3,12 +3,12 @@ import webbrowser
 from pathlib import Path
 from typing import Literal, Optional
 import click
-from cli.config import load_config
-from cli.docker import production_opt, run_docker_command
-from cli.files import APP_DIR, DOCKER_DIR, PROJECT_DIR
-from cli.logging import error, log, success, warning
-from cli.options import confirm_opt
-from cli.update import compare_version, get_tag, get_tags
+from cli.src.config import load_config
+from cli.src.docker_wrapper import production_opt, run_docker_command
+from cli.src.files import APP_DIR, DOCKER_DIR, PROJECT_DIR
+from cli.src.logging import error, log, success, warning
+from cli.src.options import confirm_opt
+from cli.src.update import LocalVersion, TagVersion, VersionData, compare_version, get_tags
 
 
 @click.group
@@ -17,16 +17,21 @@ def cli_instance() -> None: ...
 
 @cli_instance.command
 @production_opt
-def run(production: bool) -> None:
+def start(production: bool) -> None:
     """Run docker compose up to start the server."""
     run_docker_command("up", production)
 
 
 @cli_instance.command
 @production_opt
-def build(production: bool) -> None:
-    """Build the docker containers."""
-    run_docker_command("build", production)
+@click.argument("extra_args", nargs=-1)
+def build(production: bool, extra_args: tuple[str, ...]) -> None:
+    """
+    Build the docker containers.
+
+    Extra options to be passed to the compose build command. Pass -- before extra flags.
+    """
+    run_docker_command(" ".join(["build"] + list(extra_args)), production)
     run_docker_command("pull", production, show_mode=False)
     success(f"Finished building {'PROD' if production else 'DEV'} docker containers.")
 
@@ -259,7 +264,7 @@ def regenerate_migrations(yes: bool) -> None:
 
 
 @cli_instance.command
-@click.option("-v", "--target-version", help="Target version to update to.")
+@click.option("-v", "--target-version", help="Target version to update to. Can be a path to a local zip file.")
 @click.option("--ignore-cache", is_flag=True, help="Ignore the cache directory.")
 @click.option("--dry", is_flag=True, help="Run without committing the updates; check what would change.")
 @confirm_opt
@@ -278,46 +283,60 @@ def update(target_version: Optional[str], ignore_cache: bool, dry: bool, yes: bo
         error("Failed to get remote versions.")
         raise click.Abort() from e
 
+    current: VersionData
+    target: VersionData
+
     current_tag = next((t for t in tags if t["name"] == version), None)
     if current_tag is None:
         error(f"Version {version} not found in git.")
         raise click.Abort()
+    current = TagVersion(current_tag)
 
     if target_version is None:
         target_tag = tags[0]
         if target_tag["name"] == version:
             success(f"Already using the latest ({target_tag['name']}) version!")
             return
+        target = TagVersion(target_tag)
     else:
-        lookup_tag = next((t for t in tags if t["name"] == target_version), None)
-        if lookup_tag is None:
-            error(f"Version {target_version} not found in git.")
-            raise click.Abort()
-        if lookup_tag["name"] == version:
-            success(f"Already at version {lookup_tag['name']})!")
-            return
-        target_tag = lookup_tag
+        target_path = Path(target_version)
+        if target_path.exists():
+            # It's a path
+            target = LocalVersion(target_path)
+        else:
+            lookup_tag = next((t for t in tags if t["name"] == target_version), None)
+            if lookup_tag is None:
+                error(f"Version {target_version} not found in git.")
+                raise click.Abort()
+            if lookup_tag["name"] == version:
+                success(f"Already at version {lookup_tag['name']})!")
+                return
+            target = TagVersion(lookup_tag)
 
-    log(f"Updating from version {current_tag['name']} to {target_tag['name']}...")
+    log(f"Updating from version {current.name} to {target.name}...")
 
     # Get both versions
     try:
-        base_dir = get_tag(current_tag, use_cache=(not ignore_cache))
+        base_dir = current.get(use_cache=(not ignore_cache))
     except Exception as e:
-        error(f"Failed to download version {current_tag['name']} from git.")
+        error(f"Failed to get version {current.name}.")
         raise click.Abort() from e
 
     try:
-        target_dir = get_tag(target_tag, use_cache=(not ignore_cache))
+        target_dir = target.get(use_cache=(not ignore_cache))
     except Exception as e:
-        error(f"Failed to download version {current_tag['name']} from git.")
+        error(f"Failed to get version {target.name}.")
         raise click.Abort() from e
 
     # Get the updates
     updates = compare_version(base_dir, target_dir, PROJECT_DIR)
-    log("The following updates will be performed:")
-    for update in updates:
-        click.echo(update.message)
+    if len(updates) == 0:
+        success("No updates to be performed.")
+        return
+    else:
+        log("The following updates will be performed:")
+        for update in updates:
+            click.echo(update.message)
 
     if dry:
         success("Dry run complete.")

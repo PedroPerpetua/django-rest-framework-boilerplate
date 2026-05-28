@@ -1,6 +1,6 @@
 from __future__ import annotations
 from pathlib import Path
-from typing import Any, Callable
+from typing import Any, Callable, Optional
 from uuid import uuid4
 
 
@@ -77,7 +77,7 @@ def order_list[T](original: list[T], ordering: list[str], func: Callable[[T], st
 
     Items that are in the original but not in the ordering list will be appended at the end.
     """
-    retval: list[T | None] = [None for _ in ordering]
+    retval: list[Optional[T]] = [None for _ in ordering]
     unordered: list[T] = []  # Store the values not in ordering to append at the end
     for value in original:
         # Check if it's in the list

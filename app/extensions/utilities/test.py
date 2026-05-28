@@ -104,9 +104,9 @@ class UpdateFunction(Protocol):
     def __call__(
         self,
         path: str,
-        data: Any | None = ...,
-        format: str | None = ...,
-        content_type: str | None = ...,
+        data: Optional[Any] = ...,
+        format: Optional[str] = ...,
+        content_type: Optional[str] = ...,
         follow: bool = ...,
         **extra: Any,
     ) -> Response: ...

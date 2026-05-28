@@ -7,7 +7,7 @@ services:
       file: ../common-services.yml
       service: db
     volumes:
-      - ./db:/var/lib/postgresql/data
+      - ./db:/var/lib/postgresql/18/data
     env_file: .env
 
   app:

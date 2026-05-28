@@ -155,7 +155,6 @@ DATABASES = {
         "PORT": env.as_string("POSTGRES_PORT"),
     },
 }
-DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
 
 # File handling

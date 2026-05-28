@@ -1,4 +1,4 @@
-from typing import Any, Optional
+from typing import Any, Mapping, Optional
 from django.db import models
 from rest_framework import serializers
 from rest_framework.exceptions import ValidationError
@@ -126,7 +126,7 @@ class TestFilteredPrimaryKeyRelatedField(AbstractModelTestCase):
         child = self.TestB_ChildConcreteModel._default_manager.create(filter=False)
 
         def filter_children(
-            context: dict[str, Any],
+            context: Mapping[str, Any],
             queryset: Optional[models.QuerySet[TestFilteredPrimaryKeyRelatedField.TestB_ChildConcreteModel]],
         ) -> models.QuerySet[TestFilteredPrimaryKeyRelatedField.TestB_ChildConcreteModel]:
             filter_value = context.get("filter_value", False)

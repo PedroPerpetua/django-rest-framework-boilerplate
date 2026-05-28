@@ -47,12 +47,12 @@ class BaseAdminSite(admin.AdminSite):
         return ordered_apps
 
 
-object_metadata_fieldset: tuple[_StrOrPromise | None, _FieldOpts] = (
+object_metadata_fieldset: tuple[Optional[_StrOrPromise], _FieldOpts] = (
     _("Object metadata"),
-    {"fields": ("id", "is_deleted", "created_at", "updated_at")},
+    {"fields": ("id", "created_at", "updated_at")},
 )
 """
-Standard Object Metadata fieldset that includes the fields `id`, `is_deleted`, `created_at` and `updated_at`.
+Standard Object Metadata fieldset that includes the fields `id`, `created_at` and `updated_at`.
 
 To use, just include it in the fieldsets' tuple of a Model Admin.
 """
