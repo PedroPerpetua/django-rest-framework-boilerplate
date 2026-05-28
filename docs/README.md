@@ -19,7 +19,7 @@ Install the requirements with `uv sync`.
 
 Run `uv run make.py test` to ensure everything is working as intended.
 
-Run `uv make.py start` to run the dev server.
+Run `uv run make.py start` to run the dev server.
 
 
 ## Features
