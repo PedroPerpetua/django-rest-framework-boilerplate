@@ -20,6 +20,7 @@ This CHANGELOG was only adopted from v2.6.0 forward, so previous release are **n
 
 ### Fixed
 - Fixed issue with the `update` command when handling folders.
+- Removed `is_deleted` from the standard `object_metadata_fieldset`, since `AbstractBaseModel` does not get `SoftDeleteMixin` by default now.
 
 ### Dependencies
 - `python`: `3.14.0` -> `3.14.5`.
