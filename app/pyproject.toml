@@ -18,10 +18,10 @@ boilerplate = [
 ]
 boilerplate-dev = [
     # Linting
-    "ruff==0.15.13",
+    "ruff==0.15.14",
     "mypy==2.1.0",
     # Type hint stubs
-    "django-stubs==6.0.4",
+    "django-stubs==6.0.5",
     "djangorestframework-stubs==3.17.0",
     # Testing
     "pytest==9.0.3",

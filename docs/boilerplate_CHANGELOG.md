@@ -25,10 +25,10 @@ This CHANGELOG was only adopted from v2.6.0 forward, so previous release are **n
 - `python`: `3.14.0` -> `3.14.5`.
 - `postgres`: `17.5` -> `18.4`.
   - **[BREAKING CHANGE]** - see [their PR](https://github.com/docker-library/postgres/pull/1259) and ensure you backup your database; the mounted path on the `compose.yml` files changed.
-- `click`: `8.3.0` -> `8.4.0`.
+- `click`: `8.3.0` -> `8.4.1`.
 - `django`: `5.2.8` -> `6.0.5`.
 - `django-constance`: `4.3.4` -> `4.3.5`.
-- `django-stubs`: `5.2.7` -> `6.0.4`.
+- `django-stubs`: `5.2.7` -> `6.0.5`.
 - `djangorestframework`: `3.16.1` -> `3.17.1`.
 - `djangorestframework-stubs`: `3.16.5` -> `3.17.0`.
 - `drf-standardized-errors`: `0.15.0` -> `0.16.0`.
@@ -37,8 +37,8 @@ This CHANGELOG was only adopted from v2.6.0 forward, so previous release are **n
 - `pytest`: `9.0.1` -> `9.0.3`.
 - `pytest-cov`: `7.0.0` -> `7.1.0`.
 - `pytest-django`: `4.11.1` -> `4.12.0`.
-- `ruff`: `0.14.5` -> `0.15.13`.
-- `types-docker`: `7.1.0.20251009` -> `7.1.0.20260512`.
+- `ruff`: `0.14.5` -> `0.15.14`.
+- `types-docker`: `7.1.0.20251009` -> `7.1.0.20260518`.
 
 
 ## [2.8.0] - 2025-11-15
