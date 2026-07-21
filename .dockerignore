@@ -3,4 +3,15 @@
 **/.pytest_cache
 **/.mypy_cache
 **/.venv
+**/.ruff_cache
+**/.vscode
+**/.github
 .coverage
+.env
+schema.yml
+
+docker/**/db
+docker/**/logs
+docker/**/media
+docker/**/static
+docker/**/coverage

@@ -8,6 +8,29 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 This CHANGELOG was only adopted from v2.6.0 forward, so previous release are **not** documented. Maybe in the future they'll be added.
 
 
+## [3.1.0] - 2026-07-21
+
+### Changed
+- Tests now use `setUpTestData` when appropriate.
+- Docker now uses the `slim-bookworm` instead of `bookworm`.
+  - **[POTENTIALLY BREAKING]** - some dependencies may need build tools installed that were previously included in the `bookworm` base image, but aren't in the `slim-bookworm` one.
+- Improved Dockerfile `uv` control.
+
+### Dependencies
+- `python`: `3.14.5` -> `3.14.6`.
+- `uv`: `0.11.14` -> `0.11.30`.
+- `nginx`: `1.22.1-9+deb12u7` -> `1.22.1-9+deb12u9`.
+- `django`: `6.0.5` -> `6.0.7`.
+- `drf-spectacular` -> `0.29.0` -> `0.30.0`.
+- `ruff`: `0.15.14` -> `0.15.22`.
+- `mypy`: `2.1.0` -> `2.3.0`.
+- `django-stubs`: `6.0.5` -> `6.0.7`.
+- `pytest`: `9.0.3` -> `9.1.1`.
+- `click`: `8.4.1` -> `8.4.2`.
+- `docker`: `7.1.0` -> `7.2.0`.
+- `types-docker`: `7.1.0.20260518` -> `7.1.0.20260712`.
+
+
 ## [3.0.1] - 2026-06-20
 
 ### Dependencies
