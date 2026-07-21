@@ -1,4 +1,4 @@
-from typing import Any
+from typing import Any, ClassVar
 from django.urls import reverse
 from rest_framework import status
 from constance.test import override_config  # type: ignore[import-untyped]
@@ -160,8 +160,13 @@ class TestUserProfileView(APITestCase):
 
     URL = reverse("users:profile")
 
+    user: ClassVar[User] = NotImplemented
+
+    @classmethod
+    def setUpTestData(cls) -> None:
+        cls.user = sample_user()
+
     def setUp(self) -> None:
-        self.user = sample_user()
         self.client.force_authenticate(self.user)
 
     def test_retrieve_success(self) -> None:
@@ -213,9 +218,15 @@ class TestUserChangePasswordView(APITestCase):
 
     URL = reverse("users:change-password")
 
+    user: ClassVar[User] = NotImplemented
+    password: ClassVar[str] = NotImplemented
+
+    @classmethod
+    def setUpTestData(cls) -> None:
+        cls.password = VALID_PASSWORD
+        cls.user = sample_user(password=cls.password)
+
     def setUp(self) -> None:
-        self.password = VALID_PASSWORD
-        self.user = sample_user(password=self.password)
         self.client.force_authenticate(self.user)
 
     def test_success(self) -> None:

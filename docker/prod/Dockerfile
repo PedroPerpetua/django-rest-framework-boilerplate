@@ -1,4 +1,4 @@
-ARG PYTHON=python:3.14.5-bookworm
+ARG PYTHON=python:3.14.6-slim-bookworm
 
 # Building stage +++++++++++++++++++++++++++++++++++++++++
 FROM ${PYTHON} AS builder
@@ -6,13 +6,22 @@ FROM ${PYTHON} AS builder
 ENV PYTHONDONTWRITEBYTECODE=1
 ENV PYTHONUNBUFFERED=1
 ENV UV_LINK_MODE=copy
+ENV UV_FROZEN=1
+ENV UV_NO_EDITABLE=1
 ENV UV_COMPILE_BYTECODE=1
+ENV UV_PYTHON_DOWNLOADS=0
+ENV UV_NO_DEFAULT_GROUPS=1
 
 # Add build-time dependencies ----------------------------
-RUN apt-get update
+RUN apt-get update && \
+    apt-get install -y --no-install-recommends \
+    # For psycopg2
+    build-essential=12.9 \
+    libpq-dev=15.18-0+deb12u1 \
+    && rm -rf /var/lib/apt/lists/*
 
 # Install and configure uv -------------------------------
-COPY --from=ghcr.io/astral-sh/uv:0.11.14 /uv /uvx /bin/
+COPY --from=ghcr.io/astral-sh/uv:0.11.30 /uv /uvx /bin/
 RUN uv venv /venv
 ENV VIRTUAL_ENV=/venv
 ENV PATH="/venv/bin:${PATH}"
@@ -22,8 +31,7 @@ ENV PATH="/venv/bin:${PATH}"
 WORKDIR /project
 COPY ./pyproject.toml ./uv.lock ./
 COPY ./app/pyproject.toml ./app/pyproject.toml
-RUN uv sync --frozen --active \
-    --no-default-groups \
+RUN uv sync --active \
     --group boilerplate \
     --group boilerplate-prod
 
@@ -35,10 +43,15 @@ ENV PYTHONDONTWRITEBYTECODE=1
 ENV PYTHONUNBUFFERED=1
 
 # Add runtime dependencies -------------------------------
-RUN apt-get update
+RUN apt-get update && \
+    apt-get install -y --no-install-recommends \
+    # For psycopg2
+    libpq5=15.18-0+deb12u1 \
+    # Nginx to run the server
+    nginx=1.22.1-9+deb12u9 \
+    && rm -rf /var/lib/apt/lists/*
 
 # Setup Supervisor + nginx -------------------------------
-RUN apt-get install -y nginx=1.22.1-9+deb12u7
 COPY ./docker/prod/nginx.conf.template /etc/nginx/nginx.conf.template
 COPY ./docker/prod/supervisord.ini /etc/supervisor.d/supervisord.ini
 RUN chown -R www-data:www-data /var/lib/nginx
