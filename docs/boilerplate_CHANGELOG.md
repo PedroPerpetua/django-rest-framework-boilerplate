@@ -8,7 +8,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 This CHANGELOG was only adopted from v2.6.0 forward, so previous release are **not** documented. Maybe in the future they'll be added.
 
 
-## Unreleased
+## [3.1.0] - 2026-07-21
 
 ### Changed
 - Tests now use `setUpTestData` when appropriate.
