@@ -13,8 +13,8 @@ ENV UV_PYTHON_DOWNLOADS=0
 RUN apt-get update && \
     apt-get install -y --no-install-recommends \
     # For psycopg2
-    build-essential \
-    libpq-dev \
+    build-essential=12.9 \
+    libpq-dev=15.18-0+deb12u1 \
     && rm -rf /var/lib/apt/lists/*
 
 # Install and configure uv -------------------------------
@@ -39,8 +39,8 @@ ENV RUFF_NO_CACHE=true
 RUN apt-get update && \
     apt-get install -y --no-install-recommends \
     # For psycopg2
-    libpq5 && \
-    rm -rf /var/lib/apt/lists/*
+    libpq5=15.18-0+deb12u1 \
+    && rm -rf /var/lib/apt/lists/*
 
 # Copy Python environment --------------------------------
 COPY --from=builder /venv /venv

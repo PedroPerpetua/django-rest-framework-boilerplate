@@ -1,4 +1,4 @@
-ARG PYTHON=python:3.14.6-bookworm
+ARG PYTHON=python:3.14.6-slim-bookworm
 
 # Building stage +++++++++++++++++++++++++++++++++++++++++
 FROM ${PYTHON} AS builder
@@ -13,7 +13,12 @@ ENV UV_PYTHON_DOWNLOADS=0
 ENV UV_NO_DEFAULT_GROUPS=1
 
 # Add build-time dependencies ----------------------------
-RUN apt-get update
+RUN apt-get update && \
+    apt-get install -y --no-install-recommends \
+    # For psycopg2
+    build-essential=12.9 \
+    libpq-dev=15.18-0+deb12u1 \
+    && rm -rf /var/lib/apt/lists/*
 
 # Install and configure uv -------------------------------
 COPY --from=ghcr.io/astral-sh/uv:0.11.30 /uv /uvx /bin/
@@ -38,10 +43,15 @@ ENV PYTHONDONTWRITEBYTECODE=1
 ENV PYTHONUNBUFFERED=1
 
 # Add runtime dependencies -------------------------------
-RUN apt-get update
+RUN apt-get update && \
+    apt-get install -y --no-install-recommends \
+    # For psycopg2
+    libpq5=15.18-0+deb12u1 \
+    # Nginx to run the server
+    nginx=1.22.1-9+deb12u9 \
+    && rm -rf /var/lib/apt/lists/*
 
 # Setup Supervisor + nginx -------------------------------
-RUN apt-get install -y nginx=1.22.1-9+deb12u9
 COPY ./docker/prod/nginx.conf.template /etc/nginx/nginx.conf.template
 COPY ./docker/prod/supervisord.ini /etc/supervisor.d/supervisord.ini
 RUN chown -R www-data:www-data /var/lib/nginx
