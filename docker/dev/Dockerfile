@@ -1,16 +1,24 @@
-ARG PYTHON=python:3.14.5-bookworm
+ARG PYTHON=python:3.14.6-slim-bookworm
 
 # Building stage +++++++++++++++++++++++++++++++++++++++++
 FROM ${PYTHON} AS builder
 
 ENV UV_LINK_MODE=copy
+ENV UV_FROZEN=1
+ENV UV_NO_EDITABLE=1
 ENV UV_COMPILE_BYTECODE=1
+ENV UV_PYTHON_DOWNLOADS=0
 
 # Add build-time dependencies ----------------------------
-RUN apt-get update
+RUN apt-get update && \
+    apt-get install -y --no-install-recommends \
+    # For psycopg2
+    build-essential \
+    libpq-dev \
+    && rm -rf /var/lib/apt/lists/*
 
 # Install and configure uv -------------------------------
-COPY --from=ghcr.io/astral-sh/uv:0.11.14 /uv /uvx /bin/
+COPY --from=ghcr.io/astral-sh/uv:0.11.30 /uv /uvx /bin/
 RUN uv venv /venv
 ENV VIRTUAL_ENV=/venv
 ENV PATH="/venv/bin:${PATH}"
@@ -19,7 +27,7 @@ ENV PATH="/venv/bin:${PATH}"
 WORKDIR /project
 COPY ./pyproject.toml ./uv.lock ./
 COPY ./app/pyproject.toml ./app/pyproject.toml
-RUN uv sync --frozen --active
+RUN uv sync --active
 
 # Final stage ++++++++++++++++++++++++++++++++++++++++++++
 FROM ${PYTHON}
@@ -28,7 +36,11 @@ FROM ${PYTHON}
 ENV RUFF_NO_CACHE=true
 
 # Add runtime dependencies -------------------------------
-RUN apt-get update
+RUN apt-get update && \
+    apt-get install -y --no-install-recommends \
+    # For psycopg2
+    libpq5 && \
+    rm -rf /var/lib/apt/lists/*
 
 # Copy Python environment --------------------------------
 COPY --from=builder /venv /venv
