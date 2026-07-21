@@ -32,7 +32,7 @@ class TestInlineSerializer(AbstractModelTestCase):
 
     MODELS = (TestA_ConcreteModel, TestA_ChildConcreteModel)
 
-    instance: ClassVar[TestA_ConcreteModel]
+    instance: ClassVar[TestA_ConcreteModel] = NotImplemented
 
     @classmethod
     def setUpTestData(cls) -> None:
