@@ -1,4 +1,4 @@
-from typing import Any, Mapping, Optional
+from typing import Any, ClassVar, Mapping, Optional
 from django.db import models
 from rest_framework import serializers
 from rest_framework.exceptions import ValidationError
@@ -32,14 +32,17 @@ class TestInlineSerializer(AbstractModelTestCase):
 
     MODELS = (TestA_ConcreteModel, TestA_ChildConcreteModel)
 
-    def setUp(self) -> None:
-        self.instance = self.TestA_ConcreteModel._default_manager.create()
+    instance: ClassVar[TestA_ConcreteModel]
+
+    @classmethod
+    def setUpTestData(cls) -> None:
+        cls.instance = cls.TestA_ConcreteModel._default_manager.create()
 
     def test_as_class(self) -> None:
         """Test generating a serializer class using InlineSerializer."""
         SerializerClass = InlineSerializer(self.TestA_ConcreteModel, ("id", "field"))
         self.assertIsInstance(SerializerClass, type(serializers.ModelSerializer))
-        serializer_instance = SerializerClass(self.instance)  # type: ignore[operator]
+        serializer_instance = SerializerClass(self.instance)
         self.assertEqual({"id": str(self.instance.id), "field": self.instance.field}, serializer_instance.data)
 
     def test_as_instance(self) -> None:
@@ -86,14 +89,14 @@ class TestInlineSerializer(AbstractModelTestCase):
         with self.subTest("Test default name"):
             SerializerClass = InlineSerializer(self.TestA_ConcreteModel, ("id", "field"))
             self.assertEqual(
-                SerializerClass.__name__,  # type: ignore[attr-defined]
+                SerializerClass.__name__,
                 f"{self.TestA_ConcreteModel.__name__}InlineSerializer",
             )
         with self.subTest("Test custom name"):
             custom_name = uuid()
             SerializerClass = InlineSerializer(self.TestA_ConcreteModel, ("id", "field"), serializer_name=custom_name)
             self.assertEqual(
-                SerializerClass.__name__,  # type: ignore[attr-defined]
+                SerializerClass.__name__,
                 custom_name,
             )
 
@@ -179,13 +182,18 @@ class TestNestedPrimaryKeyRelatedField(AbstractModelTestCase):
 
     MODELS = (TestC_ChildConcreteModel, TestC_ParentConcreteModel)
 
-    def setUp(self) -> None:
+    ChildSerializer: ClassVar[type[serializers.ModelSerializer]] = NotImplemented
+    ParentSerializer: ClassVar[type[serializers.ModelSerializer]] = NotImplemented
+
+    @classmethod
+    def setUpTestData(cls) -> None:
+
         class ChildSerializer(serializers.ModelSerializer[TestNestedPrimaryKeyRelatedField.TestC_ChildConcreteModel]):
             class Meta:
-                model = self.TestC_ChildConcreteModel
+                model = cls.TestC_ChildConcreteModel
                 fields = ("field1", "field2")
 
-        self.ChildSerializer = ChildSerializer
+        cls.ChildSerializer = ChildSerializer
 
         class ParentSerializer(
             serializers.ModelSerializer[TestNestedPrimaryKeyRelatedField.TestC_ParentConcreteModel]
@@ -193,12 +201,10 @@ class TestNestedPrimaryKeyRelatedField(AbstractModelTestCase):
             child = NestedPrimaryKeyRelatedField(ChildSerializer)
 
             class Meta:
-                model = self.TestC_ParentConcreteModel
+                model = cls.TestC_ParentConcreteModel
                 fields = ("child",)
 
-        self.ParentSerializer = ParentSerializer
-
-        return super().setUp()
+        cls.ParentSerializer = ParentSerializer
 
     def test_creation(self) -> None:
         """Test using the serializer to create a parent instance."""
