@@ -1,7 +1,7 @@
 from typing import Any, ClassVar
 from django.urls import reverse
 from rest_framework import status
-from constance.test import override_config  # type: ignore[import-untyped]
+from constance.test import override_config
 from extensions.utilities.test import APITestCase, UpdateFunction, subTest_patch_and_put
 from users import serializers
 from users.models import User

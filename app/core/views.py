@@ -3,7 +3,7 @@ from rest_framework import status
 from rest_framework.permissions import AllowAny, IsAdminUser
 from rest_framework.response import Response
 from rest_framework.views import APIView
-from constance import config  # type: ignore[import-untyped]
+from constance import config
 from drf_spectacular.utils import extend_schema
 from drf_spectacular.views import SpectacularAPIView as BaseSpectacularAPIView
 from drf_spectacular.views import SpectacularSwaggerView as BaseSpectacularSwaggerView
