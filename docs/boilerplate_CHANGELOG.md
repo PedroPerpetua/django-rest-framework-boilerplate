@@ -10,6 +10,7 @@ This CHANGELOG was only adopted from v2.6.0 forward, so previous release are **n
 ## UNRELEASED
 
 ### Changed
+- Added `query_measurer` utility.
 - `constance` lack of stubs is now ignored by config (in a `[[tool.mypy.overrides]]` section) instead of with `type: ignore`.
 
 ### Dependencies

@@ -1,13 +1,23 @@
+import logging
 from pathlib import Path
 from random import shuffle
 from typing import overload
 from unittest import TestCase
 from unittest.mock import MagicMock, patch
+from django.db import models
+from django.test import override_settings
 from django.utils.timezone import now
 import extensions.utilities as utils
 from extensions.models.mixins import CreatedAtMixin, UpdatedAtMixin
 from extensions.utilities import env, uuid
 from extensions.utilities.logging import LoggingConfigurationBuilder
+from extensions.utilities.query_measurer import (
+    QueryData,
+    QueryMeasurerContext,
+    StatementType,
+    default_handler,
+    query_measurer,
+)
 from extensions.utilities.test import AbstractModelTestCase, MockResponse, SampleFile, override_auto_now
 
 
@@ -398,4 +408,164 @@ class TestLoggingBuilder(TestCase):
                 "loggers": {},
             },
             built,
+        )
+
+
+class TestQueryMeasurerContext(TestCase):
+    """Test the QueryMeasurerContext class."""
+
+    def test_queries_property(self) -> None:
+        """Test the `queries` property."""
+        ctx = QueryMeasurerContext()
+        ctx._queries = [QueryData("_sql", "SELECT", 1) for _ in range(5)]
+        self.assertListEqual(ctx._queries, ctx.queries)
+
+    def test_query_count_property(self) -> None:
+        """Test the `query_count` property."""
+        ctx = QueryMeasurerContext()
+        ctx._queries = [QueryData("_sql", "SELECT", 1) for _ in range(5)]
+        self.assertEqual(len(ctx._queries), ctx.query_count)
+
+    def test_query_time_property(self) -> None:
+        """Test the `query_time` property."""
+        ctx = QueryMeasurerContext()
+        ctx._queries = [QueryData("_sql", "SELECT", 1) for _ in range(5)]
+        self.assertEqual(sum(q.time_ms for q in ctx._queries), ctx.query_time)
+
+    def test_slowest_query_property(self) -> None:
+        """Test the `slowest_query` property."""
+        ctx = QueryMeasurerContext()
+        ctx._queries = [QueryData("_sql", "SELECT", value) for value in [5, 2, 4, 6, 2]]
+        self.assertEqual(max(ctx.queries, key=lambda x: x.time_ms), ctx.slowest_query)
+
+    def test_slowest_query_property_no_queries(self) -> None:
+        """Test the `slowest_query` property raises a ValueError when there are no queries."""
+        ctx = QueryMeasurerContext()
+        with self.assertRaises(ValueError) as exc_ctx:
+            ctx.slowest_query  # noqa: B018
+        self.assertEqual("No queries present!", str(exc_ctx.exception))
+
+    def test_get_filtered_queries(self) -> None:
+        """Test the `get_filtered_queries` method."""
+        statements: tuple[StatementType, ...] = ("SELECT", "UPDATE", "DELETE", "INSERT")
+        ctx = QueryMeasurerContext()
+        ctx._queries = [QueryData("_sql", statement, 1) for _ in range(5) for statement in statements]
+        for statement in statements:
+            self.assertListEqual(
+                [q for q in ctx._queries if q.statement == statement],
+                ctx.get_filtered_queries(statement),
+            )
+
+    def test_get_filtered_queries_count(self) -> None:
+        """Test the `get_filtered_queries_count` method."""
+        statements: tuple[StatementType, ...] = ("SELECT", "UPDATE", "DELETE", "INSERT")
+        ctx = QueryMeasurerContext()
+        ctx._queries = [QueryData("_sql", statement, 1) for _ in range(5) for statement in statements]
+        for statement in statements:
+            self.assertEqual(
+                len([q for q in ctx._queries if q.statement == statement]),
+                ctx.get_filtered_queries_count(statement),
+            )
+
+    def test_get_filtered_queries_time(self) -> None:
+        """Test the `get_filtered_queries_time` method."""
+        statements: tuple[StatementType, ...] = ("SELECT", "UPDATE", "DELETE", "INSERT")
+        ctx = QueryMeasurerContext()
+        ctx._queries = [QueryData("_sql", statement, 1) for _ in range(5) for statement in statements]
+        for statement in statements:
+            self.assertEqual(
+                sum(q.time_ms for q in ctx._queries if q.statement == statement),
+                ctx.get_filtered_queries_time(statement),
+            )
+
+
+class TestQueryMeasurer(AbstractModelTestCase):
+    """Test the `query_measurer` decorator / context manager."""
+
+    class TestModel(models.Model):
+        """Model to test database queries"""
+
+        field = models.IntegerField(default=1)
+
+        class Meta:
+            # Because extensions is not an "installed_app"
+            app_label = uuid()
+
+    MODELS = (TestModel,)
+
+    def test_decorator(self) -> None:
+        """Test using the `query_measurer` as a decorator."""
+
+        def context_assert(ctx: QueryMeasurerContext) -> None:
+            self.assertEqual(1, ctx.query_count)
+
+        @query_measurer(handler=context_assert)
+        def wrapped_function() -> None:
+            self.TestModel._default_manager.create()
+
+        wrapped_function()
+
+    def test_context_manager(self) -> None:
+        """Test using the `query_measurer` as a context manager."""
+
+        with query_measurer() as ctx:
+            # Starts with no queries
+            self.assertEqual(0, ctx.query_count)
+            # Make an INSERT query
+            self.TestModel._default_manager.create()
+            self.assertEqual(1, ctx.query_count)
+
+    def test_all_statements(self) -> None:
+        """Test checking all different type of statements with `query_measurer`."""
+
+        with query_measurer() as ctx:
+            # Make an INSERT query
+            self.TestModel._default_manager.create()
+            # Make a SELECT query
+            created = self.TestModel._default_manager.last()
+            assert created is not None
+            # Make a UPDATE query
+            created.field = 2
+            created.save()
+            # Make a DELETE query
+            created.delete()
+
+        self.assertEqual(4, ctx.query_count)
+        self.assertEqual(1, ctx.get_filtered_queries_count("INSERT"))
+        self.assertEqual(1, ctx.get_filtered_queries_count("SELECT"))
+        self.assertEqual(1, ctx.get_filtered_queries_count("UPDATE"))
+        self.assertEqual(1, ctx.get_filtered_queries_count("DELETE"))
+
+    @override_settings(DEBUG=False)
+    def test_production_warning(self) -> None:
+        """Test that using the measurer in production produces an error."""
+        with self.assertLogs(level=logging.WARNING) as log_ctx:
+            with query_measurer():
+                ...
+        self.assertIn(
+            "WARNING:root:Warning! Query measurer should not be used in production; it's merely a debug tool.",
+            log_ctx.output,
+        )
+
+    def test_default_handler(self) -> None:
+        """Test the default handler."""
+
+        with query_measurer() as ctx:
+            # Make an INSERT query
+            self.TestModel._default_manager.create()
+            # Make a SELECT query
+            created = self.TestModel._default_manager.last()
+            assert created is not None
+            # Make a UPDATE query
+            created.field = 2
+            created.save()
+            # Make a DELETE query
+            created.delete()
+
+        with self.assertLogs(level=logging.DEBUG) as log_ctx:
+            default_handler(ctx)
+
+        self.assertIn(
+            f"DEBUG:root:\nQuery Measurer results\n---\nTotal Queries: {ctx.query_count}\nTotal Time (ms): {ctx.query_time:.2f}\nSlowest Query: {f'{ctx.slowest_query.time_ms:.2f}'.rjust(6)} | {ctx.slowest_query.statement} | {ctx.slowest_query.raw_sql}\n---\n{'\n'.join([f'{f"{q.time_ms:.2f}".rjust(6)} | {q.statement} | {q.raw_sql}' for q in ctx.queries])}",
+            log_ctx.output,
         )

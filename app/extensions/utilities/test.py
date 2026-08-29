@@ -60,7 +60,7 @@ class AbstractModelTestCase(TestCase):
     Usage: use this class as the test class, and set the class variable MODELS to a list of concrete models generated
     from the abstract class under test. For example, to test `MyAbstractModel`:
 
-    ```py
+    ```
     class MyAbstractClassTests(AbstractModelTestCase):
 
         class MyConcreteModel(MyAbstractModel):
