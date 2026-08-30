@@ -1,12 +1,16 @@
 import logging
 from pathlib import Path
 from random import shuffle
-from typing import overload
+from typing import Any, overload
 from unittest import TestCase
 from unittest.mock import MagicMock, patch
 from django.db import models
-from django.test import override_settings
+from django.test import RequestFactory, override_settings
 from django.utils.timezone import now
+from rest_framework import status
+from rest_framework.generics import RetrieveAPIView
+from rest_framework.permissions import AllowAny
+from rest_framework.response import Response
 import extensions.utilities as utils
 from extensions.models.mixins import CreatedAtMixin, UpdatedAtMixin
 from extensions.utilities import env, uuid
@@ -493,17 +497,50 @@ class TestQueryMeasurer(AbstractModelTestCase):
 
     MODELS = (TestModel,)
 
-    def test_decorator(self) -> None:
-        """Test using the `query_measurer` as a decorator."""
+    def test_function_decorator(self) -> None:
+        """Test using the `query_measurer` as a decorator for a function."""
 
         def context_assert(ctx: QueryMeasurerContext) -> None:
             self.assertEqual(1, ctx.query_count)
 
         @query_measurer(handler=context_assert)
         def wrapped_function() -> None:
+            # Make a query
             self.TestModel._default_manager.create()
 
+        # Call the function to trigger the measure
         wrapped_function()
+
+    def test_view_decorator(self) -> None:
+        """Test using the `query_measurer` as a decorator for a View class."""
+
+        def context_assert(ctx: QueryMeasurerContext) -> None:
+            self.assertEqual(1, ctx.query_count)
+
+        @query_measurer(handler=context_assert)
+        class TestView(RetrieveAPIView):
+            permission_classes = (AllowAny,)
+
+            def retrieve(_self, *args: Any, **kwargs: Any) -> Response:
+                # Make a query
+                self.TestModel._default_manager.create()
+                return Response(status=status.HTTP_200_OK)
+
+        # Call the view to trigger the measure
+        request_factory = RequestFactory()
+        request = request_factory.get("")
+        response = TestView.as_view()(request)
+        self.assertEqual(status.HTTP_200_OK, response.status_code)
+
+    def test_class_decorator(self) -> None:
+        """Test using the `query_measurer` on a non-View class fails."""
+
+        with self.assertRaises(ValueError) as ctx:
+
+            @query_measurer
+            class BadClass(object): ...
+
+        self.assertEqual("Query measurer can only wrap classes that are Views!", str(ctx.exception))
 
     def test_context_manager(self) -> None:
         """Test using the `query_measurer` as a context manager."""

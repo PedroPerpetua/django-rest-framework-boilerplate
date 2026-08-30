@@ -1,10 +1,13 @@
-from contextlib import AbstractContextManager, ContextDecorator
+from contextlib import AbstractContextManager
+from functools import wraps
 from logging import getLogger
 from timeit import timeit
 from types import TracebackType
 from typing import Any, Callable, Literal, NamedTuple, Optional, cast, overload
 from django.conf import settings
 from django.db import connection
+from django.utils.decorators import classonlymethod
+from django.views import View
 
 
 logger = getLogger()
@@ -56,7 +59,7 @@ class QueryMeasurerContext:
         return sum(q.time_ms for q in self.get_filtered_queries(statement))
 
 
-class QueryMeasurer(ContextDecorator):
+class QueryMeasurer:
     """
     The QueryMeasurer utility.
 
@@ -70,6 +73,36 @@ class QueryMeasurer(ContextDecorator):
         self.ctx = QueryMeasurerContext()
         self.handler = handler
         self.wrapper: Optional[AbstractContextManager] = None
+
+    @overload
+    def __call__[F: Callable[..., Any]](self, FuncOrClass: F, /) -> F: ...
+
+    @overload
+    def __call__[C](self, FuncOrClass: type[C], /) -> type[C]: ...
+
+    def __call__[F: Callable[..., Any], C](self, FuncOrClass: F | type[C], /) -> F | type[C]:
+        if isinstance(FuncOrClass, type):
+            # If we're a class, ensure we're a view
+            if not issubclass(FuncOrClass, View):
+                raise ValueError("Query measurer can only wrap classes that are Views!")
+
+            #  https://github.com/python/mypy/issues/14458
+            class Inner(FuncOrClass):  # type: ignore[valid-type, misc]
+                @classonlymethod
+                def as_view(cls, **initkwargs: Any) -> Any:
+                    # Wrap the returning view function from the `as_view` method.
+                    return self(super().as_view(**initkwargs))
+
+            return Inner
+
+        else:
+
+            @wraps(FuncOrClass)
+            def inner(*args: Any, **kwargs: Any) -> Any:
+                with self:
+                    return FuncOrClass(*args, **kwargs)
+
+            return cast(F, inner)
 
     def _execute_wrapper(
         self,
@@ -126,7 +159,7 @@ def default_handler(ctx: QueryMeasurerContext) -> None:
 
 # Bare decorator
 @overload
-def query_measurer[F: Callable[..., Any]](func: F) -> F: ...
+def query_measurer[F: Callable[..., Any]](funcOrClass: F, /) -> F: ...
 
 
 # Decorator or context-manager with parameters
@@ -136,13 +169,14 @@ def query_measurer(*, handler: Optional[Callable[[QueryMeasurerContext], None]] 
 
 # Implementation
 def query_measurer[F: Callable[..., Any]](
-    func: Optional[F] = None,
+    funcOrClass: Optional[F] = None,
+    /,
     *,
     handler: Optional[Callable[[QueryMeasurerContext], None]] = None,
 ) -> F | Callable[[F], F] | QueryMeasurer:
     """
-    Utility to measure queries in code blocks; it can be used as a decorator or as a context manager. Check the
-    QueryMeasurerContext class to see all the collected data.
+    Utility to measure queries in code blocks; it can be used as a decorator (for functions or Views) or as a context
+    manager. Check the QueryMeasurerContext class to see all the collected data.
 
     Note: this is purely a debugging tool, and should be used only in development to test and check performance.
 
@@ -168,9 +202,15 @@ def query_measurer[F: Callable[..., Any]](
     def function_to_evaluate() -> None:
         # Perform some queries
         MyModel.objects.create(...)
+
+    # It can also be used to decorate Views
+    @query_measurer(handler=handler)
+    class MyView(RetrieveAPIView[MyModel]):
+        def get_object(self) -> MyModel:
+            return MyModel.objects.get(...)
     ```
     """
-    if callable(func):
-        return QueryMeasurer(handler=handler or default_handler)(func)
+    if callable(funcOrClass):
+        return QueryMeasurer(handler=handler or default_handler)(funcOrClass)
     else:
         return QueryMeasurer(handler)
