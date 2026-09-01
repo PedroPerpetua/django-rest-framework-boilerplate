@@ -498,7 +498,11 @@ class TestQueryMeasurer(AbstractModelTestCase):
     MODELS = (TestModel,)
 
     def test_function_decorator(self) -> None:
-        """Test using the `query_measurer` as a decorator for a function."""
+        """
+        Test using the `query_measurer` as a decorator for a function.
+
+        This also tests that calling the function twice does not save the queries from previous calls.
+        """
 
         def context_assert(ctx: QueryMeasurerContext) -> None:
             self.assertEqual(1, ctx.query_count)
@@ -511,8 +515,15 @@ class TestQueryMeasurer(AbstractModelTestCase):
         # Call the function to trigger the measure
         wrapped_function()
 
+        # Call again to make sure that it's measured from the start
+        wrapped_function()
+
     def test_view_decorator(self) -> None:
-        """Test using the `query_measurer` as a decorator for a View class."""
+        """
+        Test using the `query_measurer` as a decorator for a View class.
+
+        This also tests that calling the View twice does not save the queries from previous calls.
+        """
 
         def context_assert(ctx: QueryMeasurerContext) -> None:
             self.assertEqual(1, ctx.query_count)
@@ -529,6 +540,10 @@ class TestQueryMeasurer(AbstractModelTestCase):
         # Call the view to trigger the measure
         request_factory = RequestFactory()
         request = request_factory.get("")
+        response = TestView.as_view()(request)
+        self.assertEqual(status.HTTP_200_OK, response.status_code)
+
+        # Call again to make sure that it's measured from the start
         response = TestView.as_view()(request)
         self.assertEqual(status.HTTP_200_OK, response.status_code)
 

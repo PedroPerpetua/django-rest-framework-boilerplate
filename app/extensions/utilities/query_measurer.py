@@ -32,30 +32,41 @@ class QueryMeasurerContext:
 
     @property
     def queries(self) -> list[QueryData]:
+        """List of all queries measured."""
         return self._queries
 
     @property
     def query_count(self) -> int:
+        """Count of how many queries where measured."""
         return len(self.queries)
 
     @property
     def query_time(self) -> float:
+        """Total time summed of all queries measured."""
         return sum(q.time_ms for q in self.queries)
 
     @property
     def slowest_query(self) -> QueryData:
+        """
+        Slowest query that was measured.
+
+        If no queries were measured, raises ValueError.
+        """
         try:
             return max(self.queries, key=lambda x: x.time_ms)
         except ValueError as ve:
             raise ValueError("No queries present!") from ve
 
     def get_filtered_queries(self, statement: StatementType) -> list[QueryData]:
+        """Returns the queries measured filtered by the given SQL statement."""
         return [q for q in self.queries if q.statement == statement]
 
     def get_filtered_queries_count(self, statement: StatementType) -> int:
+        """Returns the count of all the measured queries filtered by the given SQL statement."""
         return len(self.get_filtered_queries(statement))
 
     def get_filtered_queries_time(self, statement: StatementType) -> float:
+        """Returns the total time summed of all the measured queries filtered by the given SQL statement."""
         return sum(q.time_ms for q in self.get_filtered_queries(statement))
 
 
@@ -96,7 +107,7 @@ class QueryMeasurer:
             return Inner
 
         else:
-
+            # We're a function; wrap it
             @wraps(FuncOrClass)
             def inner(*args: Any, **kwargs: Any) -> Any:
                 with self:
@@ -112,12 +123,14 @@ class QueryMeasurer:
         many: bool,
         context: dict[str, Any],
     ) -> None:
+        """Wrapper that will be called by the Django's connection on every query."""
         execution_callable = lambda: execute(sql, params, many, context)
         duration_seconds = timeit(execution_callable, number=1)
         data = QueryData(sql, cast(StatementType, sql.split(maxsplit=1)[0]), duration_seconds * 1000)
         self.ctx._queries.append(data)
 
     def __enter__(self) -> QueryMeasurerContext:
+        self.ctx = QueryMeasurerContext()  # Reset so we get new results on every call
         self.wrapper = connection.execute_wrapper(self._execute_wrapper)
         self.wrapper.__enter__()
         return self.ctx
