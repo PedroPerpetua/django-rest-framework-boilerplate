@@ -7,7 +7,7 @@ from rest_framework.exceptions import AuthenticationFailed, PermissionDenied
 from rest_framework.permissions import AllowAny
 from rest_framework.request import Request
 from rest_framework.response import Response
-from constance import config  # type: ignore[import-untyped]
+from constance import config
 from drf_spectacular.utils import OpenApiResponse, extend_schema, extend_schema_view
 from rest_framework_simplejwt import settings as jwt_settings
 from rest_framework_simplejwt import views as jwt_views

@@ -1,4 +1,4 @@
-ARG PYTHON=python:3.14.6-slim-bookworm
+ARG PYTHON=python:3.14.7-slim-bookworm
 
 # Building stage +++++++++++++++++++++++++++++++++++++++++
 FROM ${PYTHON} AS builder
@@ -17,11 +17,11 @@ RUN apt-get update && \
     apt-get install -y --no-install-recommends \
     # For psycopg2
     build-essential=12.9 \
-    libpq-dev=15.18-0+deb12u1 \
+    libpq-dev=15.19-0+deb12u1 \
     && rm -rf /var/lib/apt/lists/*
 
 # Install and configure uv -------------------------------
-COPY --from=ghcr.io/astral-sh/uv:0.11.30 /uv /uvx /bin/
+COPY --from=ghcr.io/astral-sh/uv:0.12.4 /uv /uvx /bin/
 RUN uv venv /venv
 ENV VIRTUAL_ENV=/venv
 ENV PATH="/venv/bin:${PATH}"
@@ -46,7 +46,7 @@ ENV PYTHONUNBUFFERED=1
 RUN apt-get update && \
     apt-get install -y --no-install-recommends \
     # For psycopg2
-    libpq5=15.18-0+deb12u1 \
+    libpq5=15.19-0+deb12u1 \
     # Nginx to run the server
     nginx=1.22.1-9+deb12u9 \
     && rm -rf /var/lib/apt/lists/*
