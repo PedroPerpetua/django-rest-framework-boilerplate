@@ -1,5 +1,5 @@
 from typing import Any
-from constance import config  # type: ignore[import-untyped]
+from constance import config
 from drf_standardized_errors.openapi import AutoSchema as BaseAutoSchema
 
 

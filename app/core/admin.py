@@ -1,4 +1,4 @@
-from constance.admin import Config, ConstanceAdmin  # type: ignore[import-untyped]
+from constance.admin import Config, ConstanceAdmin
 from extensions.admin import BaseAdminSite
 
 

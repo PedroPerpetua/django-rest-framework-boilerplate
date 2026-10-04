@@ -9,5 +9,5 @@ class SoftDeleteManager[T: SoftDeleteMixin](models.Manager[T]):
     """
 
     def exclude_deleted(self) -> models.QuerySet[T]:
-        """Return this model's queryset, with soft-deleted instances included."""
-        return super().get_queryset().filter(is_deleted=False)
+        """Return this model's queryset, with soft-deleted instances excluded."""
+        return super().get_queryset().exclude(is_deleted=True)

@@ -8,6 +8,30 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 This CHANGELOG was only adopted from v2.6.0 forward, so previous release are **not** documented. Maybe in the future they'll be added.
 
 
+## [3.1.1] - 2026-10-04
+
+### Changed
+- Added `query_measurer` utility.
+- `constance` lack of stubs is now ignored by config (in a `[[tool.mypy.overrides]]` section) instead of with `type: ignore`.
+- Added notes (`docs/notes.md`) about updating dockerfile dependencies.
+
+### Dependencies
+- `python`: `3.14.6` -> `3.14.8`.
+- `uv`: `0.11.30` -> `0.12.23`.
+- `libpq5`: `15.18-0+deb12u1` -> `15.19-0+deb12u1`.
+- `nginx`: `1.22.1-9+deb12u9` -> `1.22.1-9+deb12u10`.
+- `django`: `6.0.7` -> `6.1.1`.
+- `psycopg2`: `2.9.12` -> `2.9.13`.
+- `djangorestframework`: `3.17.1` -> `3.18.1`.
+- `ruff`: `0.15.22` -> `0.16.10`.
+- `mypy`: `2.3.0` -> `2.3.1`.
+- `django-stubs`: `6.0.7` -> `6.1.1`.
+- `djangorestframework-stubs`: `3.17.0` -> `3.18.1`.
+- `pytest-django`: `4.12.0` -> `4.14.0`.
+- `click`: `8.4.2` -> `8.5.0`.
+- `types-docker`: `7.1.0.20260712` -> `7.2.0.20260923`.
+
+
 ## [3.1.0] - 2026-07-21
 
 ### Changed
