@@ -1,16 +1,16 @@
 [project]
 name = "Django-Rest-Framework-Boilerplate"
 version = "0.0.1"
-requires-python = "== 3.14.7"
+requires-python = "== 3.14.8"
 readme = "README.md"
 dependencies = []
 
 [dependency-groups]
 boilerplate = [
-    "django==6.1.0",
-    "psycopg2==2.9.12",
+    "django==6.1.1",
+    "psycopg2==2.9.13",
     "django-cors-headers==4.9.0",
-    "djangorestframework==3.18.0",
+    "djangorestframework==3.18.1",
     "djangorestframework-simplejwt==5.5.1",
     "drf-standardized-errors[openapi]==0.16.0",
     "drf-spectacular[sidecar]==0.30.0",
@@ -18,11 +18,11 @@ boilerplate = [
 ]
 boilerplate-dev = [
     # Linting
-    "ruff==0.16.4",
+    "ruff==0.16.10",
     "mypy==2.3.1",
     # Type hint stubs
-    "django-stubs==6.1.0",
-    "djangorestframework-stubs==3.18.0",
+    "django-stubs==6.1.1",
+    "djangorestframework-stubs==3.18.1",
     # Testing
     "pytest==9.1.1",
     "pytest-subtests==0.15.0",

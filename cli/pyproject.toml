@@ -1,11 +1,11 @@
 [project]
 name = "Django-Rest-Framework-Boilerplate-CLI"
 version = "1.0.0"
-requires-python = "== 3.14.7"
+requires-python = "== 3.14.8"
 dependencies = [
-    "click==8.4.2",
+    "click==8.5.0",
     "docker==7.2.0",
-    "types-docker==7.2.0.20260819",
+    "types-docker==7.2.0.20260923",
 ]
 
 [tool.ruff]
